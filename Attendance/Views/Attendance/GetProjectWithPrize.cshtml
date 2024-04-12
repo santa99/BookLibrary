@@ -1,0 +1,39 @@
+﻿@using Attendance.DataAccess.Dtos
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewData["appTitle"]</title>
+    <meta charset="utf-8"/>
+    <link href="~/StyleSheet.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="page-content">
+    <h1>Project and prize</h1>
+    @{
+        List<(string ProjectName, int Prize, int TotalTime)>? reports = (List<(string ProjectName, int Prize, int TotalTime)>?)ViewData["reports"];
+    }
+    <div class="box float-left w-50">
+        <table class="table w-100">
+            <thead>
+            <td>Project</td>
+            <td>Prize</td>
+            <td>Time spent</td>
+            </thead>
+            <tbody>
+            @foreach ((string ProjectName, int Prize, int TotalTime) report in reports)
+            {
+                <tr>
+                    <td>@report.ProjectName</td>
+                    <td>@report.Prize</td>
+                    <td>@report.TotalTime</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+
+</body>
+</html>

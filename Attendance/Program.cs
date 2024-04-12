@@ -1,0 +1,26 @@
+using Attendance;
+using Attendance.Business;
+using Attendance.DataAccess;
+using Attendance.DataAccess.Repositories;
+using Attendance.DataAccess.Utilities;
+
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddControllersWithViews();
+
+
+builder.Services.AddConfigOptionsAndBind(builder.Configuration,
+    "ConnectionStrings", out DatabaseConnections instance);
+
+builder.Services.AddSingleton<IInsertReportCommand, InsertReportCommand>();
+builder.Services.AddSingleton<IGetReportsQuery, GetReportsQuery>();
+builder.Services.AddSingleton<IReportsRepository, ReportsRepository>();
+builder.Services.AddSingleton<IDatabaseConnectionProvider, DatabaseConnectionProvider>();
+
+var app = builder.Build();
+
+
+
+app.UseStaticFiles();
+app.MapControllers();
+
+app.Run();

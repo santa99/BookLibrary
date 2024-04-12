@@ -1,0 +1,49 @@
+﻿@using Attendance.DataAccess.Dtos
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewData["appTitle"]</title>
+    <meta charset="utf-8"/>
+    <link href="~/StyleSheet.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="page-content">
+    <h1>Reports</h1>
+    @{
+        List<ReportDto>? reports = (List<ReportDto>?)ViewData["reports"];
+    }
+    <div class="box float-left w-50">
+        <table class="table w-100">
+            <thead>
+            <td>Id</td>
+            <td>Project</td>
+            <td>Person</td>
+            <td>WorkedAs</td>
+            <td>WorkedAsDesc</td>
+            <td>CostHour</td>
+            <td>Logged min</td>
+            <td>WhenItHappend</td>
+            </thead>
+            <tbody>
+            @foreach (ReportDto report in reports)
+            {
+                <tr>
+                    <td>@report.Id</td>
+                    <td>@report.Project</td>
+                    <td>@report.Person</td>
+                    <td>@report.WorkedAs</td>
+                    <td>@report.WorkedAsDesc</td>
+                    <td>@report.WorkedAsCost</td>
+                    <td>@report.HowLong</td>
+                    <td>@report.WhenItHappend</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+
+</body>
+</html>
