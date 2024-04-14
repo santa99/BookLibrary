@@ -9,6 +9,10 @@
 <body>
 <div class="page-content">
     <h1>Reports</h1>
+    <p>
+        @Html.ActionLink("Insert report", "AddReport", "Attendance")
+        @Html.ActionLink("Statistics", "GetProjectWithPrize", "Attendance")
+    </p>
     @{
         List<ReportDto>? reports = (List<ReportDto>?)ViewData["reports"];
     }
@@ -17,25 +21,33 @@
             <thead>
             <td>Id</td>
             <td>Project</td>
-            <td>Person</td>
-            <td>WorkedAs</td>
-            <td>WorkedAsDesc</td>
-            <td>CostHour</td>
-            <td>Logged min</td>
-            <td>WhenItHappend</td>
+            <td>Employee</td>
+            <td>Position</td>
+            <td>Cost Per Hour</td>
+            <td>LogTime Minutes</td>
+            <td>LogDate</td>
             </thead>
             <tbody>
             @foreach (ReportDto report in reports)
             {
                 <tr>
                     <td>@report.Id</td>
-                    <td>@report.Project</td>
-                    <td>@report.Person</td>
-                    <td>@report.WorkedAs</td>
-                    <td>@report.WorkedAsDesc</td>
-                    <td>@report.WorkedAsCost</td>
-                    <td>@report.HowLong</td>
-                    <td>@report.WhenItHappend</td>
+                    <td>
+                        @{
+                            var d = new Dictionary<string, string>
+                            {
+                                { "projectId", @report.ProjectId.ToString() },
+                                { "from", new DateTime(1970, 1, 1, 5, 0, 0, DateTimeKind.Utc).ToShortDateString() },
+                                { "to", DateTime.Now.Add(TimeSpan.FromDays(1)).ToShortDateString() },
+                            };
+                        }
+                        @Html.ActionLink(@report.Project, "GetProjectWithPrize", "Attendance", routeValues: @d)
+                    </td>
+                    <td>@report.Employee</td>
+                    <td>@report.PositionName</td>
+                    <td>@report.CostPerHour</td>
+                    <td>@report.LogTimeMinutes</td>
+                    <td>@report.LogDate</td>
                 </tr>
             }
             </tbody>

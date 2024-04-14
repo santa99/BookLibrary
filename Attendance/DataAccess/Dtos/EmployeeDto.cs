@@ -1,8 +1,17 @@
 ﻿namespace Attendance.DataAccess.Dtos;
 
+/// <summary>
+/// Employe dto
+/// </summary>
 public class EmployeeDto
 {
-    public long Id { get; set; }
+    /// <summary>
+    /// Employee id
+    /// </summary>
+    public int Id { get; set; }
     
+    /// <summary>
+    /// Employee name.
+    /// </summary>
     public string Name { get; set; }   
 }

@@ -1,8 +1,8 @@
 ﻿namespace Attendance.DataAccess.Dtos;
 
-public class RoleDto
+public class PositionDto
 {
-    public long Id { get; set; }
+    public int Id { get; set; }
 
     public string Name { get; set; }
 

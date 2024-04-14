@@ -4,7 +4,7 @@ namespace Attendance.Business;
 
 public interface IInsertReportCommand
 {
-    public Task SetReportAsync(int projectId, int employeeId, int positionId, int roleId, short timeLoggedInMinutes,
+    public Task SetReportAsync(int projectId, int employeeId, int positionId, int timeLoggedInMinutes,
         CancellationToken cancellationToken);
 }
 
@@ -17,27 +17,28 @@ public class InsertReportCommand : IInsertReportCommand
         _reportsRepository = reportsRepository;
     }
 
-    public async Task SetReportAsync(int projectId, int employeeId, int positionId, int roleId,
-        short timeLoggedInMinutes, CancellationToken cancellationToken)
+    public async Task SetReportAsync(int projectId, int employeeId, int positionId,
+        int timeLoggedInMinutes, CancellationToken cancellationToken)
     {
         var currentDate = DateTime.Now;
-        var allReportsAsync = await _reportsRepository.GetReportsByEmployeeIdAsync(employeeId, cancellationToken);
+        var allReportsAsync = await _reportsRepository.GetAllReportsAsync(cancellationToken);
 
         var enumerable = allReportsAsync
-            .Where(dto => dto.WhenItHappend.Day <= currentDate.Day)
-            .GroupBy(dto => dto.Person)
+            .Where(dto => dto.LogDate.Day <= currentDate.Day)
+            .GroupBy(dto => dto.Employee)
             .Select(
                 g => new
                 {
-                    Value = g.Sum(s => s.HowLong),
+                    Value = g.Sum(s => s.LogTimeMinutes),
                 }).FirstOrDefault();
 
         if (enumerable?.Value > 480)
         {
-            throw new InvalidOperationException($"You have reached level. User have logged {(enumerable.Value / 60)}h");
+            throw new InvalidOperationException(
+                $"You have reached level. User have logged {(enumerable.Value / 60.0)}h");
         }
 
-        await _reportsRepository.InsertReport(projectId, employeeId, positionId, roleId, timeLoggedInMinutes,
+        await _reportsRepository.InsertReport(projectId, employeeId, positionId, timeLoggedInMinutes,
             cancellationToken);
     }
 }

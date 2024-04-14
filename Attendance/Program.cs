@@ -13,11 +13,13 @@ builder.Services.AddConfigOptionsAndBind(builder.Configuration,
 
 builder.Services.AddSingleton<IInsertReportCommand, InsertReportCommand>();
 builder.Services.AddSingleton<IGetReportsQuery, GetReportsQuery>();
+builder.Services.AddSingleton<IEmployeesQuery, EmployeesQuery>();
+builder.Services.AddSingleton<IPositionsQuery, PositionsQuery>();
+builder.Services.AddSingleton<IProjectsQuery, ProjectsQuery>();
 builder.Services.AddSingleton<IReportsRepository, ReportsRepository>();
 builder.Services.AddSingleton<IDatabaseConnectionProvider, DatabaseConnectionProvider>();
 
 var app = builder.Build();
-
 
 
 app.UseStaticFiles();

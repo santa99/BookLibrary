@@ -6,7 +6,10 @@ namespace Attendance.Business;
 public interface IGetReportsQuery
 {
     public Task<List<ReportDto>> GetReportsAsync(CancellationToken cancellationToken);
-    public Task<List<(string ProjectName, int Prize, int TotalTime)>> GetReportsByProjectAsync(int projectId, DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken);
+
+    public Task<List<(string ProjectName, decimal TotalPrize, double TotalTime)>> GetReportsByProjectAsync(
+        int? projectId,
+        DateTimeOffset? from, DateTimeOffset? to, CancellationToken cancellationToken);
 }
 
 public class GetReportsQuery : IGetReportsQuery
@@ -21,27 +24,38 @@ public class GetReportsQuery : IGetReportsQuery
 
     public async Task<List<ReportDto>> GetReportsAsync(CancellationToken cancellationToken)
     {
-        var allReportsAsync = await _reportsRepository.GetAllReportsAsync(cancellationToken);
-
-        return allReportsAsync;
+        return await _reportsRepository.GetAllReportsAsync(cancellationToken);;
     }
 
-    public async Task<List<(string ProjectName, int Prize, int TotalTime)>> GetReportsByProjectAsync(int projectId, DateTimeOffset from, DateTimeOffset to,
+    public async Task<List<(string ProjectName, decimal TotalPrize, double TotalTime)>> GetReportsByProjectAsync(
+        int? projectId,
+        DateTimeOffset? from, DateTimeOffset? to,
         CancellationToken cancellationToken)
     {
         var allReportsAsync = await _reportsRepository.GetAllReportsAsync(cancellationToken);
 
+        // Project fitment
+        if (projectId != null && projectId > 0)
+        {
+            allReportsAsync = allReportsAsync
+                .Where(dto => dto.ProjectId == projectId)
+                .ToList();
+        }
+        
+        // Date fitment
         var reportDtos = allReportsAsync
-            .Where(dto => dto.WhenItHappend <= to && dto.WhenItHappend >= from)
+            .Where(dto => dto.LogDate <= to && dto.LogDate >= from)
             .GroupBy(dto => dto.Project)
             .Select(g => new
             {
                 ProjectName = g.Key,
-                Prize = g.Sum(x => x.WorkedAsCost * x.HowLong),
-                TotalTime = g.Sum(s => s.HowLong),
+                TotalPrize = g.Sum(x => x.CostPerHour * (x.LogTimeMinutes / 60.0M)),
+                TotalTime = g.Sum(s => s.LogTimeMinutes / 60.0),
             }).ToList();
 
-        var valueTuples = reportDtos.Select(arg => (arg.ProjectName, Prize: arg.Prize, TotalTime: arg.TotalTime)).ToList();
+        var valueTuples = reportDtos
+            .Select(arg => (arg.ProjectName, Prize: arg.TotalPrize, TotalTime: arg.TotalTime))
+            .ToList();
         return valueTuples;
     }
 }
