@@ -4,8 +4,8 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyName>Attendance</AssemblyName>
     <RootNamespace>Attendance</RootNamespace>
+    <PackageId>BookLibrary</PackageId>
   </PropertyGroup>
   
   <ItemGroup>

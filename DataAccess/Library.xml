@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Library>
+    <Book id="1">
+        <Name>Starec a more</Name>
+        <Author>Ernest Hemingway</Author>
+        <Borrowed>
+            <FirstName>Peter</FirstName>
+            <LastName>Prvy</LastName>
+            <From>25.3.2016</From>
+        </Borrowed>
+    </Book>
+    <Book id="2">
+        <Name>Romeo a Julia</Name>
+        <Author>William Shakespeare</Author>
+        <Borrowed>
+            <FirstName>Lukas</FirstName>
+            <LastName>Druhy</LastName>
+            <From>16.6.2018</From>
+        </Borrowed>
+    </Book>
+</Library>

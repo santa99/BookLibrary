@@ -30,7 +30,7 @@ public class AttendanceController : Controller
         ViewData["appTitle"] = "Reports list";
         ViewData["reports"] = reports;
 
-        return View(); //Views/Attendance/Index.cshtml
+        return View(); //Views/BookLibrary/Index.cshtml
     }
 
     [Route("attendance/reports/add")]

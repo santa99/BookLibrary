@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Library>
+  <Book id="1">
+    <Name>Svet je nahovno</Name>
+    <Author>MarekX</Author>
+    <Borrowed>
+      <FirstName>Peter</FirstName>
+      <LastName>Prvy</LastName>
+      <From>25.3.2016</From>
+    </Borrowed>
+  </Book>
+  <Book id="2">
+    <Name>Romeo a Julia</Name>
+    <Author>William Shakespeare</Author>
+    <Borrowed>
+      <FirstName>Lukas</FirstName>
+      <LastName>Druhy</LastName>
+      <From>16.6.2018</From>
+    </Borrowed>
+  </Book>
+  <Book id="3">
+    <Name>KrasnyDen</Name>
+    <Author>MarekB</Author>
+  </Book>
+  <Book id="3">
+    <Name>KrasnyDen</Name>
+    <Author>MarekB</Author>
+  </Book>
+  <Book id="5">
+    <Name>Harry Potter A Dari Smrti </Name>
+    <Author>Rowling</Author>
+  </Book>
+</Library>
