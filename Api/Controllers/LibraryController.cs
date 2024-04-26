@@ -1,9 +1,11 @@
 ﻿using Attendance;
 using Contracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
+// [Authorize]
 public class LibraryController : ControllerBase
 {
     private readonly IBookLibraryRepository _bookLibraryRepository;
