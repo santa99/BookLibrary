@@ -9,7 +9,7 @@ public class BookLibraryRepository : IBookLibraryRepository
 {
     private readonly ILibraryDb _libraryDb;
 
-    public BookLibraryRepository(XmlDatabase libraryDb)
+    public BookLibraryRepository(LibraryDb libraryDb)
     {
         _libraryDb = libraryDb;
     }
@@ -17,37 +17,6 @@ public class BookLibraryRepository : IBookLibraryRepository
     public void RemoveBook(int bookId)
     {
         _libraryDb.RemoveBook(bookId);
-    }
-
-    public void BorrowBook(int bookId, int readersCardId, DateTimeOffset borrowed)
-    {
-        var book = _libraryDb.GetBook(bookId);
-        if (book == null)
-        {
-            return;
-        }
-        
-        var info = _libraryDb.GetReadersInfo(readersCardId);
-        if (info == null)
-        {
-            return;
-        }
-        
-        book.BorrowedBy = new BorrowDto
-        {
-            From = borrowed,
-            FirstName = info.Name,
-            LastName = info.LastName
-        };
-    }
-
-    public void ReturnBook(int bookId, DateTimeOffset returned)
-    {
-        var book = _libraryDb.GetBook(bookId);
-        if (book != null)
-        {
-            book.BorrowedBy = null;
-        }
     }
 
     public int AddBook(string name, string author)
@@ -65,10 +34,26 @@ public class BookLibraryRepository : IBookLibraryRepository
         _libraryDb.UpdateBook(bookId, name, author);
     }
 
+    public void BorrowBook(int bookId, string firstName, string lastName, DateTimeOffset from)
+    {
+        _libraryDb.BorrowBook(bookId, firstName, lastName, from);
+    }
+
+    public void ReturnBook(int bookId)
+    {
+        _libraryDb.ReturnBook(bookId);
+    }
+
     public List<BookModel> ListBooks(int bookStateId, int count = -1, int start = 0)
     {
-        // _libraryDb.LoadLibrary(@"C:");
-        
-        return _libraryDb.GetBooks();
+        var bookModels = _libraryDb.GetBooks();
+
+        return bookStateId switch
+        {
+            -1 => bookModels,
+            0 => bookModels.Where(model => model.BorrowedBy == null).ToList(),
+            1 => bookModels.Where(model => model.BorrowedBy != null).ToList(),
+            _ => bookModels
+        };
     }
 }

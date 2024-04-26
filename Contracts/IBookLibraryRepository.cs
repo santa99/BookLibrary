@@ -29,6 +29,10 @@ public interface IBookLibraryRepository
     /// <param name="name">Name of the title.</param>
     /// <param name="author">Author of the book.</param>
     public void UpdateBook(int bookId, string name, string author);
+
+    public void BorrowBook(int bookId, string firstName, string lastName, DateTimeOffset from);
+
+    public void ReturnBook(int bookId);
     
     /// <summary>
     /// Retrieves book from the library based on the book id.

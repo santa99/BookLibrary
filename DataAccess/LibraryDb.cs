@@ -4,13 +4,13 @@ using Contracts;
 
 namespace DataAccess;
 
-public class XmlDatabase : ILibraryDb
+public class LibraryDb : ILibraryDb
 {
     private LibraryModel? _library;
     private XmlDocument? _doc;
     private const string LibraryFile = @"Library.xml";
 
-    public void LoadLibrary(string webRootPath)
+    private void LoadLibrary(string webRootPath)
     {
         if (_doc != null)
         {
@@ -21,7 +21,7 @@ public class XmlDatabase : ILibraryDb
         _doc.Load(webRootPath);
     }
 
-    public void StoreLibrary(string webRootPath)
+    private void StoreLibrary(string webRootPath)
     {
         _doc?.Save(webRootPath);
     }
@@ -101,6 +101,68 @@ public class XmlDatabase : ILibraryDb
         UpdateLibraryModel();
     }
 
+    public void BorrowBook(int bookId, string firstName, string lastName, DateTimeOffset from)
+    {
+        LoadLibrary(LibraryFile);
+        
+        XmlNodeList bookNodes = _doc.SelectNodes("/Library/Book");
+        for (var i = 0; i < bookNodes.Count; i++)
+        {
+            XmlNode? bookNode = bookNodes[i];
+            var documentBookId = int.Parse(bookNode.Attributes["id"].Value);
+            if (documentBookId != bookId) continue;
+            
+            var selectSingleNode = bookNode.SelectSingleNode("Borrowed");
+
+            if (selectSingleNode != null) return;
+            
+            
+            var borrowedElement = _doc.CreateElement("Borrowed");
+            var firstNameElement = _doc.CreateElement("FirstName");
+            var lastNameElement = _doc.CreateElement("LastName");
+            var fromElement = _doc.CreateElement("From");
+            borrowedElement.AppendChild(firstNameElement);
+            borrowedElement.AppendChild(lastNameElement);
+            borrowedElement.AppendChild(fromElement);
+            
+            firstNameElement.InnerText = firstName;
+            lastNameElement.InnerText = lastName;
+            fromElement.InnerText = @from.ToString();
+            
+            
+            bookNode?.AppendChild(borrowedElement);
+            
+            break;
+        }
+        
+        StoreLibrary(LibraryFile);
+        UpdateLibraryModel();
+    }
+
+    public void ReturnBook(int bookId)
+    {
+        LoadLibrary(LibraryFile);
+        
+        XmlNodeList bookNodes = _doc.SelectNodes("/Library/Book");
+        for (var i = 0; i < bookNodes.Count; i++)
+        {
+            XmlNode? bookNode = bookNodes[i];
+            var documentBookId = int.Parse(bookNode.Attributes["id"].Value);
+            if (documentBookId != bookId) continue;
+            
+            var selectSingleNode = bookNode.SelectSingleNode("Borrowed");
+
+            if (selectSingleNode == null) return;
+
+            bookNode.RemoveChild(selectSingleNode);
+            
+            break;
+        }
+        
+        StoreLibrary(LibraryFile);
+        UpdateLibraryModel();
+    }
+
     public BookModel? GetBook(int bookId)
     {
         return GetBooks().First(mod => mod.Id == bookId);
@@ -129,7 +191,7 @@ public class XmlDatabase : ILibraryDb
             var authorNode = bookNode.SelectSingleNode("Author");
             var borrowedNode = bookNode.SelectSingleNode("Borrowed");
 
-            BorrowDto? borrowedModel = null;
+            BorrowModel? borrowedModel = null;
 
             if (borrowedNode != null)
             {
@@ -139,7 +201,7 @@ public class XmlDatabase : ILibraryDb
 
                 DateTimeFormatInfo fmt = new CultureInfo("sk-SK").DateTimeFormat;
 
-                borrowedModel = new BorrowDto()
+                borrowedModel = new BorrowModel()
                 {
                     FirstName = firstNameNode.InnerText,
                     LastName = lastNameNode.InnerText,
@@ -160,12 +222,7 @@ public class XmlDatabase : ILibraryDb
 
         _library = libraryModel;
     }
-
-    public ReaderInfo? GetReadersInfo(int readersCardId)
-    {
-        throw new NotImplementedException();
-    }
-
+    
     private int GenerateBookId()
     {
         return Library.Books.Count + 1;

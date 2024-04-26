@@ -1,4 +1,5 @@
-﻿using Contracts;
+﻿using Attendance;
+using Contracts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
@@ -6,16 +7,22 @@ namespace Api.Controllers;
 public class LibraryController : ControllerBase
 {
     private readonly IBookLibraryRepository _bookLibraryRepository;
+    private readonly IBookCommand _bookCommand;
 
-    public LibraryController(IBookLibraryRepository bookLibraryRepository)
+    public LibraryController(IBookLibraryRepository bookLibraryRepository,
+        IBookCommand bookCommand)
     {
         _bookLibraryRepository = bookLibraryRepository;
+        _bookCommand = bookCommand;
     }
 
     [Route("/")]
-    public async Task<IActionResult> Index(CancellationToken cancellationToken)
+    [Route("/api/book/select/{bookState}")]
+    public async Task<IActionResult> Index(int? bookState, CancellationToken cancellationToken)
     {
-        var bookModels = _bookLibraryRepository.ListBooks(0);
+        bookState ??= (int)BookState.All;
+        
+        var bookModels = _bookLibraryRepository.ListBooks(bookState.Value);
         
         return Ok(bookModels);
     }
@@ -25,7 +32,7 @@ public class LibraryController : ControllerBase
     {
         _bookLibraryRepository.RemoveBook(bookId);
         
-        var bookModels = _bookLibraryRepository.ListBooks(0);
+        var bookModels = _bookLibraryRepository.ListBooks((int)BookState.All);
         
         return Ok(bookModels);
     }
@@ -35,7 +42,7 @@ public class LibraryController : ControllerBase
     {
         _bookLibraryRepository.UpdateBook(bookId, title, author);
         
-        var bookModels = _bookLibraryRepository.ListBooks(0);
+        var bookModels = _bookLibraryRepository.ListBooks((int)BookState.All);
         
         return Ok(bookModels);
     }
@@ -45,7 +52,7 @@ public class LibraryController : ControllerBase
     {
         _bookLibraryRepository.AddBook( title, author);
         
-        var bookModels = _bookLibraryRepository.ListBooks(0);
+        var bookModels = _bookLibraryRepository.ListBooks((int)BookState.All);
         
         return Ok(bookModels);
     }
@@ -56,18 +63,23 @@ public class LibraryController : ControllerBase
     /// <param name="bookId">Unique identifier of the book.</param>
     /// <param name="readersCardId">Unique id identifying the one who borrowed the book.</param>
     /// <param name="borrowed">Date when the book was borrowed from library.</param>
-    public void BorrowBook(int bookId, int readersCardId, DateTimeOffset borrowed)
+    [Route("/api/book/borrow/{bookId}/{readersCardId}")]
+    public async Task<IActionResult> BorrowBook(int bookId, int readersCardId, DateTimeOffset borrowed)
     {
-        
+        _bookCommand.BorrowBook(bookId, readersCardId, borrowed);
+
+        return Ok(bookId);
     }
 
     /// <summary>
     /// Return book back to the library.
     /// </summary>
     /// <param name="bookId">Unique identifier of the book.</param>
-    /// <param name="returned">Date when the book was returned to library.</param>
-    public void ReturnBook(int bookId, DateTimeOffset returned)
+    [Route("/api/book/return/{bookId}")]
+    public async Task<IActionResult> ReturnBook(int bookId)
     {
-        
+        _bookCommand.ReturnBook(bookId);
+
+        return Ok(bookId);
     }
 }

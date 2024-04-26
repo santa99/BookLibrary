@@ -2,7 +2,7 @@
 <Library>
   <Book id="1">
     <Name>Svet je nahovno</Name>
-    <Author>MarekX</Author>
+    <Author>MarekU</Author>
     <Borrowed>
       <FirstName>Peter</FirstName>
       <LastName>Prvy</LastName>
@@ -29,5 +29,10 @@
   <Book id="5">
     <Name>Harry Potter A Dari Smrti </Name>
     <Author>Rowling</Author>
+    <Borrowed>
+      <FirstName>Marek</FirstName>
+      <LastName>Blanar</LastName>
+      <From>1/1/0001 12:00:00 AM +00:00</From>
+    </Borrowed>
   </Book>
 </Library>

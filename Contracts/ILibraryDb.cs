@@ -9,5 +9,6 @@ public interface ILibraryDb
     void UpdateBook(int bookId, string name, string author);
     BookModel? GetBook(int bookId);
     List<BookModel> GetBooks();
-    ReaderInfo? GetReadersInfo(int readersCardId);
+    void BorrowBook(int bookId, string firstName, string lastName, DateTimeOffset from);
+    void ReturnBook(int bookId);
 }
