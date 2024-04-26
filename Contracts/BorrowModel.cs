@@ -1,6 +1,4 @@
-﻿using System.Xml.Serialization;
-
-namespace DataAccess;
+﻿namespace Contracts;
 
 /// <summary>
 /// Represents entity of the person who borrowed a book.

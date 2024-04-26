@@ -1,6 +1,4 @@
-﻿using DataAccess;
-
-namespace Contracts;
+﻿namespace Contracts;
 
 /// <summary>
 /// Contract the API can access data from layer below.

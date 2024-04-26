@@ -1,5 +1,5 @@
 ﻿
-namespace DataAccess;
+namespace Contracts;
 
 /// <summary>
 /// Model for the book

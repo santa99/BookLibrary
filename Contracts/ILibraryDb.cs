@@ -1,6 +1,4 @@
-﻿using DataAccess;
-
-namespace Contracts;
+﻿namespace Contracts;
 
 public interface ILibraryDb
 {
