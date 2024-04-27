@@ -1,11 +1,12 @@
-﻿using Attendance;
+﻿using Api.Filters;
+using Attendance;
 using Contracts;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
 // [Authorize]
+[ServiceFilter(typeof(CustomAuthorizeFilter))]
 public class LibraryController : ControllerBase
 {
     private readonly IBookLibraryRepository _bookLibraryRepository;
@@ -18,6 +19,7 @@ public class LibraryController : ControllerBase
         _bookCommand = bookCommand;
     }
 
+    
     [Route("/api/book/select/{bookState}")]
     public async Task<IActionResult> Index(int? bookState, CancellationToken cancellationToken)
     {
