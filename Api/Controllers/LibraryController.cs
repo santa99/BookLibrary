@@ -18,7 +18,6 @@ public class LibraryController : ControllerBase
         _bookCommand = bookCommand;
     }
 
-    [Route("/")]
     [Route("/api/book/select/{bookState}")]
     public async Task<IActionResult> Index(int? bookState, CancellationToken cancellationToken)
     {

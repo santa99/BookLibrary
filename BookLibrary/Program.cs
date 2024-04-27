@@ -7,6 +7,10 @@ using Attendance.DataAccess.Utilities;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
+var configurationSection = builder.Configuration.GetSection("UserIdentity");
+configurationSection.Bind();
+builder.Services.Configure<UserIdentity>((IConfiguration) section1);
+builder.Configuration.AddConfigurationAnd();
 
 builder.Services.AddConfigOptionsAndBind(builder.Configuration,
     "ConnectionStrings", out DatabaseConnections instance);

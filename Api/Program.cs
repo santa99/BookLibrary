@@ -1,9 +1,13 @@
 using Api;
+using Api.Configuration;
 using Contracts;
 using DataAccess;
 using SimpleAuthentication;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<UserIdentity>(builder.Configuration.GetSection("UserIdentity"));
+
 
 builder.Services.AddSingleton<IReadersInfoRepository, ReadersInfoRepository>();
 builder.Services.AddSingleton<IBookLibraryRepository, BookLibraryRepository>();
