@@ -9,7 +9,7 @@ public class BookLibraryRepository : IBookLibraryRepository
 {
     private readonly ILibraryDb _libraryDb;
 
-    public BookLibraryRepository(LibraryDb libraryDb)
+    public BookLibraryRepository(ILibraryDb libraryDb)
     {
         _libraryDb = libraryDb;
     }
