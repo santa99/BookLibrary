@@ -1,5 +1,4 @@
-﻿
-namespace Contracts;
+﻿namespace Contracts;
 
 /// <summary>
 /// Model for the book

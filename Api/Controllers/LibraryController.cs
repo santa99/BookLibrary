@@ -7,7 +7,7 @@ namespace Api.Controllers;
 
 // [Authorize]
 [ServiceFilter(typeof(CustomAuthorizeFilter))]
-public class LibraryController : ControllerBase
+public class LibraryController : Controller
 {
     private readonly IBookLibraryRepository _bookLibraryRepository;
     private readonly IBookCommand _bookCommand;
@@ -18,7 +18,6 @@ public class LibraryController : ControllerBase
         _bookLibraryRepository = bookLibraryRepository;
         _bookCommand = bookCommand;
     }
-
     
     [Route("/api/book/select/{bookState}")]
     public async Task<IActionResult> Index(int? bookState, CancellationToken cancellationToken)
@@ -26,8 +25,9 @@ public class LibraryController : ControllerBase
         bookState ??= (int)BookState.All;
         
         var bookModels = _bookLibraryRepository.ListBooks(bookState.Value);
-        
-        return Ok(bookModels);
+
+        ViewData["bookModel"] = bookModels;
+        return View(bookModels);
     }
 
     [Route("/api/book/remove/{bookId}")]
@@ -35,13 +35,17 @@ public class LibraryController : ControllerBase
     {
         _bookLibraryRepository.RemoveBook(bookId);
         
-        var bookModels = _bookLibraryRepository.ListBooks((int)BookState.All);
+        // var bookModels = _bookLibraryRepository.ListBooks((int)BookState.All);
         
-        return Ok(bookModels);
+        // return Ok(bookModels);
+        return RedirectToPage("Index");
+        // return RedirectToAction("Index");
+        // ViewData["bookModel"] = bookModels;
+        // return View(bookModels);
     }
 
     [Route("/api/book/edit/{bookId}")]
-    public async Task<IActionResult> UpdateBook(int bookId,[FromQuery] string title, [FromQuery] string author, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateBook(int bookId,[FromQuery] string? title, [FromQuery] string? author, CancellationToken cancellationToken)
     {
         _bookLibraryRepository.UpdateBook(bookId, title, author);
         

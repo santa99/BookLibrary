@@ -1,0 +1,75 @@
+﻿@using Contracts
+@{
+    ViewBag.Title = "Index";
+}
+
+@{
+    List<BookModel>? books = (List<BookModel>?)ViewData["bookModel"];
+}
+
+
+<style type="text/css">  
+  
+.topDiv  
+  
+{  
+width: 50%;  
+margin: 10px auto;  
+background-color: #f2f2f2;  
+text-align: left;  
+padding: 2%;    
+}  
+  
+</style>
+<div class="topDiv">
+    <fieldset style="margin: 2% auto; width: 90%; background-color: #FFEBCD; text-align: center">
+        <h4>
+
+            @Html.ActionLink("Add book", "InsertBook")
+
+        </h4>
+    </fieldset>
+    <fieldset>
+        <table style="margin: 2% auto; padding: 5px; width: 90%">
+            <tr style="background-color: #FFFACD">
+                <th>BookId</th>
+                <th>Name</th>
+                <th>Author</th>
+                <th>BorrowedBy</th>
+                <th>-</th>
+            </tr>
+
+            @if (books != null)
+            {
+                foreach (var item in books)
+
+                {
+                    <tr style="background-color: #FFFFF0">
+                        <td>@item.Id</td>
+                        <td>@item.Name</td>
+                        <td>@item.Author</td>
+                        <td>
+
+                            @{
+                                var borrowed = "Not borrowed";
+                                if (@item.BorrowedBy != null)
+                                {
+                                    borrowed = @item.BorrowedBy.FirstName + " " + @item.BorrowedBy.LastName + " " + @item.BorrowedBy.From;
+                                }
+                            }
+                            @borrowed
+                        </td>
+                        <td>
+                            @Html.ActionLink("Edit", "UpdateBook",
+                                new { bookId = @item.Id }) /
+                            @Html.ActionLink("Remove", "RemoveBook",
+                                new { bookId = @item.Id })
+                        </td>
+                    </tr>
+                }
+            }
+
+
+        </table>
+    </fieldset>
+</div>

@@ -29,7 +29,7 @@ public class BookLibraryRepository : IBookLibraryRepository
         return _libraryDb.GetBook(bookId);
     }
 
-    public void UpdateBook(int bookId, string name, string author)
+    public void UpdateBook(int bookId, string? name, string? author)
     {
         _libraryDb.UpdateBook(bookId, name, author);
     }

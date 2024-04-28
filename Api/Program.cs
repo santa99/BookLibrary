@@ -14,7 +14,8 @@ builder.Services.AddSingleton<CustomAuthorizeFilter>();
 builder.Services.AddSingleton<IReadersInfoRepository, ReadersInfoRepository>();
 builder.Services.AddSingleton<IBookLibraryRepository, BookLibraryRepository>();
 builder.Services.AddSingleton<LibraryDb>();
-builder.Services.AddSingleton<ILibraryDb, LibraryDb>();
+// builder.Services.AddSingleton<ILibraryDb, LibraryDb>();
+builder.Services.AddSingleton<ILibraryDb, XmlLibrary>();
 builder.Services.AddSingleton<IBookCommand, BookCommand>();
 
 builder.Services.AddSimpleAuthentication(builder.Configuration);
