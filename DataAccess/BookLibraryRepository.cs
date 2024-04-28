@@ -51,8 +51,8 @@ public class BookLibraryRepository : IBookLibraryRepository
         return bookStateId switch
         {
             -1 => bookModels,
-            0 => bookModels.Where(model => model.BorrowedBy == null).ToList(),
-            1 => bookModels.Where(model => model.BorrowedBy != null).ToList(),
+            0 => bookModels.Where(model => model.Borrowed == null).ToList(),
+            1 => bookModels.Where(model => model.Borrowed != null).ToList(),
             _ => bookModels
         };
     }

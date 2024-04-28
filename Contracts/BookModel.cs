@@ -23,5 +23,5 @@ public class BookModel
     /// <summary>
     /// Borrowed by.
     /// </summary>
-    public BorrowModel? BorrowedBy { get; set; }
+    public BorrowModel? Borrowed { get; set; }
 }

@@ -1,10 +1,68 @@
-﻿@{
+﻿@model IEnumerable<Contracts.BookModel>
+@{
     ViewBag.Title = "Home page";
 }
 
 <h1>Home page</h1>
 
-@if (@ViewBag.User != null) 
-{
-    <h2>Welcome @ViewBag.User</h2>
-}
+<div>
+    @{
+        var @user = ViewBag?.User;   
+    }
+    
+    @user
+    @if (ViewBag?.User != null)
+    {
+        @Html.ActionLink("Log Out", "Logout", "Account",
+            new { returnUrl = "/" });
+    }
+    else
+    {
+        @Html.ActionLink("Log In", "Login", "Account",
+            new { returnUrl = "/" });
+    }
+    
+</div>
+
+
+<div class="form-horizontal">
+    <hr />
+    <div class="form-group">
+        <table class="table table-responsive" style="width:400px">
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Id)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Author)
+                </th>
+                <th>
+                    Edit
+                </th>
+            </tr>
+            @foreach (var item in Model) {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Author)
+                    </td>
+                    <td>
+                        @Html.ActionLink("Edit", "UpdateBook", "Library",
+                            new { bookId = @item.Id }) /
+                        @Html.ActionLink("Remove", "RemoveBook", "Library",
+                            new { bookId = @item.Id })
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+</div>
+

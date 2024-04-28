@@ -52,9 +52,9 @@ padding: 2%;
 
                             @{
                                 var borrowed = "Not borrowed";
-                                if (@item.BorrowedBy != null)
+                                if (@item.Borrowed != null)
                                 {
-                                    borrowed = @item.BorrowedBy.FirstName + " " + @item.BorrowedBy.LastName + " " + @item.BorrowedBy.From;
+                                    borrowed = @item.Borrowed.FirstName + " " + @item.Borrowed.LastName + " " + @item.Borrowed.From;
                                 }
                             }
                             @borrowed

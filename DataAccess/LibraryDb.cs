@@ -214,7 +214,7 @@ public class LibraryDb : ILibraryDb
                 Id = Int32.Parse(idAttribute.Value),
                 Name = selectSingleNode.InnerText,
                 Author = authorNode.InnerText,
-                BorrowedBy = borrowedModel
+                Borrowed = borrowedModel
             };
 
             libraryModel.Books.Add(bookModel);

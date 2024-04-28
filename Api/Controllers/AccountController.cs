@@ -47,4 +47,12 @@ public class AccountController : Controller
     }
 
     public record LoginViewModel(string username, [DataType(DataType.Password)] string password);
+
+    [HttpGet("/account/logout")]
+    public Task<IActionResult> Logout(string returnUrl)
+    {
+        Response.Cookies.Delete("user");
+        
+        return Task.FromResult<IActionResult>(LocalRedirect(returnUrl));
+    }
 }

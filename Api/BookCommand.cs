@@ -31,7 +31,7 @@ public class BookCommand : IBookCommand
             throw new InvalidOperationException($"Requested readers card info: '{readersCardId}' does not exist.");
         }
 
-        if (book.BorrowedBy != null)
+        if (book.Borrowed != null)
         {
             throw new InvalidOperationException($"Requested book has been already borrowed.");
         }

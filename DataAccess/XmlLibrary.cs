@@ -84,7 +84,7 @@ public class XmlLibrary : ILibraryDb
         
         SetElementValue(elementToUpdate, BookNameElement, bookModel.Name);
         SetElementValue(elementToUpdate, BookAuthorElement, bookModel.Author);
-        if (bookModel.BorrowedBy != null)
+        if (bookModel.Borrowed != null)
         {
             if (elementToUpdate.Element(BorrowedElement) != null)
             {
@@ -93,9 +93,9 @@ public class XmlLibrary : ILibraryDb
                     .Remove();
             }
             elementToUpdate.Add(new XElement(BorrowedElement,
-                        new XElement(BorrowedFirstNameElement, bookModel.BorrowedBy.FirstName),
-                        new XElement(BorrowedLastNameElement, bookModel.BorrowedBy.LastName),
-                        new XElement(BorrowedFromElement, bookModel.BorrowedBy.From)
+                        new XElement(BorrowedFirstNameElement, bookModel.Borrowed.FirstName),
+                        new XElement(BorrowedLastNameElement, bookModel.Borrowed.LastName),
+                        new XElement(BorrowedFromElement, bookModel.Borrowed.From)
                     )
                 );
         }
@@ -228,7 +228,7 @@ public class XmlLibrary : ILibraryDb
                         From = DateTimeOffset.Parse((string)borrowView[2], _dateTimeFormat)
                     };
 
-                    bookModel.BorrowedBy = borrowModel;
+                    bookModel.Borrowed = borrowModel;
                 }
             }
 
@@ -253,7 +253,7 @@ public class XmlLibrary : ILibraryDb
         }
         
         var bookModel = Map(bookElement);
-        bookModel.BorrowedBy = new BorrowModel
+        bookModel.Borrowed = new BorrowModel
         {
             From = from,
             FirstName = firstName,
@@ -277,7 +277,7 @@ public class XmlLibrary : ILibraryDb
         }
 
         var bookModel = Map(bookElement);
-        bookModel.BorrowedBy = null;
+        bookModel.Borrowed = null;
 
         UpdateBook(bookModel);
     }

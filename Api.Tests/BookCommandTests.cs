@@ -30,7 +30,7 @@ public class BookCommandTests
         var dateTimeOffset = Fixture.Create<DateTimeOffset>();
         var bookModel = Fixture.Create<BookModel>();
         var readersInfo = Fixture.Create<ReaderInfo>();
-        bookModel.BorrowedBy = null;
+        bookModel.Borrowed = null;
         _bookLibraryRepository.GetBook(bookId)
             .Returns(bookModel);
         _readersInfoRepository.GetReadersInfo(readersCardId)

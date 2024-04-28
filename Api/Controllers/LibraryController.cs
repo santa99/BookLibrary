@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Api.Controllers;
 
 // [Authorize]
-[ServiceFilter(typeof(CustomAuthorizeFilter))]
+// [ServiceFilter(typeof(CustomAuthorizeFilter))]
 public class LibraryController : Controller
 {
     private readonly IBookLibraryRepository _bookLibraryRepository;
@@ -26,8 +26,9 @@ public class LibraryController : Controller
         
         var bookModels = _bookLibraryRepository.ListBooks(bookState.Value);
 
-        ViewData["bookModel"] = bookModels;
-        return View(bookModels);
+        // ViewData["bookModel"] = bookModels;
+        // return View(bookModels);
+        return Ok(bookModels);
     }
 
     [Route("/api/book/remove/{bookId}")]
