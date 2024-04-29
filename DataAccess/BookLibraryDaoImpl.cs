@@ -216,11 +216,29 @@ public class BookLibraryDaoImpl : IBookLibraryDao
 
     private static BookModel Map(XElement bookElement)
     {
+        var bookIdAttribute = bookElement.Attribute(BookIdAttribute);
+        if (bookIdAttribute == null)
+        {
+            throw new InvalidOperationException($"Missing element attribute '{BookIdAttribute}'");
+        }
+
+        var bookNameElement = bookElement.Element(BookNameElement);
+        if (bookNameElement == null)
+        {
+            throw new InvalidOperationException($"Missing element '{BookNameElement}'");
+        }
+
+        var bookAuthorElement = bookElement.Element(BookAuthorElement);
+        if (bookAuthorElement == null)
+        {
+            throw new InvalidOperationException($"Missing element '{BookAuthorElement}'");
+        }
+        
         return new BookModel
         {
-            Id = Convert.ToInt32(bookElement.Attribute(BookIdAttribute).Value),
-            Name = bookElement.Element(BookNameElement).Value,
-            Author = bookElement.Element(BookAuthorElement).Value
+            Id = Convert.ToInt32(bookIdAttribute.Value),
+            Name = bookNameElement.Value,
+            Author = bookAuthorElement.Value
         };
     }
     
@@ -241,7 +259,6 @@ public class BookLibraryDaoImpl : IBookLibraryDao
                 nextBookId = validBookIdNumber;
         }
 
-        //TODO: consider different condition lower than equal zero.
-        return nextBookId == -1 ? 1 : nextBookId + 1;
+        return nextBookId <= 0 ? 1 : nextBookId + 1;
     }
 }
