@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookLibrary", "BookLibrary\BookLibrary.csproj", "{9B1E7777-BB4F-4ABF-BB67-98638ADF9516}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{1B845BA7-3280-4EDB-A129-1B3C38D41DAF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataAccess", "DataAccess\DataAccess.csproj", "{306E0E0E-8A8E-440D-BA31-A3FF31D43172}"
@@ -21,10 +19,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9B1E7777-BB4F-4ABF-BB67-98638ADF9516}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9B1E7777-BB4F-4ABF-BB67-98638ADF9516}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9B1E7777-BB4F-4ABF-BB67-98638ADF9516}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9B1E7777-BB4F-4ABF-BB67-98638ADF9516}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1B845BA7-3280-4EDB-A129-1B3C38D41DAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1B845BA7-3280-4EDB-A129-1B3C38D41DAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B845BA7-3280-4EDB-A129-1B3C38D41DAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
