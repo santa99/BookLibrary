@@ -1,6 +1,7 @@
 ﻿using Api.Filters;
 using Api.Mappers;
 using Api.Models;
+using Api.Models.Responses;
 using Contracts;
 using Microsoft.AspNetCore.Mvc;
 
@@ -47,6 +48,7 @@ public class LibraryController : Controller
     [HttpGet("/api/book/edit/{bookId}")]
     [ServiceFilter(typeof(RequestModelValidationFilter))]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorCodeModel),StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UpdateBook(UpdateBookReqModel updateBookReqModel,
         CancellationToken cancellationToken)
     {
@@ -59,6 +61,7 @@ public class LibraryController : Controller
     [HttpGet("/api/book/add/")]
     [ServiceFilter(typeof(RequestModelValidationFilter))]
     [ProducesResponseType(typeof(BookModel),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorCodeModel),StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> InsertBook([FromRoute] CreateBookReqModel createBookReqModel,
         CancellationToken cancellationToken)
     {
@@ -76,6 +79,7 @@ public class LibraryController : Controller
     [HttpPost("/api/book/borrow/{bookId}/{readersCardId}")]
     [ServiceFilter(typeof(RequestModelValidationFilter))]
     [ProducesResponseType(typeof(BorrowModel),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorCodeModel),StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> BorrowBook([FromRoute] CreateBorrowReqModel borrowReqModel,
         CancellationToken cancellationToken)
     {

@@ -2,6 +2,8 @@ using Api;
 using Api.Configuration;
 using Api.Filters;
 using Api.Mappers;
+using Api.Middleware.Exceptions;
+using Api.Middleware.Exceptions.Mappers;
 using Contracts;
 using DataAccess;
 using DataAccess.Configuration;
@@ -20,6 +22,8 @@ builder.Services.AddSingleton<IBookLibraryRepository, BookLibraryRepository>();
 builder.Services.AddSingleton<IBookLibraryDao, BookLibraryDaoImpl>();
 builder.Services.AddSingleton<IReadersInfoDao, ReadersInfoDaoImpl>();
 builder.Services.AddSingleton<IBorrowBookCommand, BorrowBookCommand>();
+builder.Services.AddSingleton<IResponseStatusCodeMapper, ResponseStatusCodeMapper>();
+builder.Services.AddSingleton<IErrorResponseMapper, ErrorResponseMapper>();
 
 builder.Services.AddSimpleAuthentication(builder.Configuration);
 
@@ -28,6 +32,8 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
+
+app.UseMiddleware<ErrorHandlerMiddleware>();
 app.UseAuthenticationAndAuthorization();
 
 app.MapControllers();
