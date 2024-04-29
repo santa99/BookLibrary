@@ -33,7 +33,7 @@ public class AccountController : Controller
     public Task<IActionResult> Login([FromForm] LoginReqModel model, string returnUrl = "/")
     {
         var userIdentityValue = _userIdentity.Value;
-        if (model.Username == userIdentityValue?.User && model.Password == userIdentityValue?.Password)
+        if (model.Username == userIdentityValue.User && model.Password == userIdentityValue.Password)
         {
             var cookieOptions = new CookieOptions
             {

@@ -8,8 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Api.Controllers;
 
 // [Authorize]
-// [ServiceFilter(typeof(CustomAuthorizeFilter))]
-// [ServiceFilter(typeof(RequestModelValidationFilter))]
+[ServiceFilter(typeof(CustomAuthorizeFilter))]
 [ProducesResponseType(typeof(List<ErrorCodeModel>),StatusCodes.Status401Unauthorized)]
 public class LibraryController : Controller
 {

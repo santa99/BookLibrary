@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Net;
+using System.Net.Http.Headers;
 using Contracts;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -29,17 +30,27 @@ public class HomeController : Controller
         }
 
 
-        using var client = new HttpClient();
-        
+        var uri = new Uri("https://localhost:7227");
+
+        var cookieContainer = new CookieContainer();
+
+        using var handler = new HttpClientHandler();
+        handler.CookieContainer = cookieContainer;
+        using var client = new HttpClient(handler);
+
+        client.BaseAddress = uri;
         client.BaseAddress = new Uri("https://localhost:7227");
         client.DefaultRequestHeaders.Clear();
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+        cookieContainer.Add(uri, new Cookie("user", user));
+
         var res = await client.GetAsync("api/book/select/-1");
         if (!res.IsSuccessStatusCode)
         {
             return View(bookModels);
         }
-            
+
         var response = res.Content.ReadAsStringAsync().Result;
         bookModels = JsonConvert.DeserializeObject<List<BookModel>>(response);
 
