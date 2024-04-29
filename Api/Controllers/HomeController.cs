@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
-using Contracts;
 using Contracts.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -54,8 +53,7 @@ public class HomeController : Controller
         {
             var name = HttpContext.Request.Form["Name"];
             var author = HttpContext.Request.Form["Author"];
-            var queryString = "";
-            queryString = bookId != -1 
+            var queryString = bookId != -1 
                 ? $"api/book/edit/{bookId}?title={name.FirstOrDefault()}&author={author.FirstOrDefault()}"
                 : $"api/book/add?title={name.FirstOrDefault()}&author={author.FirstOrDefault()}";
             var res = await client.GetAsync(queryString);
