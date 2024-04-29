@@ -38,7 +38,10 @@ public class BookLibraryRepository : IBookLibraryRepository
     public void UpdateBookDetails(int bookId, string? name, string? author)
     {
         var bookModel = _bookLibraryDao.Read(bookId);
-        if (bookModel == null) return;
+        if (bookModel == null)
+        {
+            throw new InvalidOperationException($"Requested bookId: {bookId} does not exist.");
+        }
 
         _bookLibraryDao.Update(new BookModel
         {
@@ -53,7 +56,7 @@ public class BookLibraryRepository : IBookLibraryRepository
         var bookModel = _bookLibraryDao.Read(bookId);
         if (bookModel == null)
         {
-            return;
+            throw new InvalidOperationException($"Requested bookId: {bookId} does not exist.");
         }
 
         if (bookModel.Borrowed != null)
@@ -80,7 +83,10 @@ public class BookLibraryRepository : IBookLibraryRepository
     public void ReturnBook(int bookId)
     {
         var bookModel = _bookLibraryDao.Read(bookId);
-        if (bookModel == null) return;
+        if (bookModel == null)
+        {
+            throw new InvalidOperationException($"Requested bookId: {bookId} does not exist.");
+        }
 
         bookModel.Borrowed = null;
 
