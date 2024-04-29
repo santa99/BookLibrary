@@ -10,7 +10,7 @@ namespace Api.Models;
 /// <param name="Author">Author of the book.</param>
 public record CreateBookReqModel(
     [Required(ErrorMessage = "{0} can't be empty or null.")]
-    [StringLength(15, ErrorMessage = "{0} should be {1} characters.")]
+    [StringLength(15, ErrorMessage = "{0} should be {1} characters max.")]
     [FromQuery]
     string Title,
     [Required(ErrorMessage = "{0} can't be empty or null.")]

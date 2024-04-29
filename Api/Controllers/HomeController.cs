@@ -7,6 +7,11 @@ using Newtonsoft.Json;
 
 namespace Api.Controllers;
 
+/// <summary>
+/// Note: This class is not cleaned up.
+/// - We could use Refit to create Client rather than doing it manually.
+/// - Authorization is done only by testing whether the cookie contains user which is weak point maybe.
+/// </summary>
 public class HomeController : Controller
 {
     private bool IsLoggedIn()
@@ -69,7 +74,12 @@ public class HomeController : Controller
 
                 ViewData["errorMessage"] = errorCodeModel.Message;
                 
-                return View(bookModel);
+                return View(new BookModel
+                {
+                    Id = bookId,
+                    Name = name.FirstOrDefault() ?? bookModel.Name,
+                    Author = author.FirstOrDefault() ?? bookModel.Author
+                });
             }
 
             return RedirectToAction("Index");
@@ -79,6 +89,10 @@ public class HomeController : Controller
             var res = await client.GetAsync($"api/book/get/{bookId}");
             if (!res.IsSuccessStatusCode)
             {
+                var errorCodeModel = JsonConvert.DeserializeObject<ErrorCodeModel>(res.Content.ReadAsStringAsync().Result);
+
+                ViewData["errorMessage"] = errorCodeModel.Message;
+                
                 return View(bookModel);
             }
 

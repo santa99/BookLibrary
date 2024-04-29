@@ -1,5 +1,4 @@
-﻿using Contracts;
-using Contracts.Models;
+﻿using Contracts.Models;
 
 namespace Api;
 

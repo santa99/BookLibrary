@@ -1,6 +1,4 @@
 ﻿
-using Contracts;
-
 namespace DataAccess.Configuration;
 
 /// <summary>

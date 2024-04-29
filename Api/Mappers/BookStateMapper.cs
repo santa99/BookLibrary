@@ -1,5 +1,4 @@
-﻿using Contracts;
-using Contracts.Enums;
+﻿using Contracts.Enums;
 
 namespace Api.Mappers;
 

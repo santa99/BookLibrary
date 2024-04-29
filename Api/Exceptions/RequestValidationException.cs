@@ -1,5 +1,4 @@
-﻿using Api.Models.Responses;
-using Contracts.Exceptions;
+﻿using Contracts.Exceptions;
 
 namespace Api.Exceptions;
 

@@ -4,6 +4,12 @@
     ViewBag.Title = "EditBook";
 }
 
+@if (@ViewData["errorMessage"] != null)
+{
+    <h3>Exception state:</h3>
+    <h4 style="color: red">@ViewData["errorMessage"]</h4>
+}
+
 @using (Html.BeginForm())
 
 {

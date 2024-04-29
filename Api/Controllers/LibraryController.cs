@@ -27,6 +27,12 @@ public class LibraryController : Controller
         _bookStateMapper = bookStateMapper;
     }
 
+    /// <summary>
+    /// Selects all books from the library.
+    /// </summary>
+    /// <param name="bookState"><see cref="BookState"/></param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+    /// <returns>List of <see cref="BookModel"/></returns>
     [Route("/api/book/select/{bookState}")]
     [ProducesResponseType(typeof(List<BookModel>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Index(int? bookState, CancellationToken cancellationToken)
@@ -39,6 +45,12 @@ public class LibraryController : Controller
         return Ok(bookModels);
     }
 
+    /// <summary>
+    /// Get book based on the book id from the library.
+    /// </summary>
+    /// <param name="bookId">Unique book id.</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+    /// <returns></returns>
     [HttpGet("/api/book/get/{bookId}")]
     [ProducesResponseType(typeof(BookModel), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetBook(int bookId, CancellationToken cancellationToken)
@@ -48,6 +60,12 @@ public class LibraryController : Controller
         return Ok(bookModel);
     }
 
+    /// <summary>
+    /// Removes the book from the library.
+    /// </summary>
+    /// <param name="bookId">Unique book id.</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     [Route("/api/book/remove/{bookId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> RemoveBook(int bookId, CancellationToken cancellationToken)
@@ -57,6 +75,12 @@ public class LibraryController : Controller
         return Ok();
     }
 
+    /// <summary>
+    /// Update existing book.
+    /// </summary>
+    /// <param name="updateBookReqModel"><see cref="UpdateBookReqModel"/></param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+    /// <returns></returns>
     [HttpGet("/api/book/edit/{bookId}")]
     [ServiceFilter(typeof(RequestModelValidationFilter))]
     [ProducesResponseType(typeof(BookModel),StatusCodes.Status200OK)]
@@ -71,6 +95,12 @@ public class LibraryController : Controller
         return Ok(bookUpdated);
     }
 
+    /// <summary>
+    /// Insert a new book into the library.
+    /// </summary>
+    /// <param name="createBookReqModel"><see cref="CreateBookReqModel"/></param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+    /// <returns>Completed action with valid data or invalid <see cref="ErrorCodeModel"/>.</returns>
     [HttpGet("/api/book/add/")]
     [ServiceFilter(typeof(RequestModelValidationFilter))]
     [ProducesResponseType(typeof(BookModel), StatusCodes.Status200OK)]
