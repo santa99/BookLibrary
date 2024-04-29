@@ -18,4 +18,40 @@
             <From>16.6.2018</From>
         </Borrowed>
     </Book>
+    <Book id="3">
+        <Name>Krvave sonety</Name>
+        <Author>P.O.Hviezdoslav</Author>
+        <Borrowed>
+            <FirstName>Matej</FirstName>
+            <LastName>Treti</LastName>
+            <From>1.2.2017</From>
+        </Borrowed>
+    </Book>
+    <Book id="4">
+        <Name>Hajnikova zena</Name>
+        <Author>P.O.Hviezdoslav</Author>
+        <Borrowed>
+            <FirstName></FirstName>
+            <LastName></LastName>
+            <From></From>
+        </Borrowed>
+    </Book>
+    <Book id="5">
+        <Name>Hamlet</Name>
+        <Author>W. Shakespeare</Author>
+        <Borrowed>
+            <FirstName>Jozef</FirstName>
+            <LastName>Stvrty</LastName>
+            <From>25.10.2009</From>
+        </Borrowed>
+    </Book>
+    <Book id="5">
+        <Name>Zivy bic</Name>
+        <Author>Milo Urban</Author>
+        <Borrowed>
+            <FirstName></FirstName>
+            <LastName></LastName>
+            <From></From>
+        </Borrowed>
+    </Book>
 </Library>
