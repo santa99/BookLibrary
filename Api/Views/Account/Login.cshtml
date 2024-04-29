@@ -1,5 +1,5 @@
 ﻿@page
-@model Api.Models.LoginViewModel
+@model Api.Models.LoginReqModel
 
 <form method="post">
     <div class="form-group">
@@ -14,3 +14,7 @@
 
     <button type="submit" class="btn btn-primary">Login</button>
 </form>
+
+<div>
+    @ViewBag.TextMessage
+</div>

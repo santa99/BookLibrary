@@ -5,6 +5,9 @@ using Microsoft.Extensions.Options;
 
 namespace Api.Controllers;
 
+/// <summary>
+/// Account controller handles login/logout.
+/// </summary>
 public class AccountController : Controller
 {
     private readonly IOptions<UserIdentityConfiguration> _userIdentity;
@@ -15,22 +18,22 @@ public class AccountController : Controller
     }
 
     [HttpGet("/account/login")]
-    public async Task<IActionResult> Login(string returnUrl = "/")
+    public Task<IActionResult> Login(string returnUrl = "/")
     {
         var authenticatedUser = Request.Cookies["user"];
         if (authenticatedUser != null)
         {
-            return LocalRedirect(returnUrl);
+            return Task.FromResult<IActionResult>(LocalRedirect(returnUrl));
         }
 
-        return View();
+        return Task.FromResult<IActionResult>(View());
     }
 
     [HttpPost("/account/login")]
-    public async Task<IActionResult> Login([FromForm] LoginViewModel model, string returnUrl = "/")
+    public Task<IActionResult> Login([FromForm] LoginReqModel model, string returnUrl = "/")
     {
         var userIdentityValue = _userIdentity.Value;
-        if (model.username == userIdentityValue?.User && model.password == userIdentityValue?.Password)
+        if (model.Username == userIdentityValue?.User && model.Password == userIdentityValue?.Password)
         {
             var cookieOptions = new CookieOptions
             {
@@ -38,12 +41,12 @@ public class AccountController : Controller
             };
             Response.Cookies.Append("user", userIdentityValue.User, cookieOptions);
 
-            return LocalRedirect(returnUrl);
+            return Task.FromResult<IActionResult>(LocalRedirect(returnUrl));
         }
 
-        ModelState.AddModelError("", "Incorrect name or password.");
+        ViewBag.TextMessage = "Incorrect name or password.";
 
-        return View(model);
+        return Task.FromResult<IActionResult>(View(model));
     }
 
 
