@@ -24,7 +24,7 @@ public class ReadersInfoDaoImpl : IReadersInfoDao
         return new ReaderInfo
         {
             ReaderCardId = readersCardId,
-            Name = reader.Item1,
+            FirstName = reader.Item1,
             LastName = reader.Item2
         };
     }

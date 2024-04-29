@@ -58,7 +58,7 @@ public class BookLibraryRepository : IBookLibraryRepository
 
         if (bookModel.Borrowed != null)
         {
-            throw new InvalidOperationException($"Requested book '{bookId}':'{bookModel.Name}' has been already borrowed.");
+            throw new InvalidOperationException($"Requested book '{bookId}':'{bookModel.Name}' has already been borrowed.");
         }
 
         var readerInfo = _readersInfoDao.Read(readersCardId);
@@ -70,7 +70,7 @@ public class BookLibraryRepository : IBookLibraryRepository
         bookModel.Borrowed = new BorrowModel
         {
             From = from,
-            FirstName = readerInfo.Name,
+            FirstName = readerInfo.FirstName,
             LastName = readerInfo.LastName
         };
 

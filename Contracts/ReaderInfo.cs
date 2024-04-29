@@ -9,14 +9,14 @@ public class ReaderInfo
     /// Readers card id.
     /// </summary>
     public int ReaderCardId { get; set; }
-    
+
     /// <summary>
-    /// First name.
+    /// Readers first name.
     /// </summary>
-    public string Name { get; set; }
-    
+    public string FirstName { get; set; }
+
     /// <summary>
-    /// Last name
+    /// Readers last name.
     /// </summary>
     public string LastName { get; set; }
 }
