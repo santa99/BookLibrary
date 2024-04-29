@@ -6,7 +6,7 @@ using Contracts;
 
 namespace DataAccess;
 
-public class XmlLibrary : ILibraryDb
+public class BookLibraryDaoImpl : IBookLibraryDao
 {
     private const string LibraryXml = "Library.xml";
     private const string LibraryElement = "Library";
@@ -21,7 +21,7 @@ public class XmlLibrary : ILibraryDb
     private readonly DateTimeFormatInfo _dateTimeFormat = new CultureInfo("sk-SK").DateTimeFormat;
 
 
-    public void RemoveBook(int bookId)
+    public void Delete(int bookId)
     {
         if (bookId <= 0)
         {
@@ -41,7 +41,7 @@ public class XmlLibrary : ILibraryDb
         xmlDocument.Save(LibraryXml);
     }
 
-    public int InsertBook(string name, string author)
+    public int Create(string name, string author)
     {
         return InsertBook(new BookModel
         {
@@ -50,7 +50,7 @@ public class XmlLibrary : ILibraryDb
         });
     }
 
-    public void UpdateBook(int bookId, string? name, string? author)
+    public void Update(int bookId, string? name, string? author)
     {
         if (bookId <= 0)
         {
@@ -184,7 +184,7 @@ public class XmlLibrary : ILibraryDb
         }
     }
 
-    public BookModel? GetBook(int bookId)
+    public BookModel? Read(int bookId)
     {
         return GetBookDetailsById(bookId);
     }

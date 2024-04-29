@@ -7,46 +7,46 @@ namespace DataAccess;
 /// </summary>
 public class BookLibraryRepository : IBookLibraryRepository
 {
-    private readonly ILibraryDb _libraryDb;
+    private readonly IBookLibraryDao _bookLibraryDao;
 
-    public BookLibraryRepository(ILibraryDb libraryDb)
+    public BookLibraryRepository(IBookLibraryDao bookLibraryDao)
     {
-        _libraryDb = libraryDb;
+        _bookLibraryDao = bookLibraryDao;
     }
 
     public void RemoveBook(int bookId)
     {
-        _libraryDb.RemoveBook(bookId);
+        _bookLibraryDao.Delete(bookId);
     }
 
     public int AddBook(string name, string author)
     {
-        return _libraryDb.InsertBook(name, author);
+        return _bookLibraryDao.Create(name, author);
     }
 
     public BookModel? GetBook(int bookId)
     {
-        return _libraryDb.GetBook(bookId);
+        return _bookLibraryDao.Read(bookId);
     }
 
     public void UpdateBook(int bookId, string? name, string? author)
     {
-        _libraryDb.UpdateBook(bookId, name, author);
+        _bookLibraryDao.Update(bookId, name, author);
     }
 
     public void BorrowBook(int bookId, string firstName, string lastName, DateTimeOffset from)
     {
-        _libraryDb.BorrowBook(bookId, firstName, lastName, from);
+        _bookLibraryDao.BorrowBook(bookId, firstName, lastName, from);
     }
 
     public void ReturnBook(int bookId)
     {
-        _libraryDb.ReturnBook(bookId);
+        _bookLibraryDao.ReturnBook(bookId);
     }
 
     public List<BookModel> ListBooks(int bookStateId, int count = -1, int start = 0)
     {
-        var bookModels = _libraryDb.GetBooks();
+        var bookModels = _bookLibraryDao.GetBooks();
 
         return bookStateId switch
         {

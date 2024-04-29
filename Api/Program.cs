@@ -13,7 +13,7 @@ builder.Services.Configure<DataSourceConfig>(builder.Configuration.GetSection("D
 builder.Services.AddSingleton<CustomAuthorizeFilter>();
 builder.Services.AddSingleton<IReadersInfoRepository, ReadersInfoRepository>();
 builder.Services.AddSingleton<IBookLibraryRepository, BookLibraryRepository>();
-builder.Services.AddSingleton<ILibraryDb, XmlLibrary>();
+builder.Services.AddSingleton<IBookLibraryDao, BookLibraryDaoImpl>();
 builder.Services.AddSingleton<IBookCommand, BookCommand>();
 
 builder.Services.AddSimpleAuthentication(builder.Configuration);
