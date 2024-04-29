@@ -1,5 +1,8 @@
 ﻿namespace Contracts;
 
+/// <summary>
+/// Class <see cref="ReaderInfo"/> represents data transfer object for reader.
+/// </summary>
 public class ReaderInfo
 {
     /// <summary>
