@@ -1,42 +1,57 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Library>
   <Book id="1">
-    <Name>Svet je narit</Name>
-    <Author>M.B</Author>
+    <Name>Starec a more</Name>
+    <Author>Ernest Hemingway</Author>
     <Borrowed>
-      <FirstName>Tibor</FirstName>
-      <LastName>Vesely</LastName>
-      <From>0001-01-01T00:00:00Z</From>
+      <FirstName>Peter</FirstName>
+      <LastName>Prvy</LastName>
+      <From>25.3.2016</From>
     </Borrowed>
   </Book>
   <Book id="2">
     <Name>Romeo a Julia</Name>
     <Author>William Shakespeare</Author>
     <Borrowed>
-      <FirstName>Ivan</FirstName>
-      <LastName>Maly</LastName>
-      <From>0001-01-01T00:00:00Z</From>
+      <FirstName>Lukas</FirstName>
+      <LastName>Druhy</LastName>
+      <From>16.6.2018</From>
     </Borrowed>
   </Book>
   <Book id="3">
-    <Name>KrasnyDen</Name>
-    <Author>MarekZBA</Author>
+    <Name>Krvave sonety</Name>
+    <Author>P.O.Hviezdoslav</Author>
+    <Borrowed>
+      <FirstName>Matej</FirstName>
+      <LastName>Treti</LastName>
+      <From>1.2.2017</From>
+    </Borrowed>
+  </Book>
+  <Book id="4">
+    <Name>Hajnikova zena</Name>
+    <Author>P.O.Hviezdoslav</Author>
+    <Borrowed>
+      <FirstName>X</FirstName>
+      <LastName>Y</LastName>
+      <From>25.10.2009</From>
+    </Borrowed>
   </Book>
   <Book id="5">
-    <Name>Nepriznana laska</Name>
-    <Author>Vaso Patejdl</Author>
+    <Name>Hamlet A</Name>
+    <Author>W. Shakespeare</Author>
     <Borrowed>
-      <FirstName>Ivan</FirstName>
-      <LastName>Maly</LastName>
+      <FirstName>Marek</FirstName>
+      <LastName>Blanar</LastName>
       <From>0001-01-01T00:00:00Z</From>
     </Borrowed>
   </Book>
   <Book id="6">
-    <Name>Aaa</Name>
-    <Author>BBB</Author>
-  </Book>
-  <Book id="7">
-    <Name>Marek</Name>
-    <Author>aaA</Author>
+    <Name>Zivy bic</Name>
+    <Author>Milo Urban</Author>
+    <Borrowed>
+      <FirstName>X</FirstName>
+      <LastName>Y</LastName>
+      <From>25.10.2009</From>
+    </Borrowed>
   </Book>
 </Library>

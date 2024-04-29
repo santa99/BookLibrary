@@ -228,6 +228,8 @@ public class BookLibraryDaoImpl : IBookLibraryDao
             throw new InvalidOperationException($"Missing element attribute '{BookIdAttribute}'");
         }
 
+        var bookId = Convert.ToInt32(bookIdAttribute.Value);
+
         var bookNameElement = bookElement.Element(BookNameElement);
         if (bookNameElement == null)
         {
@@ -250,6 +252,11 @@ public class BookLibraryDaoImpl : IBookLibraryDao
                 throw new InvalidOperationException($"Missing element '{BorrowedFromElement}'");
             }
 
+            if (!DateTimeOffset.TryParse(borrowedFromElement.Value, DateTimeFormat, DateTimeStyles.None, out DateTimeOffset validDate))
+            {
+                throw new InvalidOperationException("Borrowed model contains invalid date.");
+            }
+
             var borrowedFirstNameElement = borrowedElement.Element(BorrowedFirstNameElement);
             if (borrowedFirstNameElement == null)
             {
@@ -264,7 +271,7 @@ public class BookLibraryDaoImpl : IBookLibraryDao
 
             borrowed = new BorrowModel
             {
-                From = DateTimeOffset.Parse(borrowedFromElement.Value, DateTimeFormat),
+                From = validDate,
                 FirstName = borrowedFirstNameElement.Value,
                 LastName = borrowedLastNameElement.Value
             };
@@ -272,7 +279,7 @@ public class BookLibraryDaoImpl : IBookLibraryDao
 
         return new BookModel
         {
-            Id = Convert.ToInt32(bookIdAttribute.Value),
+            Id = bookId,
             Name = bookNameElement.Value,
             Author = bookAuthorElement.Value,
             Borrowed = borrowed

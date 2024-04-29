@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
+using Api.Models.Responses;
 using Contracts.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -28,6 +29,10 @@ public class HomeController : Controller
         var bookModels = new List<BookModel>();
         if (!res.IsSuccessStatusCode)
         {
+            var errorCodeModel = JsonConvert.DeserializeObject<ErrorCodeModel>(res.Content.ReadAsStringAsync().Result);
+
+            ViewData["errorMessage"] = errorCodeModel.Message;
+            
             return View(bookModels);
         }
 
