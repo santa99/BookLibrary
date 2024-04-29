@@ -10,13 +10,13 @@ namespace Api.Controllers;
 public class LibraryController : Controller
 {
     private readonly IBookLibraryRepository _bookLibraryRepository;
-    private readonly IBookCommand _bookCommand;
+    private readonly IBorrowBookCommand _borrowBookCommand;
 
     public LibraryController(IBookLibraryRepository bookLibraryRepository,
-        IBookCommand bookCommand)
+        IBorrowBookCommand borrowBookCommand)
     {
         _bookLibraryRepository = bookLibraryRepository;
-        _bookCommand = bookCommand;
+        _borrowBookCommand = borrowBookCommand;
     }
     
     [Route("/api/book/select/{bookState}")]
@@ -74,7 +74,7 @@ public class LibraryController : Controller
     [Route("/api/book/borrow/{bookId}/{readersCardId}")]
     public async Task<IActionResult> BorrowBook(int bookId, int readersCardId, DateTimeOffset borrowed)
     {
-        _bookCommand.BorrowBook(bookId, readersCardId, borrowed);
+        _borrowBookCommand.BorrowBook(bookId, readersCardId, borrowed);
 
         return Ok(bookId);
     }
@@ -86,7 +86,7 @@ public class LibraryController : Controller
     [Route("/api/book/return/{bookId}")]
     public async Task<IActionResult> ReturnBook(int bookId)
     {
-        _bookCommand.ReturnBook(bookId);
+        _borrowBookCommand.ReturnBook(bookId);
 
         return Ok(bookId);
     }

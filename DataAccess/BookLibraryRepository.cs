@@ -8,10 +8,12 @@ namespace DataAccess;
 public class BookLibraryRepository : IBookLibraryRepository
 {
     private readonly IBookLibraryDao _bookLibraryDao;
+    private readonly IReadersInfoDao _readersInfoDao;
 
-    public BookLibraryRepository(IBookLibraryDao bookLibraryDao)
+    public BookLibraryRepository(IBookLibraryDao bookLibraryDao, IReadersInfoDao readersInfoDao)
     {
         _bookLibraryDao = bookLibraryDao;
+        _readersInfoDao = readersInfoDao;
     }
     
     public int AddNewBook(string name, string author)
@@ -46,17 +48,30 @@ public class BookLibraryRepository : IBookLibraryRepository
         });
     }
 
-    //Todo: set readers info and retrieve additional info from readersinfodao.
-    public void BorrowBook(int bookId, string firstName, string lastName, DateTimeOffset from)
+    public void BorrowBook(int bookId, int readersCardId, DateTimeOffset from)
     {
         var bookModel = _bookLibraryDao.Read(bookId);
-        if (bookModel == null) return;
+        if (bookModel == null)
+        {
+            return;
+        }
+
+        if (bookModel.Borrowed != null)
+        {
+            throw new InvalidOperationException($"Requested book '{bookId}':'{bookModel.Name}' has been already borrowed.");
+        }
+
+        var readerInfo = _readersInfoDao.Read(readersCardId);
+        if (readerInfo == null)
+        {
+            throw new InvalidOperationException($"Requested readers card info: '{readersCardId}' does not exist.");
+        }
 
         bookModel.Borrowed = new BorrowModel
         {
             From = from,
-            FirstName = firstName,
-            LastName = lastName
+            FirstName = readerInfo.Name,
+            LastName = readerInfo.LastName
         };
 
         _bookLibraryDao.Update(bookModel);

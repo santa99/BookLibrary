@@ -15,7 +15,7 @@ builder.Services.AddSingleton<IReadersInfoRepository, ReadersInfoRepository>();
 builder.Services.AddSingleton<IBookLibraryRepository, BookLibraryRepository>();
 builder.Services.AddSingleton<IBookLibraryDao, BookLibraryDaoImpl>();
 builder.Services.AddSingleton<IReadersInfoDao, ReadersInfoDaoImpl>();
-builder.Services.AddSingleton<IBookCommand, BookCommand>();
+builder.Services.AddSingleton<IBorrowBookCommand, BorrowBookCommand>();
 
 builder.Services.AddSimpleAuthentication(builder.Configuration);
 

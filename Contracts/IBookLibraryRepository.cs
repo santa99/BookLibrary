@@ -28,15 +28,25 @@ public interface IBookLibraryRepository
     /// <param name="author">Author of the book.</param>
     public void UpdateBookDetails(int bookId, string? name, string? author);
 
-    public void BorrowBook(int bookId, string firstName, string lastName, DateTimeOffset from);
+    /// <summary>
+    /// Borrow the book with provided id.
+    /// </summary>
+    /// <param name="bookId">Unique id of the book.</param>
+    /// <param name="readersCardId">Readers card.</param>
+    /// <param name="from">When was the book borrowed.</param>
+    public void BorrowBook(int bookId, int readersCardId, DateTimeOffset from);
 
+    /// <summary>
+    /// Returns the book back to the library.
+    /// </summary>
+    /// <param name="bookId">Unique id of the book.</param>
     public void ReturnBook(int bookId);
     
     /// <summary>
     /// Retrieves book from the library based on the book id.
     /// </summary>
-    /// <param name="bookId"></param>
-    /// <returns></returns>
+    /// <param name="bookId">Unique id of the book.</param>
+    /// <returns>Book or null if the provided is not found.</returns>
     public BookModel? GetBook(int bookId);
 
     /// <summary>
