@@ -1,5 +1,4 @@
-﻿using System.Data;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Xml;
 using System.Xml.Linq;
 using Contracts;
@@ -111,48 +110,13 @@ public class BookLibraryDaoImpl : IBookLibraryDao
         StoreXDocument(xDocument);
     }
 
+
     public List<BookModel> GetBooks()
     {
-        var books = new List<BookModel>();
-        var ds = new DataSet();
+        var xDocument = LoadXDocument();
+        var bookElements = xDocument.Descendants(BookElement);
 
-        ds.ReadXml(_libraryXml);
-
-        var booksView = ds.Tables[0].DefaultView;
-        booksView.Sort = BookIdAttribute;
-
-        var borrowedView = ds.Tables[1].DefaultView;
-
-        for (int i = 0, count = booksView.Count; i < count; i++)
-        {
-            var bookView = booksView[i];
-            var bookModel = new BookModel
-            {
-                Id = Convert.ToInt32(bookView.Row[BookIdAttribute]),
-                Name = Convert.ToString(bookView[0]),
-                Author = Convert.ToString(bookView[1])
-            };
-
-            if (borrowedView != null)
-                foreach (DataRowView borrowView in borrowedView)
-                {
-                    var indexToBookView = Convert.ToInt32(borrowView[3]);
-                    if (indexToBookView != i) continue;
-
-                    var borrowModel = new BorrowModel
-                    {
-                        FirstName = Convert.ToString(borrowView[0]),
-                        LastName = Convert.ToString(borrowView[1]),
-                        From = DateTimeOffset.Parse((string)borrowView[2], DateTimeFormat)
-                    };
-
-                    bookModel.Borrowed = borrowModel;
-                }
-
-            books.Add(bookModel);
-        }
-
-        return books;
+        return bookElements.Select(Map).ToList();
     }
 
     private static XElement? GetBookByIdElement(IEnumerable<XElement> bookElements, int bookId)
@@ -186,7 +150,7 @@ public class BookLibraryDaoImpl : IBookLibraryDao
     {
         xDocument.Save(_libraryXml);
     }
-    
+
     private static XElement CreateBookElement(BookModel bookModel)
     {
         return new XElement(BookElement,
@@ -204,7 +168,7 @@ public class BookLibraryDaoImpl : IBookLibraryDao
             new XElement(BorrowedFromElement, borrowModel.From)
         );
     }
-    
+
     private static void SetElementValue(XElement elementToUpdate, string elementName, string? elementValue)
     {
         var bookNameElement = elementToUpdate.Element(elementName);
@@ -233,15 +197,46 @@ public class BookLibraryDaoImpl : IBookLibraryDao
         {
             throw new InvalidOperationException($"Missing element '{BookAuthorElement}'");
         }
-        
+
+        var borrowedElement = bookElement.Element(BorrowedElement);
+        BorrowModel? borrowed = null;
+        if (borrowedElement != null)
+        {
+            var borrowedFromElement = borrowedElement.Element(BorrowedFromElement);
+            if (borrowedFromElement == null)
+            {
+                throw new InvalidOperationException($"Missing element '{BorrowedFromElement}'");
+            }
+
+            var borrowedFirstNameElement = borrowedElement.Element(BorrowedFirstNameElement);
+            if (borrowedFirstNameElement == null)
+            {
+                throw new InvalidOperationException($"Missing element '{BorrowedFirstNameElement}'");
+            }
+
+            var borrowedLastNameElement = borrowedElement.Element(BorrowedLastNameElement);
+            if (borrowedLastNameElement == null)
+            {
+                throw new InvalidOperationException($"Missing element '{BorrowedLastNameElement}'");
+            }
+
+            borrowed = new BorrowModel
+            {
+                From = DateTimeOffset.Parse(borrowedFromElement.Value, DateTimeFormat),
+                FirstName = borrowedFirstNameElement.Value,
+                LastName = borrowedLastNameElement.Value
+            };
+        }
+
         return new BookModel
         {
             Id = Convert.ToInt32(bookIdAttribute.Value),
             Name = bookNameElement.Value,
-            Author = bookAuthorElement.Value
+            Author = bookAuthorElement.Value,
+            Borrowed = borrowed
         };
     }
-    
+
     private static int GetNextBookId(XmlDocument xmlDocument)
     {
         var elementsByTagName = xmlDocument.GetElementsByTagName(BookElement);
