@@ -28,4 +28,14 @@ public class ReadersInfoDaoImpl : IReadersInfoDao
             LastName = reader.Item2
         };
     }
+
+    public List<ReadersInfo> getReadersInfos()
+    {
+        return _readersInfo.Select(pair => new ReadersInfo()
+        {
+            ReaderCardId = pair.Key,
+            FirstName = pair.Value.Item1,
+            LastName = pair.Value.Item2
+        }).ToList();
+    }
 }

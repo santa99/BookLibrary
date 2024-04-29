@@ -95,6 +95,49 @@ public class HomeController : Controller
         
         return RedirectToAction("Index");
     }
+    
+    [Route("/home/return/{bookId}")]
+    public async Task<IActionResult> ReturnBook(int bookId)
+    {
+        if (!IsLoggedIn())
+        {
+            return RedirectToAction("Index");
+        }
+
+        using var client = CreateClient();
+        
+        await client.GetAsync($"api/book/return/{bookId}");
+        
+        return RedirectToAction("Index");
+    }
+
+    [Route("/home/borrow/{bookId}")]
+    public async Task<IActionResult> BorrowBook(int bookId)
+    {
+        if (!IsLoggedIn())
+        {
+            return RedirectToAction("Index");
+        }
+
+        using var client = CreateClient();
+
+        if (HttpContext.Request.Method == HttpMethod.Post.Method)
+        {
+            var readersCardId =  HttpContext.Request.Form["ReadersCardId"].FirstOrDefault();
+            await client.GetAsync($"api/book/borrow/{bookId}/{readersCardId}");
+            
+            return RedirectToAction("Index");
+        }
+
+        var bookResponse = await client.GetAsync($"api/book/get/{bookId}");
+        var readersResponse = await client.GetAsync("api/readers/select/");
+
+        var bookModel = JsonConvert.DeserializeObject<BookModel>(bookResponse.Content.ReadAsStringAsync().Result);
+        var readers =
+            JsonConvert.DeserializeObject<List<ReadersInfo>>(readersResponse.Content.ReadAsStringAsync().Result);
+        ViewData["Readers"] = readers;
+        return View(bookModel);
+    }
 
     private HttpClient CreateClient()
     {
@@ -114,4 +157,6 @@ public class HomeController : Controller
 
         return client;
     }
+
+
 }

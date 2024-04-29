@@ -81,7 +81,7 @@
                         <td>
                             @if (item.Borrowed != null)
                             {
-                                @Html.ActionLink("Return book", "RemoveBook", "Home",
+                                @Html.ActionLink("Return book", "ReturnBook", "Home",
                                     new { bookId = item.Id }) 
                                 var borrowedBy = item.Borrowed.FirstName + " "+ item.Borrowed.LastName + " " + item.Borrowed.From;
                                 <div>
@@ -90,7 +90,7 @@
                             }
                             else
                             {
-                                @Html.ActionLink("Borrow book", "EditBook", "Home",
+                                @Html.ActionLink("Borrow book", "BorrowBook", "Home",
                                     new { bookId = item.Id })    
                             }
                         </td>

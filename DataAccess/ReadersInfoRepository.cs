@@ -14,8 +14,13 @@ public class ReadersInfoRepository : IReadersInfoRepository
         _readersInfoDao = readersInfoDao;
     }
 
-    public ReadersInfo? GetReadersInfo(int readersCardId)
+    public Task<ReadersInfo?> GetReadersInfo(int readersCardId, CancellationToken cancellationToken)
     {
-        return _readersInfoDao.Read(readersCardId);
+        return Task.FromResult(_readersInfoDao.Read(readersCardId));
+    }
+
+    public Task<List<ReadersInfo>> ListReadersInfo(CancellationToken cancellationToken)
+    {
+        return Task.FromResult(_readersInfoDao.getReadersInfos());
     }
 }

@@ -11,4 +11,10 @@ public interface IReadersInfoDao
     /// <param name="readersCardId">Id of the readers card.</param>
     /// <returns><see cref="ReadersInfo"/> or null if provided card id is not found.</returns>
     ReadersInfo? Read(int readersCardId);
+    
+    /// <summary>
+    /// Provides the readers info list.
+    /// </summary>
+    /// <returns>List of readers info.</returns>
+    List<ReadersInfo> getReadersInfos();
 }
