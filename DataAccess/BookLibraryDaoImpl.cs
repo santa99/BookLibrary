@@ -20,13 +20,13 @@ public class BookLibraryDaoImpl : IBookLibraryDao
     private const string BorrowedLastNameElement = "LastName";
     private const string BorrowedFromElement = "From";
     private const string BookIdAttribute = "id";
-    private readonly DateTimeFormatInfo _dateTimeFormat = new CultureInfo("sk-SK").DateTimeFormat;
+    private static readonly DateTimeFormatInfo DateTimeFormat = new CultureInfo("sk-SK").DateTimeFormat;
 
-    public BookLibraryDaoImpl(IOptions<DataSourceConfig> config)
+    public BookLibraryDaoImpl(IOptions<BookLibraryDataSourceConfig> config)
     {
-        _libraryXml = config.Value.ConnectionString;
+        _libraryXml = config.Value.FilePath;
     }
-    
+
     public int Create(BookModel bookModel)
     {
         if (bookModel.Id > 0)
@@ -34,20 +34,21 @@ public class BookLibraryDaoImpl : IBookLibraryDao
             return -1;
         }
 
-        var nextBookId = GetNextBookId(LoadXmlDocument());
-
+        bookModel.Id = GetNextBookId(LoadXmlDocument());
         var xmlDoc = LoadXDocument();
-        xmlDoc
-            .Element(LibraryElement)
-            ?.Add(new XElement(BookElement,
-                new XAttribute(BookIdAttribute, nextBookId),
-                new XElement(BookNameElement, bookModel.Name),
-                new XElement(BookAuthorElement, bookModel.Author)));
+
+        var bookElement = CreateBookElement(bookModel);
+
+        xmlDoc.Element(LibraryElement)?.Add(bookElement);
+
+        if (bookModel.Borrowed != null)
+        {
+            bookElement.Add(CreateBorrowedElement(bookModel.Borrowed));
+        }
+
         StoreXDocument(xmlDoc);
 
-        //TODO: Borrowed if provided.
-
-        return nextBookId;
+        return bookModel.Id;
     }
 
     public BookModel? Read(int bookId)
@@ -78,23 +79,14 @@ public class BookLibraryDaoImpl : IBookLibraryDao
         {
             if (bookByIdElement.Element(BorrowedElement) != null)
             {
-                bookByIdElement
-                    .Element(BorrowedElement)?
-                    .Remove();
+                bookByIdElement.Element(BorrowedElement)?.Remove();
             }
 
-            bookByIdElement.Add(new XElement(BorrowedElement,
-                    new XElement(BorrowedFirstNameElement, bookModel.Borrowed.FirstName),
-                    new XElement(BorrowedLastNameElement, bookModel.Borrowed.LastName),
-                    new XElement(BorrowedFromElement, bookModel.Borrowed.From)
-                )
-            );
+            bookByIdElement.Add(CreateBorrowedElement(bookModel.Borrowed));
         }
         else
         {
-            bookByIdElement
-                .Element(BorrowedElement)?
-                .Remove();
+            bookByIdElement.Element(BorrowedElement)?.Remove();
         }
 
         StoreXDocument(xDocument);
@@ -151,7 +143,7 @@ public class BookLibraryDaoImpl : IBookLibraryDao
                     {
                         FirstName = Convert.ToString(borrowView[0]),
                         LastName = Convert.ToString(borrowView[1]),
-                        From = DateTimeOffset.Parse((string)borrowView[2], _dateTimeFormat)
+                        From = DateTimeOffset.Parse((string)borrowView[2], DateTimeFormat)
                     };
 
                     bookModel.Borrowed = borrowModel;
@@ -193,6 +185,24 @@ public class BookLibraryDaoImpl : IBookLibraryDao
     private void StoreXDocument(XDocument xDocument)
     {
         xDocument.Save(_libraryXml);
+    }
+    
+    private static XElement CreateBookElement(BookModel bookModel)
+    {
+        return new XElement(BookElement,
+            new XAttribute(BookIdAttribute, bookModel.Id),
+            new XElement(BookNameElement, bookModel.Name),
+            new XElement(BookAuthorElement, bookModel.Author)
+        );
+    }
+
+    private static XElement CreateBorrowedElement(BorrowModel borrowModel)
+    {
+        return new XElement(BorrowedElement,
+            new XElement(BorrowedFirstNameElement, borrowModel.FirstName),
+            new XElement(BorrowedLastNameElement, borrowModel.LastName),
+            new XElement(BorrowedFromElement, borrowModel.From)
+        );
     }
     
     private static void SetElementValue(XElement elementToUpdate, string elementName, string? elementValue)

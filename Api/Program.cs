@@ -9,7 +9,7 @@ using SimpleAuthentication;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<UserIdentity>(builder.Configuration.GetSection("UserIdentity"));
-builder.Services.Configure<DataSourceConfig>(builder.Configuration.GetSection("DataSource"));
+builder.Services.Configure<BookLibraryDataSourceConfig>(builder.Configuration.GetSection("DataSource"));
 
 builder.Services.AddSingleton<CustomAuthorizeFilter>();
 builder.Services.AddSingleton<IReadersInfoRepository, ReadersInfoRepository>();
