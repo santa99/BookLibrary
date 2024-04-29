@@ -20,11 +20,10 @@ public class CustomAuthorizeFilter : IAuthorizationFilter
         {
             context.Result = new ForbidResult();
         }
-        
+
         if (userVal != _userIdentityConfigurationValue.User)
         {
             context.Result = new ForbidResult();
         }
-        
     }
 }

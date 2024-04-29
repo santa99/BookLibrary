@@ -16,35 +16,16 @@ public class HomeController : Controller
     [Route("/")]
     public async Task<IActionResult> Index()
     {
-        var user = Request.Cookies["user"];
-        if (user != null)
-        {
-            ViewBag.User = user;
-        }
-
-        var bookModels = new List<BookModel>();
-
         if (!IsLoggedIn())
         {
-            return View(bookModels);
+            return View(null);
         }
-
-
-        var uri = new Uri("https://localhost:7227");
-
-        var cookieContainer = new CookieContainer();
-
-        using var handler = new HttpClientHandler();
-        handler.CookieContainer = cookieContainer;
-        using var client = new HttpClient(handler);
-
-        client.BaseAddress = uri;
-        client.DefaultRequestHeaders.Clear();
-        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-        cookieContainer.Add(uri, new Cookie("user", user));
+        ViewBag.User = Request.Cookies["user"] ?? "";
+        
+        using var client = CreateClient();
 
         var res = await client.GetAsync("api/book/select/-1");
+        var bookModels = new List<BookModel>();
         if (!res.IsSuccessStatusCode)
         {
             return View(bookModels);
@@ -59,40 +40,30 @@ public class HomeController : Controller
     [Route("home/edit/{bookId}")]
     public async Task<IActionResult> EditBook([FromRoute] int bookId)
     {
-        var user = Request.Cookies["user"];
-        if (user != null)
+        if (!IsLoggedIn())
         {
-            ViewBag.User = user;
+            return RedirectToAction("Index");
         }
 
         var bookModel = new BookModel();
-        
-        if (!IsLoggedIn())
-        {
-            return View(bookModel);
-        }
 
-        var uri = new Uri("https://localhost:7227");
-        var cookieContainer = new CookieContainer();
-        using var handler = new HttpClientHandler();
-        handler.CookieContainer = cookieContainer;
-        using var client = new HttpClient(handler);
-        client.BaseAddress = uri;
-        client.DefaultRequestHeaders.Clear();
-        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        cookieContainer.Add(uri, new Cookie("user", user));
-
+        using var client = CreateClient();
 
         if (HttpContext.Request.Method == HttpMethod.Post.Method)
         {
-            var titleVals = HttpContext.Request.Form["Name"];
-            var authorVals = HttpContext.Request.Form["Author"];
-            var res = await client.GetAsync($"api/book/edit/{bookId}?title={titleVals.FirstOrDefault()}&author={authorVals.FirstOrDefault()}");
+            var name = HttpContext.Request.Form["Name"];
+            var author = HttpContext.Request.Form["Author"];
+            var queryString = "";
+            queryString = bookId != -1 
+                ? $"api/book/edit/{bookId}?title={name.FirstOrDefault()}&author={author.FirstOrDefault()}"
+                : $"api/book/add?title={name.FirstOrDefault()}&author={author.FirstOrDefault()}";
+            var res = await client.GetAsync(queryString);
+            
             if (!res.IsSuccessStatusCode)
             {
                 return View(bookModel);
             }
-            
+
             return RedirectToAction("Index");
         }
         else
@@ -106,7 +77,6 @@ public class HomeController : Controller
             var response = res.Content.ReadAsStringAsync().Result;
             bookModel = JsonConvert.DeserializeObject<BookModel>(response);
 
-
             return View(bookModel);
         }
     }
@@ -114,28 +84,34 @@ public class HomeController : Controller
     [Route("home/remove/{bookId}")]
     public async Task<IActionResult> RemoveBook(int bookId)
     {
-        var user = Request.Cookies["user"];
-        if (user != null)
-        {
-            ViewBag.User = user;
-        }
-
         if (!IsLoggedIn())
         {
             return RedirectToAction("Index");
         }
 
+        using var client = CreateClient();
+        
+        await client.GetAsync($"api/book/remove/{bookId}");
+        
+        return RedirectToAction("Index");
+    }
+
+    private HttpClient CreateClient()
+    {
         var uri = new Uri("https://localhost:7227");
         var cookieContainer = new CookieContainer();
-        using var handler = new HttpClientHandler();
+        var handler = new HttpClientHandler();
         handler.CookieContainer = cookieContainer;
-        using var client = new HttpClient(handler);
+        var client = new HttpClient(handler);
         client.BaseAddress = uri;
         client.DefaultRequestHeaders.Clear();
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        cookieContainer.Add(uri, new Cookie("user", user));
+        var user = Request.Cookies["user"];
+        if (user != null)
+        {
+            cookieContainer.Add(uri, new Cookie("user", user));
+        }
 
-        await client.GetAsync($"api/book/remove/{bookId}");
-        return RedirectToAction("Index");
+        return client;
     }
 }

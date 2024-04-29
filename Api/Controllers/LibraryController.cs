@@ -57,15 +57,16 @@ public class LibraryController : Controller
 
     [HttpGet("/api/book/edit/{bookId}")]
     [ServiceFilter(typeof(RequestModelValidationFilter))]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BookModel),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorCodeModel), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UpdateBook(UpdateBookReqModel updateBookReqModel,
         CancellationToken cancellationToken)
     {
         await _bookLibraryRepository.UpdateBookDetails(updateBookReqModel.BookId, updateBookReqModel.Title,
             updateBookReqModel.Author, cancellationToken);
+        var bookUpdated = await _bookLibraryRepository.GetBook(updateBookReqModel.BookId, cancellationToken);
 
-        return Ok();
+        return Ok(bookUpdated);
     }
 
     [HttpGet("/api/book/add/")]

@@ -24,7 +24,7 @@ public class BookLibraryDaoImpl : IBookLibraryDao
     private static readonly DateTimeFormatInfo DateTimeFormat = new CultureInfo("sk-SK").DateTimeFormat;
     private readonly string _valueValidationSchema;
     private bool _schemaValidated;
-    private bool _isSchemaValidation;
+    private readonly bool _isSchemaValidation;
 
     public BookLibraryDaoImpl(IOptions<BookLibraryDataSourceConfig> config)
     {
