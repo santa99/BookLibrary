@@ -7,11 +7,11 @@ namespace Api.Filters;
 
 public class CustomAuthorizeFilter : IAuthorizationFilter
 {
-    private readonly UserIdentity _userIdentityValue;
+    private readonly UserIdentityConfiguration _userIdentityConfigurationValue;
 
-    public CustomAuthorizeFilter(IOptions<UserIdentity> userIdentiy)
+    public CustomAuthorizeFilter(IOptions<UserIdentityConfiguration> userIdentity)
     {
-        _userIdentityValue = userIdentiy.Value;
+        _userIdentityConfigurationValue = userIdentity.Value;
     }
 
     public void OnAuthorization(AuthorizationFilterContext context)
@@ -21,7 +21,7 @@ public class CustomAuthorizeFilter : IAuthorizationFilter
             context.Result = new ForbidResult();
         }
         
-        if (userVal != _userIdentityValue.User)
+        if (userVal != _userIdentityConfigurationValue.User)
         {
             context.Result = new ForbidResult();
         }

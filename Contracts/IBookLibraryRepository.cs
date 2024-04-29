@@ -56,5 +56,5 @@ public interface IBookLibraryRepository
     /// <param name="count">Restrict number of books from library.</param>
     /// <param name="start">Relative start to retrieve books from. Perfect for pagination purpose.</param>
     /// <returns>A list of all books.</returns>
-    public List<BookModel> ListBooks(int bookStateId, int count = -1, int start = 0);
+    public List<BookModel> ListBooks(BookState bookStateId, int count = -1, int start = 0);
 }

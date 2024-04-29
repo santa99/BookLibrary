@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Api.Configuration;
+﻿using Api.Configuration;
+using Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -7,9 +7,9 @@ namespace Api.Controllers;
 
 public class AccountController : Controller
 {
-    private readonly IOptions<UserIdentity> _userIdentity;
+    private readonly IOptions<UserIdentityConfiguration> _userIdentity;
 
-    public AccountController(IOptions<UserIdentity> userIdentity)
+    public AccountController(IOptions<UserIdentityConfiguration> userIdentity)
     {
         _userIdentity = userIdentity;
     }
@@ -20,7 +20,7 @@ public class AccountController : Controller
         var authenticatedUser = Request.Cookies["user"];
         if (authenticatedUser != null)
         {
-            return LocalRedirect(returnUrl);   
+            return LocalRedirect(returnUrl);
         }
 
         return View();
@@ -32,11 +32,11 @@ public class AccountController : Controller
         var userIdentityValue = _userIdentity.Value;
         if (model.username == userIdentityValue?.User && model.password == userIdentityValue?.Password)
         {
-            // Generujeme cookie
-            var cookieOptions = new CookieOptions();
-            cookieOptions.Expires = DateTime.Now.AddMinutes(5);
-            Response.Cookies.Append("userId", "99", cookieOptions);
-            Response.Cookies.Append("user",userIdentityValue.User ,cookieOptions);
+            var cookieOptions = new CookieOptions
+            {
+                Expires = DateTime.Now.AddMinutes(10)
+            };
+            Response.Cookies.Append("user", userIdentityValue.User, cookieOptions);
 
             return LocalRedirect(returnUrl);
         }
@@ -46,13 +46,12 @@ public class AccountController : Controller
         return View(model);
     }
 
-    public record LoginViewModel(string username, [DataType(DataType.Password)] string password);
 
     [HttpGet("/account/logout")]
     public Task<IActionResult> Logout(string returnUrl)
     {
         Response.Cookies.Delete("user");
-        
+
         return Task.FromResult<IActionResult>(LocalRedirect(returnUrl));
     }
 }

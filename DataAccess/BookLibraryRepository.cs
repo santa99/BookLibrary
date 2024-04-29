@@ -15,7 +15,7 @@ public class BookLibraryRepository : IBookLibraryRepository
         _bookLibraryDao = bookLibraryDao;
         _readersInfoDao = readersInfoDao;
     }
-    
+
     public int AddNewBook(string name, string author)
     {
         return _bookLibraryDao.Create(new BookModel
@@ -29,7 +29,7 @@ public class BookLibraryRepository : IBookLibraryRepository
     {
         _bookLibraryDao.Delete(bookId);
     }
-    
+
     public BookModel? GetBook(int bookId)
     {
         return _bookLibraryDao.Read(bookId);
@@ -61,7 +61,8 @@ public class BookLibraryRepository : IBookLibraryRepository
 
         if (bookModel.Borrowed != null)
         {
-            throw new InvalidOperationException($"Requested book '{bookId}':'{bookModel.Name}' has already been borrowed.");
+            throw new InvalidOperationException(
+                $"Requested book '{bookId}':'{bookModel.Name}' has already been borrowed.");
         }
 
         var readerInfo = _readersInfoDao.Read(readersCardId);
@@ -93,15 +94,19 @@ public class BookLibraryRepository : IBookLibraryRepository
         _bookLibraryDao.Update(bookModel);
     }
 
-    public List<BookModel> ListBooks(int bookStateId, int count = -1, int start = 0)
+    public List<BookModel> ListBooks(BookState bookState, int count = -1, int start = 0)
     {
         var bookModels = _bookLibraryDao.GetBooks();
 
-        return bookStateId switch
+        count = count == -1 ? bookModels.Count : count;
+        var rangeWindow = start + count;
+        var range = bookModels.Where((_, i) => i >= start && i < rangeWindow).ToList();
+
+        return bookState switch
         {
-            -1 => bookModels,
-            0 => bookModels.Where(model => model.Borrowed == null).ToList(),
-            1 => bookModels.Where(model => model.Borrowed != null).ToList(),
+            BookState.All => range,
+            BookState.Free => range.Where(model => model.Borrowed == null).ToList(),
+            BookState.Borrowed => range.Where(model => model.Borrowed != null).ToList(),
             _ => bookModels
         };
     }

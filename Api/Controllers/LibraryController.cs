@@ -1,5 +1,4 @@
-﻿using Api.Filters;
-using Attendance;
+﻿using Api.Mappers;
 using Contracts;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,12 +10,15 @@ public class LibraryController : Controller
 {
     private readonly IBookLibraryRepository _bookLibraryRepository;
     private readonly IBorrowBookCommand _borrowBookCommand;
+    private readonly BookStateMapper _bookStateMapper;
 
     public LibraryController(IBookLibraryRepository bookLibraryRepository,
-        IBorrowBookCommand borrowBookCommand)
+        IBorrowBookCommand borrowBookCommand,
+        BookStateMapper bookStateMapper)
     {
         _bookLibraryRepository = bookLibraryRepository;
         _borrowBookCommand = borrowBookCommand;
+        _bookStateMapper = bookStateMapper;
     }
     
     [Route("/api/book/select/{bookState}")]
@@ -24,7 +26,7 @@ public class LibraryController : Controller
     {
         bookState ??= (int)BookState.All;
         
-        var bookModels = _bookLibraryRepository.ListBooks(bookState.Value);
+        var bookModels = _bookLibraryRepository.ListBooks(_bookStateMapper.Map(bookState.Value));
 
         // ViewData["bookModel"] = bookModels;
         // return View(bookModels);
@@ -50,7 +52,7 @@ public class LibraryController : Controller
     {
         _bookLibraryRepository.UpdateBookDetails(bookId, title, author);
         
-        var bookModels = _bookLibraryRepository.ListBooks((int)BookState.All);
+        var bookModels = _bookLibraryRepository.ListBooks(BookState.All);
         
         return Ok(bookModels);
     }
@@ -60,7 +62,7 @@ public class LibraryController : Controller
     {
         _bookLibraryRepository.AddNewBook( title, author);
         
-        var bookModels = _bookLibraryRepository.ListBooks((int)BookState.All);
+        var bookModels = _bookLibraryRepository.ListBooks(BookState.All);
         
         return Ok(bookModels);
     }
