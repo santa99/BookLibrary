@@ -8,13 +8,11 @@ using SimpleAuthentication;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<UserIdentity>(builder.Configuration.GetSection("UserIdentity"));
-
+builder.Services.Configure<DataSourceConfig>(builder.Configuration.GetSection("DataSource"));
 
 builder.Services.AddSingleton<CustomAuthorizeFilter>();
 builder.Services.AddSingleton<IReadersInfoRepository, ReadersInfoRepository>();
 builder.Services.AddSingleton<IBookLibraryRepository, BookLibraryRepository>();
-builder.Services.AddSingleton<LibraryDb>();
-// builder.Services.AddSingleton<ILibraryDb, LibraryDb>();
 builder.Services.AddSingleton<ILibraryDb, XmlLibrary>();
 builder.Services.AddSingleton<IBookCommand, BookCommand>();
 

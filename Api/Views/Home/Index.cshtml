@@ -3,27 +3,35 @@
     ViewBag.Title = "Home page";
 }
 
-<h1>Home page</h1>
+<h2>@ViewBag.Title</h2>
 
 <div>
+    User: [
     @{
-        var @user = ViewBag?.User;   
+        var @user = ViewBag?.User;
     }
-    
+
     @user
     @if (ViewBag?.User != null)
     {
-        @Html.ActionLink("Log Out", "Logout", "Account",
-            new { returnUrl = "/" });
+        @Html.ActionLink("LogOut", "Logout", "Account",
+            new { returnUrl = "/" })
+        ;
     }
     else
     {
-        @Html.ActionLink("Log In", "Login", "Account",
-            new { returnUrl = "/" });
+        @Html.ActionLink("LogIn", "Login", "Account",
+            new { returnUrl = "/" })
+        ;
     }
-    
+    ]
 </div>
 
+<hr />
+
+<div class="nav">
+            @Html.ActionLink("Insert Book", "InsertBook", "Library")
+</div>
 
 <div class="form-horizontal">
     <hr />
