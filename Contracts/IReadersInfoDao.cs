@@ -9,6 +9,6 @@ public interface IReadersInfoDao
     /// Gets readers info by the provided <paramref name="readersCardId"/>.
     /// </summary>
     /// <param name="readersCardId">Id of the readers card.</param>
-    /// <returns><see cref="ReaderInfo"/> or null if provided card id is not found.</returns>
-    ReaderInfo? Read(int readersCardId);
+    /// <returns><see cref="ReadersInfo"/> or null if provided card id is not found.</returns>
+    ReadersInfo? Read(int readersCardId);
 }

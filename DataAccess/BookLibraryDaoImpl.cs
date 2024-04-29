@@ -20,6 +20,7 @@ public class BookLibraryDaoImpl : IBookLibraryDao
     private const string BookIdAttribute = "id";
     private readonly DateTimeFormatInfo _dateTimeFormat = new CultureInfo("sk-SK").DateTimeFormat;
 
+
     public int Create(BookModel bookModel)
     {
         if (bookModel.Id > 0) return -1;

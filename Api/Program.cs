@@ -3,6 +3,7 @@ using Api.Configuration;
 using Api.Filters;
 using Contracts;
 using DataAccess;
+using DataAccess.Configuration;
 using SimpleAuthentication;
 
 var builder = WebApplication.CreateBuilder(args);

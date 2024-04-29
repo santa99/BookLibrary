@@ -14,14 +14,14 @@ public class ReadersInfoDaoImpl : IReadersInfoDao
         { 3, new Tuple<string, string>("Tibor", "Vesely") }
     };
 
-    public ReaderInfo? Read(int readersCardId)
+    public ReadersInfo? Read(int readersCardId)
     {
         if (!_readersInfo.TryGetValue(readersCardId, out var reader))
         {
             return null;
         }
 
-        return new ReaderInfo
+        return new ReadersInfo
         {
             ReaderCardId = readersCardId,
             FirstName = reader.Item1,

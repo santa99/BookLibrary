@@ -14,7 +14,7 @@ public class ReadersInfoRepository : IReadersInfoRepository
         _readersInfoDao = readersInfoDao;
     }
 
-    public ReaderInfo? GetReadersInfo(int readersCardId)
+    public ReadersInfo? GetReadersInfo(int readersCardId)
     {
         return _readersInfoDao.Read(readersCardId);
     }

@@ -1,7 +1,7 @@
 ﻿namespace Contracts;
 
 /// <summary>
-/// Contract the API can access data from layer below.
+/// Contract so that the API can access data from book library repository.
 /// </summary>
 public interface IBookLibraryRepository
 {
