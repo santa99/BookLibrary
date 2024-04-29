@@ -9,7 +9,7 @@ namespace Api.Controllers;
 
 // [Authorize]
 [ServiceFilter(typeof(CustomAuthorizeFilter))]
-[ProducesResponseType(typeof(List<ErrorCodeModel>),StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(typeof(List<ErrorCodeModel>), StatusCodes.Status401Unauthorized)]
 public class LibraryController : Controller
 {
     private readonly IBookLibraryRepository _bookLibraryRepository;
@@ -26,14 +26,24 @@ public class LibraryController : Controller
     }
 
     [Route("/api/book/select/{bookState}")]
-    [ProducesResponseType(typeof(List<BookModel>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<BookModel>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Index(int? bookState, CancellationToken cancellationToken)
     {
         bookState ??= (int)BookState.All;
 
-        var bookModels = await _bookLibraryRepository.ListBooks(_bookStateMapper.Map(bookState.Value), cancellationToken);
+        var bookModels =
+            await _bookLibraryRepository.ListBooks(_bookStateMapper.Map(bookState.Value), cancellationToken);
 
         return Ok(bookModels);
+    }
+
+    [HttpGet("/api/book/get/{bookId}")]
+    [ProducesResponseType(typeof(BookModel), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetBook(int bookId, CancellationToken cancellationToken)
+    {
+        var bookModel = await _bookLibraryRepository.GetBook(bookId, cancellationToken);
+
+        return Ok(bookModel);
     }
 
     [Route("/api/book/remove/{bookId}")]
@@ -48,7 +58,7 @@ public class LibraryController : Controller
     [HttpGet("/api/book/edit/{bookId}")]
     [ServiceFilter(typeof(RequestModelValidationFilter))]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorCodeModel),StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorCodeModel), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UpdateBook(UpdateBookReqModel updateBookReqModel,
         CancellationToken cancellationToken)
     {
@@ -60,13 +70,15 @@ public class LibraryController : Controller
 
     [HttpGet("/api/book/add/")]
     [ServiceFilter(typeof(RequestModelValidationFilter))]
-    [ProducesResponseType(typeof(BookModel),StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorCodeModel),StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(BookModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorCodeModel), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> InsertBook([FromRoute] CreateBookReqModel createBookReqModel,
         CancellationToken cancellationToken)
     {
-        var bookId = await _bookLibraryRepository.AddNewBook(createBookReqModel.Title, createBookReqModel.Author, cancellationToken);
-        var bookInserted = await _bookLibraryRepository.GetBook(bookId);
+        var bookId =
+            await _bookLibraryRepository.AddNewBook(createBookReqModel.Title, createBookReqModel.Author,
+                cancellationToken);
+        var bookInserted = await _bookLibraryRepository.GetBook(bookId, cancellationToken);
 
         return Ok(bookInserted);
     }
@@ -78,8 +90,8 @@ public class LibraryController : Controller
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     [HttpGet("/api/book/borrow/{bookId}/{readersCardId}")]
     [ServiceFilter(typeof(RequestModelValidationFilter))]
-    [ProducesResponseType(typeof(BorrowModel),StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ErrorCodeModel),StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(BorrowModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorCodeModel), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> BorrowBook([FromRoute] CreateBorrowReqModel borrowReqModel,
         CancellationToken cancellationToken)
     {
@@ -95,7 +107,7 @@ public class LibraryController : Controller
     /// <param name="bookId">Unique identifier of the book.</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     [Route("/api/book/return/{bookId}")]
-    [ProducesResponseType(typeof(int),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
     public async Task<IActionResult> ReturnBook(int bookId, CancellationToken cancellationToken)
     {
         var bookIdReturned = await _borrowBookCommand.ReturnBook(bookId, cancellationToken);

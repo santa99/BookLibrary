@@ -1,0 +1,42 @@
+﻿@model Contracts.BookModel  
+
+@{
+    ViewBag.Title = "EditBook";
+}
+
+@using (Html.BeginForm())
+
+{
+    <div class="topDiv">
+        <table>
+            <tr>
+                <h2>Add/Edit Book</h2>
+            </tr>
+            <tr>
+                <td>@Html.LabelFor(m => m.Name) :</td>
+                <td>
+                    <div class="innerDiv">
+                        @Html.TextBoxFor(m => m.Name)
+                        @Html.ValidationMessageFor(m => m.Name)
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>@Html.LabelFor(m => m.Author) :</td>
+                <td>
+                    <div class="innerDiv">
+                        @Html.TextBoxFor(m => m.Author)
+                        @Html.ValidationMessageFor(m => m.Author)
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div class="innerDiv">
+                        <input id="btnAdd" type="submit" value="Save" style=" width:75px"/>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+}

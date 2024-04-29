@@ -30,7 +30,7 @@
 <hr />
 
 <div class="nav">
-            @Html.ActionLink("Insert Book", "InsertBook", "Library")
+            @Html.ActionLink("Insert Book", "EditBook", "Home")
 </div>
 
 <div class="form-horizontal">
@@ -63,10 +63,10 @@
                         @Html.DisplayFor(modelItem => item.Author)
                     </td>
                     <td>
-                        @Html.ActionLink("Edit", "UpdateBook", "Library",
-                            new { bookId = @item.Id }) /
-                        @Html.ActionLink("Remove", "RemoveBook", "Library",
-                            new { bookId = @item.Id })
+                        @Html.ActionLink("Edit", "EditBook", "Home",
+                            new { bookId = item.Id }) /
+                        @Html.ActionLink("Remove", "RemoveBook", "Home",
+                            new { bookId = item.Id })
                     </td>
                 </tr>
             }

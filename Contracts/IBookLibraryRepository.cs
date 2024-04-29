@@ -48,13 +48,14 @@ public interface IBookLibraryRepository
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns>Task returning book id return or -1 when not borrowed.</returns>
     public Task<int> ReturnBook(int bookId, CancellationToken cancellationToken);
-    
+
     /// <summary>
     /// Retrieves book from the library based on the book id.
     /// </summary>
     /// <param name="bookId">Unique id of the book.</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns>Book or null if the provided is not found.</returns>
-    public Task<BookModel?> GetBook(int bookId);
+    public Task<BookModel?> GetBook(int bookId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Provide a list of all books in the library.

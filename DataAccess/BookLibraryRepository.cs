@@ -35,7 +35,7 @@ public class BookLibraryRepository : IBookLibraryRepository
         return Task.CompletedTask;
     }
 
-    public Task<BookModel?> GetBook(int bookId)
+    public Task<BookModel?> GetBook(int bookId, CancellationToken cancellationToken)
     {
         return Task.FromResult(_bookLibraryDao.Read(bookId));
     }

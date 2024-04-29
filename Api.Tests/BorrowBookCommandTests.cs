@@ -29,7 +29,7 @@ public class BorrowBookCommandTests
         var dateTimeOffset = _fixture.Create<DateTimeOffset>();
         var bookModel = _fixture.Create<BookModel>();
         bookModel.Borrowed = null;
-        _bookLibraryRepository.GetBook(bookId)
+        _bookLibraryRepository.GetBook(bookId, Arg.Any<CancellationToken>())
             .Returns(bookModel);
 
         // Act
