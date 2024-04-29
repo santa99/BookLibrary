@@ -8,33 +8,32 @@ public interface IBookLibraryDao
     /// <summary>
     /// Adds a new book into the storage.
     /// </summary>
-    /// <param name="name">Name of the title.</param>
-    /// <param name="author">Author of the book.</param>
+    /// <param name="bookModel">Book model.</param>
     /// <returns>Id of the book.</returns>
-    int Create(string name, string author);
-    
+    int Create(BookModel bookModel);
+
     /// <summary>
     /// Tries to get book by the <paramref name="bookId"/>.
     /// </summary>
     /// <param name="bookId">Unique id of the book.</param>
     /// <returns><see cref="BookModel"/> or null if the provided id is not found.</returns>
     BookModel? Read(int bookId);
-    
+
     /// <summary>
-    /// Updates the book in storage.
+    ///  Updates the book in storage.
     /// </summary>
-    /// <param name="bookId">Unique id of the book.</param>
-    /// <param name="name">Name of the book.</param>
-    /// <param name="author">Author of the book.</param>
-    void Update(int bookId, string? name, string? author);
-    
+    /// <param name="bookModel">Updated book model.</param>
+    void Update(BookModel bookModel);
+
     /// <summary>
     /// Deletes the book from storage.
     /// </summary>
     /// <param name="bookId">Unique id of the book.</param>
     void Delete(int bookId);
-    
+
+    /// <summary>
+    /// Provides the books list.
+    /// </summary>
+    /// <returns>List of books.</returns>
     List<BookModel> GetBooks();
-    void BorrowBook(int bookId, string firstName, string lastName, DateTimeOffset from);
-    void ReturnBook(int bookId);
 }

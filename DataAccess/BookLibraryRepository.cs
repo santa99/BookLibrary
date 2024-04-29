@@ -3,7 +3,7 @@
 namespace DataAccess;
 
 /// <summary>
-/// Class <see cref="BookLibraryRepository"/> is the repository for the book library.
+///     Class <see cref="BookLibraryRepository" /> is the repository for the book library.
 /// </summary>
 public class BookLibraryRepository : IBookLibraryRepository
 {
@@ -21,7 +21,11 @@ public class BookLibraryRepository : IBookLibraryRepository
 
     public int AddBook(string name, string author)
     {
-        return _bookLibraryDao.Create(name, author);
+        return _bookLibraryDao.Create(new BookModel
+        {
+            Name = name,
+            Author = author
+        });
     }
 
     public BookModel? GetBook(int bookId)
@@ -31,17 +35,41 @@ public class BookLibraryRepository : IBookLibraryRepository
 
     public void UpdateBook(int bookId, string? name, string? author)
     {
-        _bookLibraryDao.Update(bookId, name, author);
+        var bookModel = _bookLibraryDao.Read(bookId);
+        if (bookModel == null) return;
+
+        _bookLibraryDao.Update(new BookModel
+        {
+            Id = bookId,
+            Name = string.IsNullOrWhiteSpace(name) ? bookModel.Name : name,
+            Author = string.IsNullOrWhiteSpace(author) ? bookModel.Author : author
+        });
     }
 
+    //Todo: set readers info and retrieve additional info from readersinfodao.
     public void BorrowBook(int bookId, string firstName, string lastName, DateTimeOffset from)
     {
-        _bookLibraryDao.BorrowBook(bookId, firstName, lastName, from);
+        var bookModel = _bookLibraryDao.Read(bookId);
+        if (bookModel == null) return;
+
+        bookModel.Borrowed = new BorrowModel
+        {
+            From = from,
+            FirstName = firstName,
+            LastName = lastName
+        };
+
+        _bookLibraryDao.Update(bookModel);
     }
 
     public void ReturnBook(int bookId)
     {
-        _bookLibraryDao.ReturnBook(bookId);
+        var bookModel = _bookLibraryDao.Read(bookId);
+        if (bookModel == null) return;
+
+        bookModel.Borrowed = null;
+
+        _bookLibraryDao.Update(bookModel);
     }
 
     public List<BookModel> ListBooks(int bookStateId, int count = -1, int start = 0)

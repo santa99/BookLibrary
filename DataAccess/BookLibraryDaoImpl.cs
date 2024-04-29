@@ -20,101 +20,9 @@ public class BookLibraryDaoImpl : IBookLibraryDao
     private const string BookIdAttribute = "id";
     private readonly DateTimeFormatInfo _dateTimeFormat = new CultureInfo("sk-SK").DateTimeFormat;
 
-
-    public void Delete(int bookId)
+    public int Create(BookModel bookModel)
     {
-        if (bookId <= 0)
-        {
-            return;
-        }
-
-        var xmlDocument = XDocument.Load(LibraryXml);
-        var bookElements = xmlDocument.Descendants(BookElement).ToList();
-        var xmlElementToRemove = GetBookByIdElement(bookElements, bookId);
-
-        if (xmlElementToRemove == null)
-        {
-            return;
-        }
-
-        xmlElementToRemove.Remove();
-        xmlDocument.Save(LibraryXml);
-    }
-
-    public int Create(string name, string author)
-    {
-        return InsertBook(new BookModel
-        {
-            Name = name,
-            Author = author
-        });
-    }
-
-    public void Update(int bookId, string? name, string? author)
-    {
-        if (bookId <= 0)
-        {
-            return;
-        }
-
-        var bookDetailsById = GetBookDetailsById(bookId);
-        if (bookDetailsById == null)
-        {
-            return;
-        }
-        
-        UpdateBook(new BookModel
-        {
-            Id = bookId,
-            Name = string.IsNullOrWhiteSpace(name) ? bookDetailsById.Name : name,
-            Author = string.IsNullOrWhiteSpace(author) ? bookDetailsById.Author : author
-        });
-    }
-
-    private static void UpdateBook(BookModel bookModel)
-    {
-        var xmlDocument = XDocument.Load(LibraryXml);
-        var bookElements = xmlDocument.Descendants(BookElement).ToList();
-        var elementToUpdate = GetBookByIdElement(bookElements, bookModel.Id);
-
-        if (elementToUpdate == null)
-        {
-            return;
-        }
-        
-        SetElementValue(elementToUpdate, BookNameElement, bookModel.Name);
-        SetElementValue(elementToUpdate, BookAuthorElement, bookModel.Author);
-        if (bookModel.Borrowed != null)
-        {
-            if (elementToUpdate.Element(BorrowedElement) != null)
-            {
-                elementToUpdate
-                    .Element(BorrowedElement)?
-                    .Remove();
-            }
-            elementToUpdate.Add(new XElement(BorrowedElement,
-                        new XElement(BorrowedFirstNameElement, bookModel.Borrowed.FirstName),
-                        new XElement(BorrowedLastNameElement, bookModel.Borrowed.LastName),
-                        new XElement(BorrowedFromElement, bookModel.Borrowed.From)
-                    )
-                );
-        }
-        else
-        {
-            elementToUpdate
-                .Element(BorrowedElement)?
-                .Remove();
-        }
-
-        xmlDocument.Save(LibraryXml);
-    }
-
-    private static int InsertBook(BookModel bookModel)
-    {
-        if (bookModel.Id > 0)
-        {
-            return -1;
-        }
+        if (bookModel.Id > 0) return -1;
 
         var xmlDocument = new XmlDocument();
         xmlDocument.Load(LibraryXml);
@@ -122,17 +30,12 @@ public class BookLibraryDaoImpl : IBookLibraryDao
         var nextBookId = -1;
         foreach (var book in elementsByTagName)
         {
-            if (book is not XmlNode bookXmlNode)
-            {
-                continue;
-            }
+            if (book is not XmlNode bookXmlNode) continue;
 
             var xmlAttribute = bookXmlNode.Attributes?[BookIdAttribute];
             if (xmlAttribute != null && int.TryParse(xmlAttribute.InnerText, out var validBookIdNumber) &&
                 validBookIdNumber > nextBookId)
-            {
                 nextBookId = validBookIdNumber;
-            }
         }
 
         nextBookId = nextBookId == -1 ? 1 : nextBookId + 1;
@@ -146,47 +49,66 @@ public class BookLibraryDaoImpl : IBookLibraryDao
                 new XElement(BookAuthorElement, bookModel.Author)));
         xmlDoc.Save(LibraryXml);
 
+        //TODO: Borrowed if provided.
+
         return nextBookId;
-    }
-
-    private static XElement? GetBookByIdElement(IEnumerable<XElement> bookElements, int bookId)
-    {
-        return bookElements.FirstOrDefault(element =>
-        {
-            var bookIdAttribute = element.Attribute(BookIdAttribute);
-            if (bookIdAttribute == null)
-            {
-                return false;
-            }
-
-            return int.TryParse(bookIdAttribute.Value, out var validBookIdNumber) && validBookIdNumber == bookId;
-        });
-    }
-
-    private static BookModel? GetBookDetailsById(int bookId)
-    {
-        var xmlDocument = XDocument.Load(LibraryXml);
-        var bookElement = GetBookByIdElement(xmlDocument.Descendants(BookElement).ToList(), bookId);
-        if (bookElement == null)
-        {
-            return null;
-        }
-
-        return Map(bookElement);
-    }
-
-    private static void SetElementValue(XElement elementToUpdate, string elementName, string? elementValue)
-    {
-        var bookNameElement = elementToUpdate.Element(elementName);
-        if (bookNameElement != null)
-        {
-            bookNameElement.Value = elementValue!;
-        }
     }
 
     public BookModel? Read(int bookId)
     {
-        return GetBookDetailsById(bookId);
+        if (bookId <= 0) return null;
+
+        var xmlDocument = XDocument.Load(LibraryXml);
+        var bookElement = GetBookByIdElement(xmlDocument.Descendants(BookElement).ToList(), bookId);
+        return bookElement == null ? null : Map(bookElement);
+    }
+
+    public void Update(BookModel bookModel)
+    {
+        var xmlDocument = XDocument.Load(LibraryXml);
+        var bookElements = xmlDocument.Descendants(BookElement).ToList();
+        var elementToUpdate = GetBookByIdElement(bookElements, bookModel.Id);
+
+        if (elementToUpdate == null) return;
+
+        SetElementValue(elementToUpdate, BookNameElement, bookModel.Name);
+        SetElementValue(elementToUpdate, BookAuthorElement, bookModel.Author);
+        if (bookModel.Borrowed != null)
+        {
+            if (elementToUpdate.Element(BorrowedElement) != null)
+                elementToUpdate
+                    .Element(BorrowedElement)?
+                    .Remove();
+
+            elementToUpdate.Add(new XElement(BorrowedElement,
+                    new XElement(BorrowedFirstNameElement, bookModel.Borrowed.FirstName),
+                    new XElement(BorrowedLastNameElement, bookModel.Borrowed.LastName),
+                    new XElement(BorrowedFromElement, bookModel.Borrowed.From)
+                )
+            );
+        }
+        else
+        {
+            elementToUpdate
+                .Element(BorrowedElement)?
+                .Remove();
+        }
+
+        xmlDocument.Save(LibraryXml);
+    }
+
+    public void Delete(int bookId)
+    {
+        if (bookId <= 0) return;
+
+        var xmlDocument = XDocument.Load(LibraryXml);
+        var bookElements = xmlDocument.Descendants(BookElement).ToList();
+        var xmlElementToRemove = GetBookByIdElement(bookElements, bookId);
+
+        if (xmlElementToRemove == null) return;
+
+        xmlElementToRemove.Remove();
+        xmlDocument.Save(LibraryXml);
     }
 
     public List<BookModel> GetBooks()
@@ -212,14 +134,10 @@ public class BookLibraryDaoImpl : IBookLibraryDao
             };
 
             if (borrowedView != null)
-            {
                 foreach (DataRowView borrowView in borrowedView)
                 {
                     var indexToBookView = Convert.ToInt32(borrowView[3]);
-                    if (indexToBookView != i)
-                    {
-                        continue;
-                    }
+                    if (indexToBookView != i) continue;
 
                     var borrowModel = new BorrowModel
                     {
@@ -230,7 +148,6 @@ public class BookLibraryDaoImpl : IBookLibraryDao
 
                     bookModel.Borrowed = borrowModel;
                 }
-            }
 
             books.Add(bookModel);
         }
@@ -238,48 +155,21 @@ public class BookLibraryDaoImpl : IBookLibraryDao
         return books;
     }
 
-    public void BorrowBook(int bookId, string firstName, string lastName, DateTimeOffset from)
+    private static XElement? GetBookByIdElement(IEnumerable<XElement> bookElements, int bookId)
     {
-        if (bookId < 0)
+        return bookElements.FirstOrDefault(element =>
         {
-            return;
-        }
+            var bookIdAttribute = element.Attribute(BookIdAttribute);
+            if (bookIdAttribute == null) return false;
 
-        var xmlDocument = XDocument.Load(LibraryXml);
-        var bookElement = GetBookByIdElement(xmlDocument.Descendants(BookElement).ToList(), bookId);
-        if (bookElement == null)
-        {
-            return;
-        }
-        
-        var bookModel = Map(bookElement);
-        bookModel.Borrowed = new BorrowModel
-        {
-            From = from,
-            FirstName = firstName,
-            LastName = lastName
-        };
-        UpdateBook(bookModel);
+            return int.TryParse(bookIdAttribute.Value, out var validBookIdNumber) && validBookIdNumber == bookId;
+        });
     }
 
-    public void ReturnBook(int bookId)
+    private static void SetElementValue(XElement elementToUpdate, string elementName, string? elementValue)
     {
-        if (bookId < 0)
-        {
-            return;
-        }
-
-        var xmlDocument = XDocument.Load(LibraryXml);
-        var bookElement = GetBookByIdElement(xmlDocument.Descendants(BookElement).ToList(), bookId);
-        if (bookElement == null)
-        {
-            return;
-        }
-
-        var bookModel = Map(bookElement);
-        bookModel.Borrowed = null;
-
-        UpdateBook(bookModel);
+        var bookNameElement = elementToUpdate.Element(elementName);
+        if (bookNameElement != null) bookNameElement.Value = elementValue!;
     }
 
     private static BookModel Map(XElement bookElement)
