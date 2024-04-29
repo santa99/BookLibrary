@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Api.Validators;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Models;
 
@@ -15,6 +16,7 @@ public record CreateBorrowReqModel(
     int BookId,
     [Required(ErrorMessage = "{0} can't be empty or null.")]
     int ReadersCardId,
+    [FromQuery]
     [Required(ErrorMessage = "{0} can't be empty or null.")]
     [DateFromFutureValidation]
     DateTimeOffset From

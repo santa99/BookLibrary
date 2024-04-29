@@ -37,12 +37,12 @@
     </Borrowed>
   </Book>
   <Book id="5">
-    <Name>Hamlet A</Name>
+    <Name>Hamlet</Name>
     <Author>W. Shakespeare</Author>
     <Borrowed>
       <FirstName>Marek</FirstName>
       <LastName>Blanar</LastName>
-      <From>0001-01-01T00:00:00Z</From>
+      <From>2024-04-30T00:00:00+02:00</From>
     </Borrowed>
   </Book>
   <Book id="6">
@@ -52,6 +52,15 @@
       <FirstName>X</FirstName>
       <LastName>Y</LastName>
       <From>25.10.2009</From>
+    </Borrowed>
+  </Book>
+  <Book id="7">
+    <Name>O tebe a o mne</Name>
+    <Author>Zdenko Dobry</Author>
+    <Borrowed>
+      <FirstName>Tibor</FirstName>
+      <LastName>Vesely</LastName>
+      <From>2024-04-30T00:00:00+02:00</From>
     </Borrowed>
   </Book>
 </Library>

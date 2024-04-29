@@ -1,5 +1,4 @@
-﻿@using Contracts
-@using Contracts.Models
+﻿@using Contracts.Models
 @model Contracts.Models.BookModel  
 
 @{
@@ -15,11 +14,10 @@
                 <h2>Borrow book - @Model.Name : @Model.Author</h2>
             </tr>
             <tr>
-                <td>@Html.LabelFor(m => m.Author) :</td>
+                <td>Reader :</td>
                 <td>
                     <div class="innerDiv">
                         <select name="ReadersCardId">
-                            <option value="">Readers info</option>
                             @foreach (ReadersInfo readersInfo in (IEnumerable<ReadersInfo>)@ViewData["Readers"])
                             {
                                 <option value="@readersInfo.ReaderCardId">@readersInfo.FirstName  @readersInfo.LastName</option>

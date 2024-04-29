@@ -8,7 +8,7 @@ namespace Api.Configuration;
 public class UserIdentityConfiguration
 {
     /// <summary>
-    /// User.
+    /// User able editing library.
     /// </summary>
     public string User { get; set; }
     /// <summary>

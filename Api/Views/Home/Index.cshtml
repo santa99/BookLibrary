@@ -3,7 +3,7 @@
     ViewBag.Title = "Home page";
 }
 
-<html lang="en">
+<html lang="sk">
 <head>
     <title>@ViewData["appTitle"]</title>
     <meta charset="utf-8"/>
@@ -98,7 +98,7 @@
                                 {
                                     @Html.ActionLink("Return book", "ReturnBook", "Home",
                                         new { bookId = item.Id })
-                                    var borrowedBy = item.Borrowed.FirstName + " " + item.Borrowed.LastName + " " + item.Borrowed.From;
+                                    var borrowedBy = "'" + item.Borrowed.FirstName + " " + item.Borrowed.LastName + "' borrowed on [" + item.Borrowed.From.ToString("dd MMMM yyyy") + "]"; 
                                     <div>
                                         @borrowedBy
                                     </div>

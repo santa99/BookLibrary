@@ -65,6 +65,10 @@ public class HomeController : Controller
             
             if (!res.IsSuccessStatusCode)
             {
+                var errorCodeModel = JsonConvert.DeserializeObject<ErrorCodeModel>(res.Content.ReadAsStringAsync().Result);
+
+                ViewData["errorMessage"] = errorCodeModel.Message;
+                
                 return View(bookModel);
             }
 
@@ -127,8 +131,9 @@ public class HomeController : Controller
 
         if (HttpContext.Request.Method == HttpMethod.Post.Method)
         {
+            var dateTimeOffset = DateTimeOffset.Now;
             var readersCardId =  HttpContext.Request.Form["ReadersCardId"].FirstOrDefault();
-            await client.GetAsync($"api/book/borrow/{bookId}/{readersCardId}");
+            await client.GetAsync($"api/book/borrow/{bookId}/{readersCardId}?From={dateTimeOffset.Date}");
             
             return RedirectToAction("Index");
         }
