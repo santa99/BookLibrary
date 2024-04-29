@@ -1,5 +1,5 @@
 ﻿using System.Net;
-using Api.Models.Responses;
+using Contracts.Exceptions;
 
 namespace Api.Middleware.Exceptions.Mappers;
 
@@ -25,9 +25,12 @@ public class ResponseStatusCodeMapper : IResponseStatusCodeMapper
     {
         return errorCode switch
         {
-            ErrorCode.UNEXPECTED => HttpStatusCode.InternalServerError,
-            ErrorCode.AUTHENTICATION_FAILURE => HttpStatusCode.Unauthorized,
-            ErrorCode.REQUEST_VALIDATION_FAILURE => HttpStatusCode.BadRequest,
+            ErrorCode.Unexpected => HttpStatusCode.InternalServerError,
+            ErrorCode.AuthenticationFailure => HttpStatusCode.Unauthorized,
+            ErrorCode.RequestValidationFailure => HttpStatusCode.BadRequest,
+            ErrorCode.BorrowedBook => HttpStatusCode.BadRequest,
+            ErrorCode.BookNotFound => HttpStatusCode.NotFound,
+            ErrorCode.ReadersCardNotFound => HttpStatusCode.NotFound,
             _ => throw new ArgumentOutOfRangeException(nameof(errorCode), errorCode, null)
         };
     }

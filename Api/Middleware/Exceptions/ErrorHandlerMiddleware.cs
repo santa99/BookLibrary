@@ -3,7 +3,7 @@ using System.Security.Authentication;
 using System.Text.Json;
 using Api.Exceptions;
 using Api.Middleware.Exceptions.Mappers;
-using Api.Models.Responses;
+using Contracts.Exceptions;
 
 namespace Api.Middleware.Exceptions;
 

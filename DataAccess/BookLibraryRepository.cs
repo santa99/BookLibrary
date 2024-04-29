@@ -1,4 +1,5 @@
 ﻿using Contracts;
+using Contracts.Exceptions;
 
 namespace DataAccess;
 
@@ -44,7 +45,7 @@ public class BookLibraryRepository : IBookLibraryRepository
         var bookModel = _bookLibraryDao.Read(bookId);
         if (bookModel == null)
         {
-            throw new InvalidOperationException($"Requested bookId: {bookId} does not exist.");
+            throw new BookLibraryException($"Requested bookId: {bookId} does not exist.", ErrorCode.BookNotFound);
         }
 
         _bookLibraryDao.Update(new BookModel
@@ -63,19 +64,19 @@ public class BookLibraryRepository : IBookLibraryRepository
         var bookModel = _bookLibraryDao.Read(bookId);
         if (bookModel == null)
         {
-            throw new InvalidOperationException($"Requested bookId: {bookId} does not exist.");
+            throw new BookLibraryException($"Requested bookId: {bookId} does not exist.", ErrorCode.BookNotFound);
         }
 
         if (bookModel.Borrowed != null)
         {
-            throw new InvalidOperationException(
-                $"Requested book '{bookId}':'{bookModel.Name}' has already been borrowed.");
+            throw new BookLibraryException(
+                $"Requested book '{bookId}':'{bookModel.Name}' has already been borrowed.", ErrorCode.BorrowedBook);
         }
 
         var readerInfo = _readersInfoDao.Read(readersCardId);
         if (readerInfo == null)
         {
-            throw new InvalidOperationException($"Requested readers card info: '{readersCardId}' does not exist.");
+            throw new BookLibraryException($"Requested readers card info: '{readersCardId}' does not exist.", ErrorCode.ReadersCardNotFound);
         }
 
         bookModel.Borrowed = new BorrowModel
@@ -95,7 +96,7 @@ public class BookLibraryRepository : IBookLibraryRepository
         var bookModel = _bookLibraryDao.Read(bookId);
         if (bookModel == null)
         {
-            throw new InvalidOperationException($"Requested bookId: {bookId} does not exist.");
+            throw new BookLibraryException($"Requested bookId: {bookId} does not exist.", ErrorCode.BookNotFound);
         }
 
         if (bookModel.Borrowed == null)

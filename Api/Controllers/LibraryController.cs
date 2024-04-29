@@ -10,6 +10,7 @@ namespace Api.Controllers;
 // [Authorize]
 // [ServiceFilter(typeof(CustomAuthorizeFilter))]
 // [ServiceFilter(typeof(RequestModelValidationFilter))]
+[ProducesResponseType(typeof(List<ErrorCodeModel>),StatusCodes.Status401Unauthorized)]
 public class LibraryController : Controller
 {
     private readonly IBookLibraryRepository _bookLibraryRepository;
@@ -76,7 +77,7 @@ public class LibraryController : Controller
     /// </summary>
     /// <param name="borrowReqModel"><see cref="CreateBorrowReqModel"/></param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
-    [HttpPost("/api/book/borrow/{bookId}/{readersCardId}")]
+    [HttpGet("/api/book/borrow/{bookId}/{readersCardId}")]
     [ServiceFilter(typeof(RequestModelValidationFilter))]
     [ProducesResponseType(typeof(BorrowModel),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorCodeModel),StatusCodes.Status400BadRequest)]

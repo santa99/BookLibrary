@@ -1,4 +1,5 @@
 ﻿using Api.Models.Responses;
+using Contracts.Exceptions;
 
 namespace Api.Exceptions;
 
@@ -14,6 +15,6 @@ public class RequestValidationException : Exception
     
     public RequestValidationException(string message) : base(message)
     {
-        ErrorCode = ErrorCode.REQUEST_VALIDATION_FAILURE;
+        ErrorCode = ErrorCode.RequestValidationFailure;
     }
 }

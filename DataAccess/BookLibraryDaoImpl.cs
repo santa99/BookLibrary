@@ -23,22 +23,25 @@ public class BookLibraryDaoImpl : IBookLibraryDao
     private const string BookIdAttribute = "id";
     private static readonly DateTimeFormatInfo DateTimeFormat = new CultureInfo("sk-SK").DateTimeFormat;
     private readonly string _valueValidationSchema;
-    private bool _validateSchema;
+    private bool _schemaValidated;
+    private bool _isSchemaValidation;
 
     public BookLibraryDaoImpl(IOptions<BookLibraryDataSourceConfig> config)
     {
-        _libraryXml = config.Value.FilePath;
-        _valueValidationSchema = config.Value.ValidationSchema;
+        var bookLibraryDataSourceConfig = config.Value;
+        _libraryXml = bookLibraryDataSourceConfig.FilePath;
+        _valueValidationSchema = bookLibraryDataSourceConfig.ValidationSchema;
+        _isSchemaValidation = bookLibraryDataSourceConfig.IsSchemaValidation;
     }
 
     private void ValidateSchema()
     {
-        if (_validateSchema)
+        if (_schemaValidated || !_isSchemaValidation)
         {
             return;
         }
 
-        _validateSchema = true;
+        _schemaValidated = true;
         
         var schemas = new XmlSchemaSet();
         using var schema = new StreamReader(new FileStream(_valueValidationSchema, FileMode.Open));

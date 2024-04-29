@@ -1,6 +1,7 @@
 ﻿using System.Security.Authentication;
 using Api.Exceptions;
 using Api.Models.Responses;
+using Contracts.Exceptions;
 
 namespace Api.Middleware.Exceptions.Mappers;
 
@@ -54,8 +55,8 @@ public class ErrorResponseMapper : IErrorResponseMapper
     public ErrorCodeModel MapUnhandledException(Exception exception)
     {
         return new ErrorCodeModel(
-            (int)ErrorCode.UNEXPECTED,
-            ErrorCode.UNEXPECTED.ToString(),
+            (int)ErrorCode.Unexpected,
+            exception.Message,
             "Unexpected exception."
         );
     }
@@ -64,7 +65,7 @@ public class ErrorResponseMapper : IErrorResponseMapper
     public ErrorCodeModel MapAuthenticationException(AuthenticationException exception)
     {
         return new ErrorCodeModel(
-            (int)ErrorCode.AUTHENTICATION_FAILURE,
+            (int)ErrorCode.AuthenticationFailure,
             exception.Message,
             "Authentication has failed."
         );

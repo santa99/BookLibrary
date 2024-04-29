@@ -1,4 +1,6 @@
 ﻿
+using Contracts;
+
 namespace DataAccess.Configuration;
 
 /// <summary>
@@ -40,4 +42,9 @@ public class BookLibraryDataSourceConfig
             _validationSchema = value;
         }
     }
+
+    /// <summary>
+    /// Checks whether to perform <see cref="FilePath"/> validation with <see cref="ValidationSchema"/> if true.
+    /// </summary>
+    public bool IsSchemaValidation { get; set; } = false;
 }

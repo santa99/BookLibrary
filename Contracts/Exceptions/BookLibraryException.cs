@@ -1,6 +1,4 @@
-﻿using Api.Models.Responses;
-
-namespace Api.Exceptions;
+﻿namespace Contracts.Exceptions;
 
 public class BookLibraryException : Exception
 {
@@ -9,7 +7,7 @@ public class BookLibraryException : Exception
     /// </summary>
     public ErrorCode ErrorCode { get; }
 
-    protected BookLibraryException(string message, ErrorCode errorCode) : base(message)
+    public BookLibraryException(string message, ErrorCode errorCode) : base(message)
     {
         ErrorCode = errorCode;
     }
