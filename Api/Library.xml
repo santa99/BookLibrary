@@ -1,33 +1,29 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Library>
   <Book id="1">
-    <Name>Svet je nahovno</Name>
-    <Author>MarekU</Author>
+    <Name>Svet je narit</Name>
+    <Author>M.B</Author>
     <Borrowed>
-      <FirstName>Peter</FirstName>
-      <LastName>Prvy</LastName>
-      <From>25.3.2016</From>
+      <FirstName>Tibor</FirstName>
+      <LastName>Vesely</LastName>
+      <From>0001-01-01T00:00:00Z</From>
     </Borrowed>
   </Book>
   <Book id="2">
     <Name>Romeo a Julia</Name>
     <Author>William Shakespeare</Author>
-    <Borrowed>
-      <FirstName>Lukas</FirstName>
-      <LastName>Druhy</LastName>
-      <From>16.6.2018</From>
-    </Borrowed>
   </Book>
   <Book id="3">
     <Name>KrasnyDen</Name>
-    <Author>MarekB</Author>
-  </Book>
-  <Book id="4">
-    <Name>KrasnyDen</Name>
-    <Author>MarekB</Author>
+    <Author>MarekZBA</Author>
   </Book>
   <Book id="5">
     <Name>Nepriznana laska</Name>
     <Author>Vaso Patejdl</Author>
+    <Borrowed>
+      <FirstName>Ivan</FirstName>
+      <LastName>Maly</LastName>
+      <From>0001-01-01T00:00:00Z</From>
+    </Borrowed>
   </Book>
 </Library>

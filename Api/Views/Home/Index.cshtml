@@ -3,100 +3,114 @@
     ViewBag.Title = "Home page";
 }
 
-<h2>@ViewBag.Title</h2>
+<html>
+<head>
+    <title>@ViewData["appTitle"]</title>
+    <meta charset="utf-8"/>
+    <link href="~/StyleSheet.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="page-content">
 
-<div>
-    User: [
-    @{
-        var @user = ViewBag?.User;
-    }
 
-    @user
-    @if (ViewBag?.User != null)
-    {
-        @Html.ActionLink("LogOut", "Logout", "Account",
-            new { returnUrl = "/" })
-        ;
-    }
-    else
-    {
-        @Html.ActionLink("LogIn", "Login", "Account",
-            new { returnUrl = "/" })
-        ;
-    }
-    ]
-</div>
+    <h2>@ViewBag.Title</h2>
 
-<hr/>
+    <div>
+        User: [
+        @{
+            var @user = ViewBag?.User;
+        }
 
-<div class="nav">
+        @user
+        @if (ViewBag?.User != null)
+        {
+            @Html.ActionLink("LogOut", "Logout", "Account",
+                new { returnUrl = "/" })
+            ;
+        }
+        else
+        {
+            @Html.ActionLink("LogIn", "Login", "Account",
+                new { returnUrl = "/" })
+            ;
+        }
+        ]
+    </div>
+
+    <hr/>
+
+    <div class="nav">
+        @if (@Model != null)
+        {
+            @Html.ActionLink("Insert Book", "EditBook", "Home", new { bookId = -1 })
+        }
+    </div>
+
+
     @if (@Model != null)
     {
-        @Html.ActionLink("Insert Book", "EditBook", "Home", new { bookId = -1 })
-    }
-</div>
-
-
-@if (@Model != null)
-{
-    <div class="form-horizontal">
-        <hr/>
-        <div class="form-group">
-            <table class="table table-responsive" style="width:100%">
-                <tr style="text-align: left;">
-                    <th>
-                        @Html.DisplayNameFor(model => model.Id)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Name)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Author)
-                    </th>
-                    <th>
-                        Edit
-                    </th>
-                    <th>
-                        Actions
-                    </th>
-                </tr>
-                @foreach (var item in Model)
-                {
+        <div class="form-horizontal">
+            <hr/>
+            <div class="form-group">
+                <table class="table table-responsive" style="width:100%">
                     <tr style="text-align: left;">
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Id)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Name)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Author)
-                        </td>
-                        <td>
-                            @Html.ActionLink("Edit", "EditBook", "Home",
-                                new { bookId = item.Id }) /
-                            @Html.ActionLink("Remove", "RemoveBook", "Home",
-                                new { bookId = item.Id })
-                        </td>
-                        <td>
-                            @if (item.Borrowed != null)
-                            {
-                                @Html.ActionLink("Return book", "ReturnBook", "Home",
-                                    new { bookId = item.Id }) 
-                                var borrowedBy = item.Borrowed.FirstName + " "+ item.Borrowed.LastName + " " + item.Borrowed.From;
-                                <div>
-                                    @borrowedBy
-                                </div>
-                            }
-                            else
-                            {
-                                @Html.ActionLink("Borrow book", "BorrowBook", "Home",
-                                    new { bookId = item.Id })    
-                            }
-                        </td>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Id)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Name)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Author)
+                        </th>
+                        <th>
+                            Edit
+                        </th>
+                        <th>
+                            Actions
+                        </th>
                     </tr>
-                }
-            </table>
+                    @foreach (var item in Model)
+                    {
+                        <tr style="text-align: left;">
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Id)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Author)
+                            </td>
+                            <td>
+                                @Html.ActionLink("Edit", "EditBook", "Home",
+                                    new { bookId = item.Id }) /
+                                @Html.ActionLink("Remove", "RemoveBook", "Home",
+                                    new { bookId = item.Id })
+                            </td>
+                            <td>
+                                @if (item.Borrowed != null)
+                                {
+                                    @Html.ActionLink("Return book", "ReturnBook", "Home",
+                                        new { bookId = item.Id })
+                                    var borrowedBy = item.Borrowed.FirstName + " " + item.Borrowed.LastName + " " + item.Borrowed.From;
+                                    <div>
+                                        @borrowedBy
+                                    </div>
+                                }
+                                else
+                                {
+                                    @Html.ActionLink("Borrow book", "BorrowBook", "Home",
+                                        new { bookId = item.Id })
+                                }
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
         </div>
-    </div>
-}
+    }
+
+</div>
+</body>
+</html>

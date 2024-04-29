@@ -35,6 +35,7 @@ var app = builder.Build();
 
 app.UseMiddleware<ErrorHandlerMiddleware>();
 app.UseAuthenticationAndAuthorization();
+app.UseStaticFiles();
 
 app.MapControllers();
 app.Run();
