@@ -12,6 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<UserIdentityConfiguration>(builder.Configuration.GetSection("UserIdentity"));
 builder.Services.Configure<BookLibraryDataSourceConfig>(builder.Configuration.GetSection("DataSource"));
 
+builder.Services.AddSingleton<RequestModelValidationFilter>();
 builder.Services.AddSingleton<BookStateMapper>();
 builder.Services.AddSingleton<CustomAuthorizeFilter>();
 builder.Services.AddSingleton<IReadersInfoRepository, ReadersInfoRepository>();

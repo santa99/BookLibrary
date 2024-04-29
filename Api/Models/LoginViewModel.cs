@@ -7,4 +7,8 @@ namespace Api.Models;
 /// </summary>
 /// <param name="username">User name.</param>
 /// <param name="password">Valid password.</param>
-public record LoginViewModel(string username, [DataType(DataType.Password)] string password);
+public record LoginViewModel(
+    string username,
+    [DataType(DataType.Password)] 
+    string password
+);

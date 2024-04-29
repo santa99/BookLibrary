@@ -1,4 +1,6 @@
-﻿using Api.Mappers;
+﻿using Api.Filters;
+using Api.Mappers;
+using Api.Models;
 using Contracts;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,6 +8,7 @@ namespace Api.Controllers;
 
 // [Authorize]
 // [ServiceFilter(typeof(CustomAuthorizeFilter))]
+// [ServiceFilter(typeof(RequestModelValidationFilter))]
 public class LibraryController : Controller
 {
     private readonly IBookLibraryRepository _bookLibraryRepository;
@@ -20,76 +23,79 @@ public class LibraryController : Controller
         _borrowBookCommand = borrowBookCommand;
         _bookStateMapper = bookStateMapper;
     }
-    
+
     [Route("/api/book/select/{bookState}")]
+    [ProducesResponseType(typeof(List<BookModel>),StatusCodes.Status200OK)]
     public async Task<IActionResult> Index(int? bookState, CancellationToken cancellationToken)
     {
         bookState ??= (int)BookState.All;
-        
-        var bookModels = _bookLibraryRepository.ListBooks(_bookStateMapper.Map(bookState.Value));
 
-        // ViewData["bookModel"] = bookModels;
-        // return View(bookModels);
+        var bookModels = await _bookLibraryRepository.ListBooks(_bookStateMapper.Map(bookState.Value), cancellationToken);
+
         return Ok(bookModels);
     }
 
     [Route("/api/book/remove/{bookId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> RemoveBook(int bookId, CancellationToken cancellationToken)
     {
-        _bookLibraryRepository.RemoveBook(bookId);
-        
-        // var bookModels = _bookLibraryRepository.ListBooks((int)BookState.All);
-        
-        // return Ok(bookModels);
-        return RedirectToPage("Index");
-        // return RedirectToAction("Index");
-        // ViewData["bookModel"] = bookModels;
-        // return View(bookModels);
+        await _bookLibraryRepository.RemoveBook(bookId, cancellationToken);
+
+        return Ok();
     }
 
-    [Route("/api/book/edit/{bookId}")]
-    public async Task<IActionResult> UpdateBook(int bookId,[FromQuery] string? title, [FromQuery] string? author, CancellationToken cancellationToken)
+    [HttpGet("/api/book/edit/{bookId}")]
+    [ServiceFilter(typeof(RequestModelValidationFilter))]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> UpdateBook(UpdateBookReqModel updateBookReqModel,
+        CancellationToken cancellationToken)
     {
-        _bookLibraryRepository.UpdateBookDetails(bookId, title, author);
-        
-        var bookModels = _bookLibraryRepository.ListBooks(BookState.All);
-        
-        return Ok(bookModels);
+        await _bookLibraryRepository.UpdateBookDetails(updateBookReqModel.BookId, updateBookReqModel.Title,
+            updateBookReqModel.Author, cancellationToken);
+
+        return Ok();
     }
 
-    [Route("/api/book/add/")]
-    public async Task<IActionResult> InsertBook([FromQuery] string title, [FromQuery] string author, CancellationToken cancellationToken)
+    [HttpGet("/api/book/add/")]
+    [ServiceFilter(typeof(RequestModelValidationFilter))]
+    [ProducesResponseType(typeof(BookModel),StatusCodes.Status200OK)]
+    public async Task<IActionResult> InsertBook([FromRoute] CreateBookReqModel createBookReqModel,
+        CancellationToken cancellationToken)
     {
-        _bookLibraryRepository.AddNewBook( title, author);
-        
-        var bookModels = _bookLibraryRepository.ListBooks(BookState.All);
-        
-        return Ok(bookModels);
+        var bookId = await _bookLibraryRepository.AddNewBook(createBookReqModel.Title, createBookReqModel.Author, cancellationToken);
+        var bookInserted = await _bookLibraryRepository.GetBook(bookId);
+
+        return Ok(bookInserted);
     }
 
     /// <summary>
-    /// Make a book as borrowed.
+    /// Borrow a book from the library.
     /// </summary>
-    /// <param name="bookId">Unique identifier of the book.</param>
-    /// <param name="readersCardId">Unique id identifying the one who borrowed the book.</param>
-    /// <param name="borrowed">Date when the book was borrowed from library.</param>
-    [Route("/api/book/borrow/{bookId}/{readersCardId}")]
-    public async Task<IActionResult> BorrowBook(int bookId, int readersCardId, DateTimeOffset borrowed)
+    /// <param name="borrowReqModel"><see cref="CreateBorrowReqModel"/></param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+    [HttpPost("/api/book/borrow/{bookId}/{readersCardId}")]
+    [ServiceFilter(typeof(RequestModelValidationFilter))]
+    [ProducesResponseType(typeof(BorrowModel),StatusCodes.Status200OK)]
+    public async Task<IActionResult> BorrowBook([FromRoute] CreateBorrowReqModel borrowReqModel,
+        CancellationToken cancellationToken)
     {
-        _borrowBookCommand.BorrowBook(bookId, readersCardId, borrowed);
+        var borrowModel = await _borrowBookCommand.BorrowBook(borrowReqModel.BookId, borrowReqModel.ReadersCardId,
+            borrowReqModel.From, cancellationToken);
 
-        return Ok(bookId);
+        return Ok(borrowModel);
     }
 
     /// <summary>
-    /// Return book back to the library.
+    /// Return the book back to the library.
     /// </summary>
     /// <param name="bookId">Unique identifier of the book.</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     [Route("/api/book/return/{bookId}")]
-    public async Task<IActionResult> ReturnBook(int bookId)
+    [ProducesResponseType(typeof(int),StatusCodes.Status200OK)]
+    public async Task<IActionResult> ReturnBook(int bookId, CancellationToken cancellationToken)
     {
-        _borrowBookCommand.ReturnBook(bookId);
+        var bookIdReturned = await _borrowBookCommand.ReturnBook(bookId, cancellationToken);
 
-        return Ok(bookId);
+        return Ok(bookIdReturned);
     }
 }

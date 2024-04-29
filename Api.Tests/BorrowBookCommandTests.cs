@@ -21,7 +21,7 @@ public class BorrowBookCommandTests
     }
 
     [Fact]
-    public void BorrowBook_Ok()
+    public async Task BorrowBook_Ok()
     {
         // Arrange
         var bookId = _fixture.Create<int>();
@@ -33,10 +33,10 @@ public class BorrowBookCommandTests
             .Returns(bookModel);
 
         // Act
-        _sut.BorrowBook(bookId, readersCardId, dateTimeOffset);
+        var borrowBook = await _sut.BorrowBook(bookId, readersCardId, dateTimeOffset, CancellationToken.None);
 
         // Assert
-        _bookLibraryRepository.Received(1).GetBook(bookId);
-        _bookLibraryRepository.Received(1).BorrowBook(bookId, readersCardId, Arg.Any<DateTimeOffset>());
+        Assert.NotNull(borrowBook);
+        await _bookLibraryRepository.Received(1).BorrowBook(bookId, readersCardId, Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>());
     }
 }

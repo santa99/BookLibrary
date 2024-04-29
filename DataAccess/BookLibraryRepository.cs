@@ -16,26 +16,30 @@ public class BookLibraryRepository : IBookLibraryRepository
         _readersInfoDao = readersInfoDao;
     }
 
-    public int AddNewBook(string name, string author)
+    public Task<int> AddNewBook(string name, string author, CancellationToken cancellationToken)
     {
-        return _bookLibraryDao.Create(new BookModel
+        var bookId = _bookLibraryDao.Create(new BookModel
         {
             Name = name,
             Author = author
         });
+
+        return Task.FromResult(bookId);
     }
 
-    public void RemoveBook(int bookId)
+    public Task RemoveBook(int bookId, CancellationToken cancellationToken)
     {
         _bookLibraryDao.Delete(bookId);
+
+        return Task.CompletedTask;
     }
 
-    public BookModel? GetBook(int bookId)
+    public Task<BookModel?> GetBook(int bookId)
     {
-        return _bookLibraryDao.Read(bookId);
+        return Task.FromResult(_bookLibraryDao.Read(bookId));
     }
 
-    public void UpdateBookDetails(int bookId, string? name, string? author)
+    public Task UpdateBookDetails(int bookId, string? name, string? author, CancellationToken cancellationToken)
     {
         var bookModel = _bookLibraryDao.Read(bookId);
         if (bookModel == null)
@@ -49,9 +53,12 @@ public class BookLibraryRepository : IBookLibraryRepository
             Name = string.IsNullOrWhiteSpace(name) ? bookModel.Name : name,
             Author = string.IsNullOrWhiteSpace(author) ? bookModel.Author : author
         });
+        
+        return Task.CompletedTask;
     }
 
-    public void BorrowBook(int bookId, int readersCardId, DateTimeOffset from)
+    public Task<BorrowModel> BorrowBook(int bookId, int readersCardId, DateTimeOffset from,
+        CancellationToken cancellationToken)
     {
         var bookModel = _bookLibraryDao.Read(bookId);
         if (bookModel == null)
@@ -79,9 +86,11 @@ public class BookLibraryRepository : IBookLibraryRepository
         };
 
         _bookLibraryDao.Update(bookModel);
+
+        return Task.FromResult(bookModel.Borrowed);
     }
 
-    public void ReturnBook(int bookId)
+    public Task<int> ReturnBook(int bookId, CancellationToken cancellationToken)
     {
         var bookModel = _bookLibraryDao.Read(bookId);
         if (bookModel == null)
@@ -89,12 +98,19 @@ public class BookLibraryRepository : IBookLibraryRepository
             throw new InvalidOperationException($"Requested bookId: {bookId} does not exist.");
         }
 
+        if (bookModel.Borrowed == null)
+        {
+            return Task.FromResult(-1);
+        }
+
         bookModel.Borrowed = null;
 
         _bookLibraryDao.Update(bookModel);
+
+        return Task.FromResult(bookModel.Id);
     }
 
-    public List<BookModel> ListBooks(BookState bookState, int count = -1, int start = 0)
+    public Task<List<BookModel>> ListBooks(BookState bookState, CancellationToken cancellationToken, int count = -1, int start = 0)
     {
         var bookModels = _bookLibraryDao.GetBooks();
 
@@ -102,12 +118,12 @@ public class BookLibraryRepository : IBookLibraryRepository
         var rangeWindow = start + count;
         var range = bookModels.Where((_, i) => i >= start && i < rangeWindow).ToList();
 
-        return bookState switch
+        return Task.FromResult(bookState switch
         {
             BookState.All => range,
             BookState.Free => range.Where(model => model.Borrowed == null).ToList(),
             BookState.Borrowed => range.Where(model => model.Borrowed != null).ToList(),
             _ => bookModels
-        };
+        });
     }
 }

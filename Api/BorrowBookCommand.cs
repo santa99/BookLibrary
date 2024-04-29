@@ -12,30 +12,14 @@ public class BorrowBookCommand : IBorrowBookCommand
         _bookLibraryRepository = bookLibraryRepository;
     }
 
-
-    public void BorrowBook(int bookId, int readersCardId, DateTimeOffset borrowed)
+    public Task<BorrowModel> BorrowBook(int bookId, int readersCardId, DateTimeOffset borrowed,
+        CancellationToken cancellationToken)
     {
-        var book = _bookLibraryRepository.GetBook(bookId);
-
-        ValidateBook(bookId, book);
-        
-        _bookLibraryRepository.BorrowBook(bookId, readersCardId, borrowed);
+        return _bookLibraryRepository.BorrowBook(bookId, readersCardId, borrowed, cancellationToken);
     }
 
-    public void ReturnBook(int bookId)
+    public Task<int> ReturnBook(int bookId, CancellationToken cancellationToken)
     {
-        var book = _bookLibraryRepository.GetBook(bookId);
-        
-        ValidateBook(bookId, book);
-        
-        _bookLibraryRepository.ReturnBook(bookId);
-    }
-
-    private static void ValidateBook(int bookId, BookModel? book)
-    {
-        if (book == null)
-        {
-            throw new InvalidOperationException($"Requested bookId: {bookId} does not exist");
-        }
+        return _bookLibraryRepository.ReturnBook(bookId, cancellationToken);
     }
 }
