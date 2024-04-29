@@ -13,13 +13,8 @@ public class BookLibraryRepository : IBookLibraryRepository
     {
         _bookLibraryDao = bookLibraryDao;
     }
-
-    public void RemoveBook(int bookId)
-    {
-        _bookLibraryDao.Delete(bookId);
-    }
-
-    public int AddBook(string name, string author)
+    
+    public int AddNewBook(string name, string author)
     {
         return _bookLibraryDao.Create(new BookModel
         {
@@ -28,12 +23,17 @@ public class BookLibraryRepository : IBookLibraryRepository
         });
     }
 
+    public void RemoveBook(int bookId)
+    {
+        _bookLibraryDao.Delete(bookId);
+    }
+    
     public BookModel? GetBook(int bookId)
     {
         return _bookLibraryDao.Read(bookId);
     }
 
-    public void UpdateBook(int bookId, string? name, string? author)
+    public void UpdateBookDetails(int bookId, string? name, string? author)
     {
         var bookModel = _bookLibraryDao.Read(bookId);
         if (bookModel == null) return;

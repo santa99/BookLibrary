@@ -48,7 +48,7 @@ public class LibraryController : Controller
     [Route("/api/book/edit/{bookId}")]
     public async Task<IActionResult> UpdateBook(int bookId,[FromQuery] string? title, [FromQuery] string? author, CancellationToken cancellationToken)
     {
-        _bookLibraryRepository.UpdateBook(bookId, title, author);
+        _bookLibraryRepository.UpdateBookDetails(bookId, title, author);
         
         var bookModels = _bookLibraryRepository.ListBooks((int)BookState.All);
         
@@ -58,7 +58,7 @@ public class LibraryController : Controller
     [Route("/api/book/add/")]
     public async Task<IActionResult> InsertBook([FromQuery] string title, [FromQuery] string author, CancellationToken cancellationToken)
     {
-        _bookLibraryRepository.AddBook( title, author);
+        _bookLibraryRepository.AddNewBook( title, author);
         
         var bookModels = _bookLibraryRepository.ListBooks((int)BookState.All);
         

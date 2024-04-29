@@ -18,7 +18,7 @@ public interface IBookLibraryRepository
     /// <param name="name">Name of the title.</param>
     /// <param name="author">Author of the book.</param>
     /// <returns>Unique id of the book</returns>
-    public int AddBook(string name, string author);
+    public int AddNewBook(string name, string author);
 
     /// <summary>
     /// Updates existing book in library with the new values.
@@ -26,7 +26,7 @@ public interface IBookLibraryRepository
     /// <param name="bookId">Unique id of the book.</param>
     /// <param name="name">Name of the title.</param>
     /// <param name="author">Author of the book.</param>
-    public void UpdateBook(int bookId, string? name, string? author);
+    public void UpdateBookDetails(int bookId, string? name, string? author);
 
     public void BorrowBook(int bookId, string firstName, string lastName, DateTimeOffset from);
 
