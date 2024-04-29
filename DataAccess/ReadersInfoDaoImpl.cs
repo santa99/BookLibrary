@@ -1,4 +1,5 @@
 ﻿using Contracts;
+using Contracts.Models;
 
 namespace DataAccess;
 
@@ -29,7 +30,7 @@ public class ReadersInfoDaoImpl : IReadersInfoDao
         };
     }
 
-    public List<ReadersInfo> getReadersInfos()
+    public List<ReadersInfo> SelectReadersInfos()
     {
         return _readersInfo.Select(pair => new ReadersInfo()
         {

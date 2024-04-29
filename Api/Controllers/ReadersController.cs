@@ -1,6 +1,7 @@
 ﻿using Api.Filters;
 using Api.Models.Responses;
 using Contracts;
+using Contracts.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;

@@ -1,4 +1,4 @@
-﻿namespace Contracts;
+﻿namespace Contracts.Models;
 
 /// <summary>
 /// Represents entity of the person who borrowed a book.

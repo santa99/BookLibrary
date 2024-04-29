@@ -1,4 +1,4 @@
-﻿namespace Contracts;
+﻿namespace Contracts.Models;
 
 /// <summary>
 /// Model for the book

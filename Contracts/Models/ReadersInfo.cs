@@ -1,4 +1,4 @@
-﻿namespace Contracts;
+﻿namespace Contracts.Models;
 
 /// <summary>
 /// Class <see cref="ReadersInfo"/> represents data transfer object for reader.

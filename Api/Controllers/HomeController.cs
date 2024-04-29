@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
 using Contracts;
+using Contracts.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 

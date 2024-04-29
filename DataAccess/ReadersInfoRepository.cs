@@ -1,4 +1,5 @@
 ﻿using Contracts;
+using Contracts.Models;
 
 namespace DataAccess;
 
@@ -21,6 +22,6 @@ public class ReadersInfoRepository : IReadersInfoRepository
 
     public Task<List<ReadersInfo>> ListReadersInfo(CancellationToken cancellationToken)
     {
-        return Task.FromResult(_readersInfoDao.getReadersInfos());
+        return Task.FromResult(_readersInfoDao.SelectReadersInfos());
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Contracts;
+﻿namespace Contracts.Enums;
 
 /// <summary>
 /// Enumeration <see cref="BookState"/> represents all possible state of book.

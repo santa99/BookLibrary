@@ -1,4 +1,6 @@
-﻿namespace Contracts;
+﻿using Contracts.Models;
+
+namespace Contracts;
 
 /// <summary>
 /// Class <see cref="IBookLibraryDao"/> represents data access object to book library.

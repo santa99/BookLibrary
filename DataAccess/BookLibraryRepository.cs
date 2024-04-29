@@ -1,5 +1,7 @@
 ﻿using Contracts;
+using Contracts.Enums;
 using Contracts.Exceptions;
+using Contracts.Models;
 
 namespace DataAccess;
 

@@ -4,6 +4,7 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
 using Contracts;
+using Contracts.Models;
 using DataAccess.Configuration;
 using Microsoft.Extensions.Options;
 

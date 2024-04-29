@@ -12,6 +12,11 @@
   <Book id="2">
     <Name>Romeo a Julia</Name>
     <Author>William Shakespeare</Author>
+    <Borrowed>
+      <FirstName>Ivan</FirstName>
+      <LastName>Maly</LastName>
+      <From>0001-01-01T00:00:00Z</From>
+    </Borrowed>
   </Book>
   <Book id="3">
     <Name>KrasnyDen</Name>
@@ -25,5 +30,13 @@
       <LastName>Maly</LastName>
       <From>0001-01-01T00:00:00Z</From>
     </Borrowed>
+  </Book>
+  <Book id="6">
+    <Name>Aaa</Name>
+    <Author>BBB</Author>
+  </Book>
+  <Book id="7">
+    <Name>Marek</Name>
+    <Author>aaA</Author>
   </Book>
 </Library>

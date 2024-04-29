@@ -25,8 +25,6 @@ builder.Services.AddSingleton<IBorrowBookCommand, BorrowBookCommand>();
 builder.Services.AddSingleton<IResponseStatusCodeMapper, ResponseStatusCodeMapper>();
 builder.Services.AddSingleton<IErrorResponseMapper, ErrorResponseMapper>();
 
-builder.Services.AddSimpleAuthentication(builder.Configuration);
-
 builder.Services.AddControllersWithViews();
 
 

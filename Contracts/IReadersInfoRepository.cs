@@ -1,4 +1,6 @@
-﻿namespace Contracts;
+﻿using Contracts.Models;
+
+namespace Contracts;
 
 /// <summary>
 /// Contract so that the API can access data from readers info repository.

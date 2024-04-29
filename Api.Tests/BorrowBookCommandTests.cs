@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoNSubstitute;
 using Contracts;
+using Contracts.Models;
 using NSubstitute;
 using Xunit;
 

@@ -1,4 +1,7 @@
-﻿namespace Contracts;
+﻿using Contracts.Enums;
+using Contracts.Models;
+
+namespace Contracts;
 
 /// <summary>
 /// Contract so that the API can access data from book library repository.

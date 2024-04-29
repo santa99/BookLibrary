@@ -1,4 +1,6 @@
-﻿namespace Contracts;
+﻿using Contracts.Models;
+
+namespace Contracts;
 
 /// <summary>
 /// Class <see cref="IReadersInfoDao"/> represents data access object to readers schema.
@@ -16,5 +18,5 @@ public interface IReadersInfoDao
     /// Provides the readers info list.
     /// </summary>
     /// <returns>List of readers info.</returns>
-    List<ReadersInfo> getReadersInfos();
+    List<ReadersInfo> SelectReadersInfos();
 }

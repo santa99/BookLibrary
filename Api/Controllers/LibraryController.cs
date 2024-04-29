@@ -3,6 +3,8 @@ using Api.Mappers;
 using Api.Models;
 using Api.Models.Responses;
 using Contracts;
+using Contracts.Enums;
+using Contracts.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
