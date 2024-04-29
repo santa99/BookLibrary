@@ -1,6 +1,8 @@
 ﻿using System.Globalization;
+using System.Text;
 using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Schema;
 using Contracts;
 using DataAccess.Configuration;
 using Microsoft.Extensions.Options;
@@ -20,10 +22,41 @@ public class BookLibraryDaoImpl : IBookLibraryDao
     private const string BorrowedFromElement = "From";
     private const string BookIdAttribute = "id";
     private static readonly DateTimeFormatInfo DateTimeFormat = new CultureInfo("sk-SK").DateTimeFormat;
+    private readonly string _valueValidationSchema;
+    private bool _validateSchema;
 
     public BookLibraryDaoImpl(IOptions<BookLibraryDataSourceConfig> config)
     {
         _libraryXml = config.Value.FilePath;
+        _valueValidationSchema = config.Value.ValidationSchema;
+    }
+
+    private void ValidateSchema()
+    {
+        if (_validateSchema)
+        {
+            return;
+        }
+
+        _validateSchema = true;
+        
+        var schemas = new XmlSchemaSet();
+        using var schema = new StreamReader(new FileStream(_valueValidationSchema, FileMode.Open));
+        schemas.Add("", XmlReader.Create(schema));
+        
+        var xDocument = LoadXDocument();
+        var stringBuilder = new StringBuilder();
+        var invalidDocument = false;
+        xDocument.Validate(schemas, (_, e) =>
+        {
+            stringBuilder.Append(e.Message).AppendLine();
+            invalidDocument = true;
+        });
+
+        if (invalidDocument)
+        {
+            throw new InvalidOperationException($"Input library {_libraryXml} is corrupted or not in proper format.");
+        }
     }
 
     public int Create(BookModel bookModel)
@@ -33,19 +66,19 @@ public class BookLibraryDaoImpl : IBookLibraryDao
             return -1;
         }
 
-        bookModel.Id = GetNextBookId(LoadXmlDocument());
-        var xmlDoc = LoadXDocument();
+        var xDocument = LoadXDocument();
+        bookModel.Id = GetNextBookId(xDocument);
 
         var bookElement = CreateBookElement(bookModel);
 
-        xmlDoc.Element(LibraryElement)?.Add(bookElement);
+        xDocument.Element(LibraryElement)?.Add(bookElement);
 
         if (bookModel.Borrowed != null)
         {
             bookElement.Add(CreateBorrowedElement(bookModel.Borrowed));
         }
 
-        StoreXDocument(xmlDoc);
+        StoreXDocument(xDocument);
 
         return bookModel.Id;
     }
@@ -133,16 +166,10 @@ public class BookLibraryDaoImpl : IBookLibraryDao
         });
     }
 
-    private XmlDocument LoadXmlDocument()
-    {
-        var xmlDocument = new XmlDocument();
-        xmlDocument.Load(_libraryXml);
-
-        return xmlDocument;
-    }
-
     private XDocument LoadXDocument()
     {
+        ValidateSchema();
+        
         return XDocument.Load(_libraryXml);
     }
 
@@ -176,6 +203,17 @@ public class BookLibraryDaoImpl : IBookLibraryDao
         {
             bookNameElement.Value = elementValue!;
         }
+    }
+
+    private static int MapBookId(XElement bookElement)
+    {
+        var bookIdAttribute = bookElement.Attribute(BookIdAttribute);
+        if (bookIdAttribute == null)
+        {
+            throw new InvalidOperationException($"Missing element attribute '{BookIdAttribute}'");
+        }
+
+        return Convert.ToInt32(bookIdAttribute.Value);
     }
 
     private static BookModel Map(XElement bookElement)
@@ -237,22 +275,10 @@ public class BookLibraryDaoImpl : IBookLibraryDao
         };
     }
 
-    private static int GetNextBookId(XmlDocument xmlDocument)
+    private static int GetNextBookId(XContainer xDocument)
     {
-        var elementsByTagName = xmlDocument.GetElementsByTagName(BookElement);
-        var nextBookId = -1;
-        foreach (var book in elementsByTagName)
-        {
-            if (book is not XmlNode bookXmlNode)
-            {
-                continue;
-            }
-
-            var xmlAttribute = bookXmlNode.Attributes?[BookIdAttribute];
-            if (xmlAttribute != null && int.TryParse(xmlAttribute.InnerText, out var validBookIdNumber) &&
-                validBookIdNumber > nextBookId)
-                nextBookId = validBookIdNumber;
-        }
+        var bookElements = xDocument.Descendants(BookElement);
+        var nextBookId = bookElements.Select(MapBookId).Prepend(-1).Max();
 
         return nextBookId <= 0 ? 1 : nextBookId + 1;
     }

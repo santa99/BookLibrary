@@ -8,7 +8,7 @@
                         <xs:sequence>
                             <xs:element name="Name" type="xs:string"></xs:element>
                             <xs:element name="Author" type="xs:string"></xs:element>
-                            <xs:element name="Borrowed">
+                            <xs:element name="Borrowed" minOccurs="0" maxOccurs="1">
                                 <xs:complexType>
                                     <xs:sequence>
                                         <xs:element name="FirstName" type="xs:string"></xs:element>
