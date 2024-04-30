@@ -38,6 +38,23 @@ public class BorrowBookCommandTests
 
         // Assert
         Assert.NotNull(borrowBook);
-        await _bookLibraryRepository.Received(1).BorrowBook(bookId, readersCardId, Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>());
+        await _bookLibraryRepository.Received(1).BorrowBook(bookId, readersCardId, Arg.Any<DateTimeOffset>(),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task ReturnBook_Ok()
+    {
+        // Arrange
+        var bookModel = _fixture.Create<BookModel>();
+        bookModel.Borrowed = null;
+        _bookLibraryRepository.ReturnBook(bookModel.Id, Arg.Any<CancellationToken>()).Returns(bookModel.Id);
+
+        // Act
+        var returnedBookId = await _sut.ReturnBook(bookModel.Id, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(bookModel.Id, returnedBookId);
+        await _bookLibraryRepository.Received(1).ReturnBook(bookModel.Id, Arg.Any<CancellationToken>());
     }
 }

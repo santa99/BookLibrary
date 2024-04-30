@@ -30,5 +30,10 @@ public enum ErrorCode
     /// <summary>
     /// Readers card not found
     /// </summary>
-    ReadersCardNotFound = 6
+    ReadersCardNotFound = 6,
+    
+    /// <summary>
+    /// Borrowed book.
+    /// </summary>
+    BookNotBorrowed = 7,
 }

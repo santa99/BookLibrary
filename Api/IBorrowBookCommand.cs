@@ -23,5 +23,6 @@ public interface IBorrowBookCommand
     /// </summary>
     /// <param name="bookId">Unique id of the book.</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+    /// <returns>Returned book id.</returns>
     public Task<int> ReturnBook(int bookId, CancellationToken cancellationToken);
 }

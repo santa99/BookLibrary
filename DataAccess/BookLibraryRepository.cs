@@ -103,7 +103,8 @@ public class BookLibraryRepository : IBookLibraryRepository
 
         if (bookModel.Borrowed == null)
         {
-            return Task.FromResult(-1);
+            throw new BookLibraryException(
+                $"Requested book '{bookId}':'{bookModel.Name}' hasn't been borrowed.", ErrorCode.BookNotBorrowed);
         }
 
         bookModel.Borrowed = null;
