@@ -31,6 +31,7 @@ public class ResponseStatusCodeMapper : IResponseStatusCodeMapper
             ErrorCode.BorrowedBook => HttpStatusCode.BadRequest,
             ErrorCode.BookNotFound => HttpStatusCode.NotFound,
             ErrorCode.ReadersCardNotFound => HttpStatusCode.NotFound,
+            ErrorCode.BookNotBorrowed => HttpStatusCode.NotFound,
             _ => throw new ArgumentOutOfRangeException(nameof(errorCode), errorCode, null)
         };
     }
