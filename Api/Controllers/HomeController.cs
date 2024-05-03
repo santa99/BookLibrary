@@ -2,6 +2,7 @@
 using System.Net.Http.Headers;
 using Api.Models.Responses;
 using Contracts.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -10,33 +11,33 @@ namespace Api.Controllers;
 /// <summary>
 /// Note: This class is not cleaned up.
 /// - We could use Refit to create Client rather than doing it manually.
-/// - Authorization is done only by testing whether the cookie contains user which is weak point maybe.
 /// </summary>
+[Authorize]
 public class HomeController : Controller
 {
-    private bool IsLoggedIn()
-    {
-        return Request.Cookies["user"] != null;
-    }
-
+    
+    [Authorize]
     [Route("/")]
     public async Task<IActionResult> Index()
     {
-        if (!IsLoggedIn())
+        var httpContextUser = HttpContext.User;
+        if (httpContextUser.Identity?.Name != null)
         {
-            return View(null);
+            ViewBag.User = httpContextUser.Identity.Name;
         }
-        ViewBag.User = Request.Cookies["user"] ?? "";
-        
+
         using var client = CreateClient();
 
-        var res = await client.GetAsync("api/book/select/-1");
+        var res = await client.GetAsync("/api/book/select/-1");
         var bookModels = new List<BookModel>();
         if (!res.IsSuccessStatusCode)
         {
             var errorCodeModel = JsonConvert.DeserializeObject<ErrorCodeModel>(res.Content.ReadAsStringAsync().Result);
 
-            ViewData["errorMessage"] = errorCodeModel.Message;
+            if (errorCodeModel != null)
+            {
+                ViewData["errorMessage"] = errorCodeModel.Message;
+            }
             
             return View(bookModels);
         }
@@ -50,10 +51,6 @@ public class HomeController : Controller
     [Route("home/edit/{bookId}")]
     public async Task<IActionResult> EditBook([FromRoute] int bookId)
     {
-        if (!IsLoggedIn())
-        {
-            return RedirectToAction("Index");
-        }
 
         var bookModel = new BookModel();
 
@@ -72,8 +69,10 @@ public class HomeController : Controller
             {
                 var errorCodeModel = JsonConvert.DeserializeObject<ErrorCodeModel>(res.Content.ReadAsStringAsync().Result);
 
-                ViewData["errorMessage"] = errorCodeModel.Message;
-                
+                if (errorCodeModel != null)
+                {
+                    ViewData["errorMessage"] = errorCodeModel.Message;
+                }                
                 return View(new BookModel
                 {
                     Id = bookId,
@@ -91,8 +90,10 @@ public class HomeController : Controller
             {
                 var errorCodeModel = JsonConvert.DeserializeObject<ErrorCodeModel>(res.Content.ReadAsStringAsync().Result);
 
-                ViewData["errorMessage"] = errorCodeModel.Message;
-                
+                if (errorCodeModel != null)
+                {
+                    ViewData["errorMessage"] = errorCodeModel.Message;
+                }                
                 return View(bookModel);
             }
 
@@ -106,11 +107,6 @@ public class HomeController : Controller
     [Route("home/remove/{bookId}")]
     public async Task<IActionResult> RemoveBook(int bookId)
     {
-        if (!IsLoggedIn())
-        {
-            return RedirectToAction("Index");
-        }
-
         using var client = CreateClient();
         
         await client.GetAsync($"api/book/remove/{bookId}");
@@ -121,11 +117,6 @@ public class HomeController : Controller
     [Route("/home/return/{bookId}")]
     public async Task<IActionResult> ReturnBook(int bookId)
     {
-        if (!IsLoggedIn())
-        {
-            return RedirectToAction("Index");
-        }
-
         using var client = CreateClient();
         
         await client.GetAsync($"api/book/return/{bookId}");
@@ -136,11 +127,6 @@ public class HomeController : Controller
     [Route("/home/borrow/{bookId}")]
     public async Task<IActionResult> BorrowBook(int bookId)
     {
-        if (!IsLoggedIn())
-        {
-            return RedirectToAction("Index");
-        }
-
         using var client = CreateClient();
 
         if (HttpContext.Request.Method == HttpMethod.Post.Method)
@@ -170,12 +156,11 @@ public class HomeController : Controller
         handler.CookieContainer = cookieContainer;
         var client = new HttpClient(handler);
         client.BaseAddress = uri;
-        client.DefaultRequestHeaders.Clear();
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        var user = Request.Cookies["user"];
+        var user = Request.Cookies["usr"];
         if (user != null)
         {
-            cookieContainer.Add(uri, new Cookie("user", user));
+            cookieContainer.Add(uri, new Cookie("usr", user));
         }
 
         return client;

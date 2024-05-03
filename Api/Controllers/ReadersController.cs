@@ -1,12 +1,12 @@
-﻿using Api.Filters;
-using Api.Models.Responses;
+﻿using Api.Models.Responses;
 using Contracts;
 using Contracts.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
-[ServiceFilter(typeof(CustomAuthorizeFilter))]
+[Authorize]
 [ProducesResponseType(typeof(List<ErrorCodeModel>), StatusCodes.Status401Unauthorized)]
 public class ReadersController : Controller
 {

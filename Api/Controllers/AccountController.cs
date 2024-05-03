@@ -1,5 +1,9 @@
-﻿using Api.Configuration;
+﻿using System.Security.Claims;
+using Api.Configuration;
 using Api.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -8,6 +12,7 @@ namespace Api.Controllers;
 /// <summary>
 /// Account controller handles login/logout.
 /// </summary>
+[Authorize]
 public class AccountController : Controller
 {
     private readonly IOptions<UserIdentityConfiguration> _userIdentity;
@@ -17,11 +22,16 @@ public class AccountController : Controller
         _userIdentity = userIdentity;
     }
 
+    [AllowAnonymous]
     [HttpGet("/account/login")]
     public Task<IActionResult> Login(string returnUrl = "/")
     {
-        var authenticatedUser = Request.Cookies["user"];
-        if (authenticatedUser != null)
+        if (!ModelState.IsValid)
+        {
+            return Task.FromResult<IActionResult>(View());
+        }
+
+        if (HttpContext.User.Identity is { IsAuthenticated: true })
         {
             return Task.FromResult<IActionResult>(LocalRedirect(returnUrl));
         }
@@ -29,32 +39,73 @@ public class AccountController : Controller
         return Task.FromResult<IActionResult>(View());
     }
 
+    [AllowAnonymous]
     [HttpPost("/account/login")]
-    public Task<IActionResult> Login([FromForm] LoginReqModel model, string returnUrl = "/")
+    public async Task<IActionResult> Login([FromForm] LoginReqModel model, string returnUrl = "/")
     {
-        var userIdentityValue = _userIdentity.Value;
-        if (model.Username == userIdentityValue.User && model.Password == userIdentityValue.Password)
+        if (ModelState.IsValid)
         {
-            var cookieOptions = new CookieOptions
-            {
-                Expires = DateTime.Now.AddMinutes(10)
-            };
-            Response.Cookies.Append("user", userIdentityValue.User, cookieOptions);
+            var user = await AuthenticateUser(model);
 
-            return Task.FromResult<IActionResult>(LocalRedirect(returnUrl));
+            if (user == null)
+            {
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+
+                return View(model);
+            }
+
+            var claims = new List<Claim>()
+            {
+                new(ClaimTypes.Name, user.Name),
+                new(ClaimTypes.Role, "Admin"),
+            };
+
+            var claimsIdentity = new ClaimsIdentity(
+                claims, CookieAuthenticationDefaults.AuthenticationScheme
+            );
+
+            var authenticationProperties = new AuthenticationProperties()
+            {
+
+            };
+
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                authenticationProperties);
+
+            return LocalRedirect(returnUrl);
         }
 
-        ViewBag.TextMessage = "Incorrect name or password.";
-
-        return Task.FromResult<IActionResult>(View(model));
+        return View(model);
     }
 
-
+    [AllowAnonymous]
     [HttpGet("/account/logout")]
-    public Task<IActionResult> Logout(string returnUrl)
+    public async Task<IActionResult> Logout(string? returnUrl = "/")
     {
-        Response.Cookies.Delete("user");
+        // Clear the existing external cookie
+        await HttpContext.SignOutAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme);
 
-        return Task.FromResult<IActionResult>(LocalRedirect(returnUrl));
+        return LocalRedirect(returnUrl);
     }
+    
+    private Task<UserModel?> AuthenticateUser(LoginReqModel login)
+    {
+        UserModel user = null;
+        if (login.Username == _userIdentity.Value.User &&
+            login.Password == _userIdentity.Value.Password)
+        {
+            user = new UserModel("Marek");
+        }
+
+        return Task.FromResult(user);
+    }
+
+    /// <summary>
+    /// User model record.
+    /// </summary>
+    /// <param name="Name">Display name</param>
+    private record UserModel(string Name);
+    
 }
