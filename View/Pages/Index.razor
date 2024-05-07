@@ -10,12 +10,21 @@
 @inject NavigationManager NavigationManager
 @inject BooksController BooksController
 @inject BorrowState BorrowState
+@inject PaginationState PaginationState
 
 
 
 <div class="main">
     <h3>Book page</h3>
-    <table class="table table-responsive" style="width:100%">
+    <div>
+        <select @onchange="@( async (val) => { PaginationState.SetPagination(val); await OnPaginationChanged(); })">
+            <option value="1">1</option>
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="30">30</option>
+        </select>
+    </div>
+    <table class="table table-responsive fl-table" style="width:100%">
         <tr style="text-align: left;">
             <th>
                 <label >book.Id</label>
@@ -33,9 +42,10 @@
                 Actions
             </th>
         </tr>
-        @foreach (var item in _books)
+        
+        @foreach (var item in @_books)
         {
-            <tr style="text-align: left;" onclick="@(()=> BorrowState.ShowConfigureDialog(@item))">
+            <tr style="text-align: left;" @onclick="@(() => { BorrowState.ShowConfigureDialog(@item); })">
                 <td>
                     @item.Id
                 </td>
@@ -77,7 +87,11 @@
 
 @if (BorrowState.ShowingConfigureDialog)
 {
-    <BorrowBookDialog Book="BorrowState.CurrentBook"/>
+    <BorrowBookDialog Book="BorrowState.CurrentBook" 
+                      OnCancel="BorrowState.CancelConfigureDialog"
+                      OnReturn="BorrowState.ReturnBook"
+                      OnBorrow="BorrowState.BorrowBook"
+                      />
 }
 
 
@@ -86,9 +100,17 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _books = await HttpClient.GetFromJsonAsync<List<BookModel>>(NavigationManager.BaseUri + "books");
+        _books = await ReloadBooks();
     }
 
-    
+    private Task<List<BookModel>> ReloadBooks()
+    {
+        return HttpClient.GetFromJsonAsync<List<BookModel>>(NavigationManager.BaseUri + $"books/{PaginationState.Start}/{PaginationState.Count}");
+    }
+
+    async Task OnPaginationChanged()
+    {
+        _books = await ReloadBooks();
+    }
 
 }

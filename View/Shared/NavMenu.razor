@@ -1,15 +1,13 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <img class="logo" src="img/logo.jpg"/>
+        <img class="logo" src="img/logo.png"/>
     </div>
     <div class="container-fluid">
-        <a class="navbar-brand" href="">Book Library</a>
+        <a class="navbar-brand" style="color:black" href="">Book Library</a>
     </div>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler"/>
-
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+<div class="nav-scrollable">
     <nav class="flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
@@ -18,8 +16,8 @@
         </div>
 
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Add Book
+            <NavLink class="nav-link" href="books/index">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> List Books
             </NavLink>
         </div>
 

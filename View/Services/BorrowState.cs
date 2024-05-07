@@ -1,4 +1,5 @@
 ﻿using Contracts.Models;
+using Microsoft.AspNetCore.Components;
 
 namespace View.Services;
 
@@ -14,13 +15,22 @@ public class BorrowState
     /// </summary>
     public BookModel CurrentBook { get; private set; }
 
+    
+
     /// <summary>
     /// Show configuration dialog over the book.
     /// </summary>
     /// <param name="bookModel"></param>
     public void ShowConfigureDialog(BookModel bookModel)
     {
-        CurrentBook = bookModel;
+        CurrentBook = new BookModel()
+        {
+            Author = bookModel.Author,
+            Borrowed = bookModel.Borrowed,
+            Id = bookModel.Id,
+            Name = bookModel.Name
+            
+        };
         
         ShowingConfigureDialog = true;
     }
@@ -41,6 +51,12 @@ public class BorrowState
     public void BorrowBook()
     {
         
+        CurrentBook = null;
+        ShowingConfigureDialog = false;
+    }
+
+    public void ReturnBook()
+    {
         CurrentBook = null;
         ShowingConfigureDialog = false;
     }

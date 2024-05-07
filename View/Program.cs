@@ -6,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<BooksController>();
 builder.Services.AddScoped<BorrowState>();
+builder.Services.AddScoped<PaginationState>();
 
 builder.Services.AddHttpClient();
 builder.Services.AddRazorPages();

@@ -32,15 +32,17 @@ public class LibraryController : Controller
     /// </summary>
     /// <param name="bookState"><see cref="BookState"/></param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+    /// <param name="start">Start count.</param>
+    /// <param name="count">Number of element to read.</param>
     /// <returns>List of <see cref="BookModel"/></returns>
-    [Route("/api/book/select/{bookState}")]
+    [Route("/api/book/select/{bookState}/{start}/{count}")]
     [ProducesResponseType(typeof(List<BookModel>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Index(int? bookState, CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(int? bookState, CancellationToken cancellationToken, int start = 0, int count = -1)
     {
         bookState ??= (int)BookState.All;
 
         var bookModels =
-            await _bookLibraryRepository.ListBooks(_bookStateMapper.Map(bookState.Value), cancellationToken);
+            await _bookLibraryRepository.ListBooks(_bookStateMapper.Map(bookState.Value), cancellationToken, count, start);
 
         return Ok(bookModels);
     }

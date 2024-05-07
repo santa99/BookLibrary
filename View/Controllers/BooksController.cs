@@ -56,8 +56,9 @@ public class BooksController : Controller
         return Ok(bookModel);
     }
     
-    [HttpGet]
-    public async Task<List<BookModel>> GetBooks()
+    [HttpGet("{start}/{count}")]
+    [HttpGet("index")]
+    public async Task<List<BookModel>> GetBooks([FromRoute]int start = 0, [FromRoute] int count = -1)
     {
         
         using var client = CreateClient();
@@ -84,7 +85,7 @@ public class BooksController : Controller
         }
         
 
-        var res = await client.GetAsync("/api/book/select/-1");
+        var res = await client.GetAsync($"/api/book/select/-1/{start}/{count}");
         var bookModels = new List<BookModel>();
         if (!res.IsSuccessStatusCode)
         {
