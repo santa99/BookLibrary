@@ -1,0 +1,41 @@
+﻿@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+
+@inject HttpClient HttpClient
+@using Contracts.Models
+
+<div class="dialog-container">
+    <div class="dialog">
+        <div class="dialog-title">
+            <h2>@Book.Name</h2>
+            @Book.Author
+        </div>
+        <form class="dialog-body">
+            <div>
+            </div>
+        </form>
+
+        <div class="dialog-buttons">
+            <button class="btn btn-secondary mr-auto" @onclick="OnCancel">Cancel</button>
+            <button class="btn btn-success ml-auto" @onclick="OnBorrow">Borrow></button>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Can pass value with opening
+    [Parameter]
+    public BookModel Book { get; set; }
+    
+    // Called when the dialog is canceled 
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+    
+    // Called when the book is being borrowed
+    [Parameter]
+    public EventCallback OnBorrow { get; set; }
+    
+    // Called when the book is returned
+    [Parameter]
+    public EventCallback OnReturn { get; set; }
+}

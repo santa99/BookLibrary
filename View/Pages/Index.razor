@@ -1,0 +1,94 @@
+﻿@page "/"
+
+@namespace View.Pages
+
+@using Contracts.Models
+@using View.Controllers
+@using View.Services
+
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+@inject BooksController BooksController
+@inject BorrowState BorrowState
+
+
+
+<div class="main">
+    <h3>Book page</h3>
+    <table class="table table-responsive" style="width:100%">
+        <tr style="text-align: left;">
+            <th>
+                <label >book.Id</label>
+            </th>
+            <th>
+                <label >book.Name</label>
+            </th>
+            <th>
+                <label >book.Author</label>
+            </th>
+            <th>
+                Edit
+            </th>
+            <th>
+                Actions
+            </th>
+        </tr>
+        @foreach (var item in _books)
+        {
+            <tr style="text-align: left;" onclick="@(()=> BorrowState.ShowConfigureDialog(@item))">
+                <td>
+                    @item.Id
+                </td>
+                <td>
+                    @item.Name
+                </td>
+                <td>
+                    @item.Author
+                </td>
+                <td>
+                    @*
+                @Html.ActionLink("Edit", "EditBook", "Home",
+                    new { bookId = item.Id }) /
+                @Html.ActionLink("Remove", "RemoveBook", "Home",
+                    new { bookId = item.Id })*@
+                </td>
+                <td>
+                    @if (item.Borrowed != null)
+                    {
+                        @* @Html.ActionLink("Return book", "ReturnBook", "Home", *@
+                        @*     new { bookId = item.Id }) *@
+                        var borrowedBy = "'" + item.Borrowed.FirstName + " " + item.Borrowed.LastName + "' borrowed on [" + item.Borrowed.From.ToString("dd MMMM yyyy") + "]";
+                        <div>
+                            @borrowedBy
+                        </div>
+                        <button onclick="@(()=> BorrowState.ShowConfigureDialog(@item))">Borrow</button>
+                    }
+                    else
+                    {
+                        <button onclick="@(()=> BorrowState.ShowConfigureDialog(@item))">Borrow</button>
+                        @* @Html.ActionLink("Borrow book", "BorrowBook", "Home", *@
+                        @*     new { bookId = item.Id }) *@
+                    }
+                </td>
+            </tr>
+        }
+    </table>
+</div>
+
+@if (BorrowState.ShowingConfigureDialog)
+{
+    <BorrowBookDialog Book="BorrowState.CurrentBook"/>
+}
+
+
+@code {
+    private List<BookModel>? _books = new List<BookModel>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _books = await HttpClient.GetFromJsonAsync<List<BookModel>>(NavigationManager.BaseUri + "books");
+    }
+
+    
+
+}

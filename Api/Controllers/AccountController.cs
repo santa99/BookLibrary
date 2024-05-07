@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
+using Microsoft.Net.Http.Headers;
 
 namespace Api.Controllers;
 
@@ -22,6 +24,23 @@ public class AccountController : Controller
         _userIdentity = userIdentity;
     }
 
+    private void WriteAuthCookie()
+    {
+        if (Request.Cookies.TryGetValue("usr", out var val) && val != null)
+        {
+            CookieOptions option = new CookieOptions
+            {
+                Expires = DateTime.Now.AddMilliseconds(10)
+            };
+            Response.Cookies.Append("usr", val, option);
+            
+            CookieHeaderValue cookieHeaderValue = new CookieHeaderValue("usr", val);
+            Response.Headers.Cookie.Append(cookieHeaderValue.ToString());
+
+            Response.Headers.SetCookie = new StringValues(cookieHeaderValue.ToString());
+        }
+    }
+
     [AllowAnonymous]
     [HttpGet("/account/login")]
     public Task<IActionResult> Login(string returnUrl = "/")
@@ -33,18 +52,25 @@ public class AccountController : Controller
 
         if (HttpContext.User.Identity is { IsAuthenticated: true })
         {
+            WriteAuthCookie();
+            
             return Task.FromResult<IActionResult>(LocalRedirect(returnUrl));
         }
 
         return Task.FromResult<IActionResult>(View());
     }
-
+    
     [AllowAnonymous]
     [HttpPost("/account/login")]
     public async Task<IActionResult> Login([FromForm] LoginReqModel model, string returnUrl = "/")
     {
         if (ModelState.IsValid)
         {
+            /*if (HttpContext.User.Identity is { IsAuthenticated: true })
+            {
+                return LocalRedirect(returnUrl);
+            }*/
+
             var user = await AuthenticateUser(model);
 
             if (user == null)
@@ -66,12 +92,13 @@ public class AccountController : Controller
 
             var authenticationProperties = new AuthenticationProperties()
             {
-
             };
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity),
                 authenticationProperties);
+
+            WriteAuthCookie();
 
             return LocalRedirect(returnUrl);
         }
@@ -89,7 +116,7 @@ public class AccountController : Controller
 
         return LocalRedirect(returnUrl);
     }
-    
+
     private Task<UserModel?> AuthenticateUser(LoginReqModel login)
     {
         UserModel user = null;
@@ -107,5 +134,4 @@ public class AccountController : Controller
     /// </summary>
     /// <param name="Name">Display name</param>
     private record UserModel(string Name);
-    
 }

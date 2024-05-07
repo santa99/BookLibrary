@@ -2,6 +2,7 @@ using Api;
 using Api.Configuration;
 using Api.Filters;
 using Api.Mappers;
+using Api.Middleware;
 using Api.Middleware.Exceptions;
 using Api.Middleware.Exceptions.Mappers;
 using Contracts;
@@ -16,7 +17,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<UserIdentityConfiguration>(builder.Configuration.GetSection("UserIdentity"));
 builder.Services.Configure<BookLibraryDataSourceConfig>(builder.Configuration.GetSection("DataSource"));
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+builder.Services.AddTransient<MyHandler>();
+
+/*builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.LoginPath = "/account/login/";
@@ -32,7 +35,7 @@ builder.Services.AddAuthorization(options =>
         .AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme)
         .RequireAuthenticatedUser()
         .Build();
-});
+});*/
 
 builder.Services.AddSingleton<RequestModelValidationFilter>();
 builder.Services.AddSingleton<BookStateMapper>();
@@ -52,7 +55,7 @@ var app = builder.Build();
 
 app.UseCookiePolicy(new CookiePolicyOptions
 {
-    MinimumSameSitePolicy = SameSiteMode.Strict,
+    MinimumSameSitePolicy = SameSiteMode.None,
 });
 
 app.UseAuthentication();
