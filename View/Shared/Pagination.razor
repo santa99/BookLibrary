@@ -1,0 +1,45 @@
+﻿@using View.Services
+<div>
+
+    <button @onclick="PrevPage">Prev</button>
+    <label>Page:</label>
+    @PaginationState.Page
+    <button @onclick="NextPage">Next</button>
+
+    <label>Per page:</label>
+    <select @onchange="ChangePagination">
+        <option value="1">1</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="30">30</option>
+    </select>
+</div>
+
+@code {
+
+    [Parameter] public PaginationState PaginationState { get; set; }
+
+    [Parameter] public EventCallback<int> OnPageCountChanged { get; set; }
+
+    private async Task ChangePagination(ChangeEventArgs val)
+    {
+        if (int.TryParse((string?)val.Value, out var newCount))
+        {
+            PaginationState.SetDisplayCount(newCount);
+            await OnPageCountChanged.InvokeAsync();
+        }
+    }
+
+    private async Task NextPage(EventArgs arg)
+    {
+        PaginationState.SetPage(PaginationState.Page + 1);
+        await OnPageCountChanged.InvokeAsync();
+    }
+
+    private async Task PrevPage(EventArgs arg)
+    {
+        PaginationState.SetPage(PaginationState.Page - 1);
+        await OnPageCountChanged.InvokeAsync();
+    }
+
+}

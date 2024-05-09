@@ -1,8 +1,10 @@
-﻿@using Microsoft.AspNetCore.Components
+﻿
+@using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Web
 
 @inject HttpClient HttpClient
 @using Contracts.Models
+@using View.Services
 
 <div class="dialog-container">
     <div class="dialog">
@@ -12,17 +14,34 @@
         </div>
         <form class="dialog-body">
             <div>
+                @if (Book.Borrowed == null)
+                {
+                    <select class="select" @onchange="SelectReader">
+                        @foreach (var readersInfo in ReadersInfos)
+                        {
+                            <option value="@readersInfo.ReaderCardId">@readersInfo.FirstName @readersInfo.LastName</option>
+                        }
+                    </select>
+                }
             </div>
         </form>
 
         <div class="dialog-buttons">
             <button class="btn btn-secondary mr-auto" @onclick="OnCancel">Cancel</button>
-            <button class="btn btn-success ml-auto" @onclick="OnBorrow">Borrow></button>
+            @if (Book.Borrowed != null)
+            {
+                <button class="btn btn-success ml-auto" @onclick="ReturnBook">Return</button>
+            }
+            else
+            {
+                <button class="btn btn-success ml-auto" @onclick="BorrowBook">Borrow</button>
+            }
         </div>
     </div>
 </div>
 
 @code {
+
     // Can pass value with opening
     [Parameter]
     public BookModel Book { get; set; }
@@ -33,9 +52,45 @@
     
     // Called when the book is being borrowed
     [Parameter]
-    public EventCallback OnBorrow { get; set; }
+    public EventCallback<int> OnBorrow { get; set; }
     
     // Called when the book is returned
     [Parameter]
-    public EventCallback OnReturn { get; set; }
+    public EventCallback<int> OnReturn { get; set; }
+
+    public int ReadersCardId { get; set; } = -1;
+
+    public List<ReadersInfo> ReadersInfos { get; set; } = new List<ReadersInfo>();
+
+    [Inject]
+    public ReadersInfoService ReadersInfoService { get; set; }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        ReadersInfos = await ReadersInfoService.GetAllReaders();
+        var x = ReadersInfos.FirstOrDefault();
+        if (x != null && x.ReaderCardId != -1)
+        {
+            ReadersCardId = x.ReaderCardId;
+        }
+    }
+    
+    private async Task SelectReader(ChangeEventArgs args)
+    {
+        if (int.TryParse(args.Value.ToString(), out var newReadersCardId) && newReadersCardId != -1)
+        {
+            ReadersCardId = newReadersCardId;
+        }
+    }
+
+    private async Task BorrowBook()
+    {
+        if (ReadersCardId == -1) return;
+        await OnBorrow.InvokeAsync(ReadersCardId);
+    }
+
+    private async Task ReturnBook()
+    {
+        await OnReturn.InvokeAsync(Book.Id);
+    }
 }

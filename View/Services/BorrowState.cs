@@ -1,10 +1,11 @@
 ﻿using Contracts.Models;
-using Microsoft.AspNetCore.Components;
 
 namespace View.Services;
 
 public class BorrowState
 {
+    private readonly BooksService _booksService;
+
     /// <summary>
     /// Dialog is being displayed when true.
     /// </summary>
@@ -15,7 +16,10 @@ public class BorrowState
     /// </summary>
     public BookModel CurrentBook { get; private set; }
 
-    
+    public BorrowState(BooksService booksService)
+    {
+        _booksService = booksService;
+    }
 
     /// <summary>
     /// Show configuration dialog over the book.
@@ -35,9 +39,6 @@ public class BorrowState
         ShowingConfigureDialog = true;
     }
 
-    /// <summary>
-    /// Cancel configure dialog
-    /// </summary>
     public void CancelConfigureDialog()
     {
         CurrentBook = null;
@@ -45,18 +46,16 @@ public class BorrowState
         ShowingConfigureDialog = false;
     }
 
-    /// <summary>
-    /// Borrow book.
-    /// </summary>
-    public void BorrowBook()
+    public async Task BorrowBook(int readersCardId)
     {
-        
+        await _booksService.BorrowBook(CurrentBook.Id, readersCardId);
         CurrentBook = null;
         ShowingConfigureDialog = false;
     }
 
-    public void ReturnBook()
+    public async Task ReturnBook(int bookId)
     {
+        await _booksService.ReturnBook(bookId);
         CurrentBook = null;
         ShowingConfigureDialog = false;
     }

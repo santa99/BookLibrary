@@ -13,16 +13,10 @@
 @inject PaginationState PaginationState
 
 
-
 <div class="main">
     <h3>Book page</h3>
     <div>
-        <select @onchange="@( async (val) => { PaginationState.SetPagination(val); await OnPaginationChanged(); })">
-            <option value="1">1</option>
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="30">30</option>
-        </select>
+        <Pagination OnPageCountChanged="OnPaginationChanged" PaginationState="PaginationState"/>
     </div>
     <table class="table table-responsive fl-table" style="width:100%">
         <tr style="text-align: left;">
@@ -39,7 +33,7 @@
                 Edit
             </th>
             <th>
-                Actions
+                Status
             </th>
         </tr>
         
@@ -65,19 +59,16 @@
                 <td>
                     @if (item.Borrowed != null)
                     {
-                        @* @Html.ActionLink("Return book", "ReturnBook", "Home", *@
-                        @*     new { bookId = item.Id }) *@
                         var borrowedBy = "'" + item.Borrowed.FirstName + " " + item.Borrowed.LastName + "' borrowed on [" + item.Borrowed.From.ToString("dd MMMM yyyy") + "]";
                         <div>
                             @borrowedBy
                         </div>
-                        <button onclick="@(()=> BorrowState.ShowConfigureDialog(@item))">Borrow</button>
                     }
                     else
                     {
-                        <button onclick="@(()=> BorrowState.ShowConfigureDialog(@item))">Borrow</button>
-                        @* @Html.ActionLink("Borrow book", "BorrowBook", "Home", *@
-                        @*     new { bookId = item.Id }) *@
+                        <div>
+                            Free
+                        </div>
                     }
                 </td>
             </tr>
@@ -96,7 +87,7 @@
 
 
 @code {
-    private List<BookModel>? _books = new List<BookModel>();
+    private List<BookModel>? _books = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -108,9 +99,8 @@
         return HttpClient.GetFromJsonAsync<List<BookModel>>(NavigationManager.BaseUri + $"books/{PaginationState.Start}/{PaginationState.Count}");
     }
 
-    async Task OnPaginationChanged()
+    async Task OnPaginationChanged(int newCount)
     {
         _books = await ReloadBooks();
     }
-
 }

@@ -4,18 +4,18 @@
     <Name>Starec a more</Name>
     <Author>Ernest Hemingway</Author>
     <Borrowed>
-      <FirstName>Peter</FirstName>
-      <LastName>Prvy</LastName>
-      <From>25.3.2016</From>
+      <FirstName>Tibor</FirstName>
+      <LastName>Vesely</LastName>
+      <From>0001-01-01T00:00:00Z</From>
     </Borrowed>
   </Book>
   <Book id="2">
     <Name>Romeo a Julia</Name>
     <Author>William Shakespeare</Author>
     <Borrowed>
-      <FirstName>Lukas</FirstName>
-      <LastName>Druhy</LastName>
-      <From>16.6.2018</From>
+      <FirstName>Ivan</FirstName>
+      <LastName>Maly</LastName>
+      <From>0001-01-01T00:00:00Z</From>
     </Borrowed>
   </Book>
   <Book id="3">

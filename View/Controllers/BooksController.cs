@@ -17,6 +17,34 @@ public class BooksController : Controller
         string Password
     );
 
+    [Route("borrow/{bookId}/{readersCardId}")]
+    public async Task<IActionResult> BorrowBook(int bookId, int readersCardId)
+    {
+        using var client = CreateClient();
+        
+        var httpResponseMessage = await client.GetAsync($"/api/book/borrow/{bookId}/{readersCardId}");
+        if (!httpResponseMessage.IsSuccessStatusCode)
+        {
+            return Forbid();
+        }
+        
+        return Ok();
+    }
+
+    [HttpGet("return/{bookId}/")]
+    public async Task<IActionResult> ReturnBook(int bookId)
+    {
+        using var client = CreateClient();
+        
+        var httpResponseMessage = await client.GetAsync($"/api/book/return/{bookId}");
+        if (!httpResponseMessage.IsSuccessStatusCode)
+        {
+            return Forbid();
+        }
+        
+        return Ok();
+    }
+
     [HttpGet("add")]
     public async Task<IActionResult> BookAdd(int? bookId = -1)
     {
