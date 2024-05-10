@@ -16,33 +16,47 @@
 
 <div class="main">
     <h3>Book page</h3>
-    <div>
-        <Pagination OnPageCountChanged="OnPaginationChanged" PaginationState="PaginationState"/>
+    <div class="control-panel">
+        <div class="child2">
+            @if (!EditState.IsEditMode)
+            {
+                <button @onclick="EditState.EnterEditMode">Edit</button>
+            }
+            else
+            {
+                <button @onclick="EditState.ExitEditMode">End edit</button>
+                <button @onclick="EditState.SaveChanges">Save</button>
+                <button @onclick="EditState.DiscardChanges">Discard</button>
+            }
+        </div>
     </div>
-    <div>
-        @if (!EditState.IsEditMode)
-        {
-            <button @onclick="EditState.EnterEditMode">Edit</button>
-        }
-        else
-        {
-            <button @onclick="EditState.ExitEditMode">End edit</button>
-            <button @onclick="EditState.SaveChanges">Save</button>
-            <button @onclick="EditState.DiscardChanges">Discard</button>
-        }
+    <div class="navbar-toggler">
+        <div class="nav-scrollable">
+            <table class="table table-responsive fl-table" style="width:100%">
+                <tr style="text-align: left;">
+                    <th>
+                        <label >Id</label>
+                    </th>
+                    <th>
+                        <label >Name</label>
+                    </th>
+                    <th>
+                        <label >Author</label>
+                    </th>
+                    <th>Status</th>
+                </tr>
+                @foreach (var item in @_books)
+                {
+                    <EditableTableEntry Book="@item" OnBorrowBook="BorrowState.ShowConfigureDialog" EditState="EditState" Root="this"/>
+                }
+            </table>
+        </div>
     </div>
-    <table class="table table-responsive fl-table" style="width:100%">
-        <tr style="text-align: left;">
-            <th><label >Id</label></th>
-            <th><label >Name</label></th>
-            <th><label >Author</label></th>
-            <th>Status</th>
-        </tr>
-        @foreach (var item in @_books)
-        {
-            <EditableTableEntry Book="@item" OnBorrowBook="BorrowState.ShowConfigureDialog" EditState="EditState" Root="this"/>
-        }
-    </table>
+    <div class="control-panel">
+        <div class="child2">
+            <Pagination OnPageCountChanged="OnPaginationChanged" PaginationState="PaginationState"/>
+        </div>
+    </div>
 </div>
 
 @if (BorrowState.ShowingBookConfigurationDialog)
@@ -55,7 +69,7 @@
 
 @code {
     private List<BookModel>? _books = new();
-    private List<EditableTableEntry> _entries = new();
+    private readonly List<EditableTableEntry> _entries = new();
 
     [Inject] BooksService BooksService { get; set; }
 

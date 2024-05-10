@@ -39,9 +39,9 @@ form {
 
 .content {
     display: flex;
-    height: 100%;
     z-index: 1;
     background-color: white;
+    height: calc(100% - 3.5rem);
 }
 
 .main {
@@ -748,3 +748,31 @@ input[type=range] {
     }
 }
 
+.control-panel {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: row;
+    padding: 5px;
+}
+
+.control-panel .child1 {
+    text-align: left;
+    flex: 1;
+}
+
+.control-panel .child2 {
+    text-align: right;
+    flex: 1;
+}
+
+
+.navbar-toggler {
+    display: block;
+    background-color: #f7faff;
+}
+
+.nav-scrollable {
+    display: block;
+    height: calc(100vh - 14rem);
+    overflow-y: auto;
+}
