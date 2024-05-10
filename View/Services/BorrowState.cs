@@ -5,74 +5,99 @@ namespace View.Services;
 public class BorrowState
 {
     private readonly BooksService _booksService;
-
-    /// <summary>
-    /// Dialog is being displayed when true.
-    /// </summary>
-    public bool ShowingConfigureDialog { get; private set; }
-    
-    /// <summary>
-    /// Currently configured book.
-    /// </summary>
-    public BookModel CurrentBook { get; private set; }
+    public EventHandler<BookModel> BookModelUpdated { get; set; }
+    public bool ShowingBookConfigurationDialog { get; private set; }
+    public BookModel? CurrentBook { get; private set; }
 
     public BorrowState(BooksService booksService)
     {
         _booksService = booksService;
+        BookModelUpdated = (_, _) => {};
     }
 
     /// <summary>
-    /// Show configuration dialog over the book.
+    /// Call this method to show configuration dialog over the book.
     /// </summary>
-    /// <param name="bookModel"></param>
+    /// <param name="bookModel">Book model to borrow or return.</param>
     public void ShowConfigureDialog(BookModel bookModel)
     {
-        CurrentBook = new BookModel()
+        if (ShowingBookConfigurationDialog)
+        {
+            return;
+        }
+        
+        CurrentBook = new BookModel
         {
             Author = bookModel.Author,
             Borrowed = bookModel.Borrowed,
             Id = bookModel.Id,
             Name = bookModel.Name
-            
         };
-        
-        ShowingConfigureDialog = true;
+
+        ShowingBookConfigurationDialog = true;
     }
 
+    /// <summary>
+    /// Call this method if you want to close dialog.
+    /// </summary>
     public void CancelConfigureDialog()
     {
         CurrentBook = null;
 
-        ShowingConfigureDialog = false;
+        ShowingBookConfigurationDialog = false;
     }
 
-    public async Task<BookModel> BorrowBook(int readersCardId)
+    /// <summary>
+    /// Action delegate called when given book is about to borrow.
+    /// </summary>
+    /// <param name="readersCardId">Readers card id.</param>
+    public async Task BorrowBook(int readersCardId)
     {
+        if (CurrentBook == null)
+        {
+            return;
+        }
+        
         var borrowModel = await _booksService.BorrowBook(CurrentBook.Id, readersCardId);
-        var borrowedBook = CurrentBook;
-        CurrentBook = null;
-        ShowingConfigureDialog = false;
-        return new BookModel()
+        
+        BookModelUpdated.Invoke(this, new BookModel
         {
-            Id = borrowedBook.Id,
-            Name = borrowedBook.Name,
-            Author = borrowedBook.Author,
+            Id = CurrentBook.Id,
+            Name = CurrentBook.Name,
+            Author = CurrentBook.Author,
             Borrowed = borrowModel
-        };
+        });
+        
+        CurrentBook = null;
+        ShowingBookConfigurationDialog = false;
     }
 
-    public async Task<BookModel> ReturnBook(int bookId)
+    /// <summary>
+    /// Action delegate called when the currently configured book is about to be returned.
+    /// </summary>
+    /// <param name="bookId">Book id.</param>
+    public async Task ReturnBook(int bookId)
     {
-        await _booksService.ReturnBook(bookId);
-        var returnedBook = CurrentBook;
-        CurrentBook = null;
-        ShowingConfigureDialog = false;
-        return new BookModel()
+        if (CurrentBook == null)
         {
-            Id = returnedBook.Id,
-            Name = returnedBook.Name,
-            Author = returnedBook.Author,
+            return;
+        }
+        
+        var returnedBook = await _booksService.ReturnBook(bookId);
+        if (bookId != returnedBook)
+        {
+            return;
+        }
+
+        BookModelUpdated.Invoke(this, new BookModel
+        {
+            Id = CurrentBook.Id,
+            Name = CurrentBook.Name,
+            Author = CurrentBook.Author,
             Borrowed = null
-        };
+        });
+        
+        CurrentBook = null;
+        ShowingBookConfigurationDialog = false;
     }
 }

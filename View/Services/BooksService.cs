@@ -26,11 +26,13 @@ public class BooksService
         return borrowModel;
     }
 
-    public async Task ReturnBook(int bookId)
+    public async Task<int> ReturnBook(int bookId)
     {
         using var client = _httpClientFactory.CreateClient();
 
         await client.GetAsync(_navigationManager.BaseUri + $"books/return/{bookId}");
+
+        return bookId;
     }
 
     public async Task<List<BookModel>> GetBooks(int start, int count)

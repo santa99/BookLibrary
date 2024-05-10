@@ -45,12 +45,12 @@
     </table>
 </div>
 
-@if (BorrowState.ShowingConfigureDialog)
+@if (BorrowState.ShowingBookConfigurationDialog)
 {
     <BorrowBookDialog Book="BorrowState.CurrentBook"
                       OnCancel="BorrowState.CancelConfigureDialog"
-                      OnBookReturn="async (bookId) => { var b = await BorrowState.ReturnBook(bookId); OnEntryUpdated(b); }"
-                      OnBookBorrow="async (readersCardId) => { var b = await BorrowState.BorrowBook(readersCardId); OnEntryUpdated(b); }"/>
+                      OnBookReturn="BorrowState.ReturnBook"
+                      OnBookBorrow="BorrowState.BorrowBook"/>
 }
 
 @code {
@@ -63,6 +63,13 @@
     {
         _books = await ReloadBooks();
         EditState.BooksService = BooksService;
+        BorrowState.BookModelUpdated = BookModelUpdated;
+    }
+
+    private void BookModelUpdated(object? sender, BookModel bookModel)
+    {
+        var editableTableEntry = _entries.FirstOrDefault(entry => entry.Book.Id == bookModel.Id);
+        editableTableEntry?.UpdateEntry(bookModel);
     }
 
     private Task<List<BookModel>> ReloadBooks()
@@ -73,20 +80,6 @@
     async Task OnPaginationChanged(int newCount)
     {
         _books = await ReloadBooks();
-    }
-
-    private EditableTableEntry? GetEntry(BookModel bookModel)
-    {
-        return _entries.FirstOrDefault(entry => entry.Book.Id == bookModel.Id);
-    }
-    
-    public void OnEntryUpdated(BookModel bookModel)
-    {
-        var editableTableEntry = _entries.FirstOrDefault(entry => entry.Book.Id == bookModel.Id);
-        if (editableTableEntry != null)
-        {
-            editableTableEntry.UpdateEntry(bookModel);
-        }
     }
 
     public void Add(EditableTableEntry editableTableEntry)

@@ -131,7 +131,7 @@
         await Task.CompletedTask;
     }
 
-    public void UpdateEntry(BookModel bookModel)
+    internal void UpdateEntry(BookModel bookModel)
     {
         Book.Name = bookModel.Name;
         Book.Author = bookModel.Author;
