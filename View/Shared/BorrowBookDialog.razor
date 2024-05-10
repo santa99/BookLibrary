@@ -1,19 +1,19 @@
-﻿
-@using Microsoft.AspNetCore.Components
-@using Microsoft.AspNetCore.Components.Web
-
-@inject HttpClient HttpClient
+﻿@inject HttpClient HttpClient
 @using Contracts.Models
 @using View.Services
 
 <div class="dialog-container">
     <div class="dialog">
         <div class="dialog-title">
+            @if (Book == null) return;
+            
             <h2>@Book.Name</h2>
             Author: @Book.Author
         </div>
         <form class="dialog-body">
             <div>
+                @if (Book == null) return;
+
                 @if (Book.Borrowed == null)
                 {
                     <select class="select" @onchange="SelectReader">
@@ -28,6 +28,9 @@
 
         <div class="dialog-buttons">
             <button class="btn btn-secondary mr-auto" @onclick="OnCancel">Cancel</button>
+
+            @if (Book == null) return;
+
             @if (Book.Borrowed != null)
             {
                 <button class="btn btn-success ml-auto" @onclick="ReturnBook">Return</button>
@@ -41,52 +44,61 @@
 </div>
 
 @code {
+    
+    [Inject]
+    public ReadersInfoService? ReadersInfoService { get; set; }
 
     [Parameter]
-    public BookModel Book { get; set; }
+    public BookModel? Book { get; set; }
     
     [Parameter]
     public EventCallback OnCancel { get; set; }
     
     [Parameter]
-    public EventCallback<int> OnBorrow { get; set; }
+    public EventCallback<int> OnBookBorrow { get; set; }
     
     [Parameter]
-    public EventCallback<int> OnReturn { get; set; }
-
-    public int ReadersCardId { get; set; } = -1;
-
-    public List<ReadersInfo> ReadersInfos { get; set; } = new List<ReadersInfo>();
-
-    [Inject]
-    public ReadersInfoService ReadersInfoService { get; set; }
+    public EventCallback<int> OnBookReturn { get; set; }
+    
+    private ReadersInfo? _selected;
+    private List<ReadersInfo> ReadersInfos { get; set; } = new();
     
     protected override async Task OnInitializedAsync()
     {
-        ReadersInfos = await ReadersInfoService.GetAllReaders();
-        var x = ReadersInfos.FirstOrDefault();
-        if (x != null && x.ReaderCardId != -1)
+        if (ReadersInfoService == null)
         {
-            ReadersCardId = x.ReaderCardId;
+            return;
         }
+        
+        ReadersInfos = await ReadersInfoService.GetAllReaders();
+        _selected = ReadersInfos.FirstOrDefault();
     }
     
-    private async Task SelectReader(ChangeEventArgs args)
+    private Task SelectReader(ChangeEventArgs changeEvent)
     {
-        if (int.TryParse(args.Value.ToString(), out var newReadersCardId) && newReadersCardId != -1)
+        if (int.TryParse(changeEvent.Value?.ToString(), out var newReadersCardId) && newReadersCardId != -1)
         {
-            ReadersCardId = newReadersCardId;
+            _selected = ReadersInfos.FirstOrDefault(info => info.ReaderCardId == newReadersCardId);
         }
+
+        return Task.CompletedTask;
     }
 
     private async Task BorrowBook()
     {
-        if (ReadersCardId == -1) return;
-        await OnBorrow.InvokeAsync(ReadersCardId);
+        if (_selected == null)
+        {
+            return;
+        }
+        await OnBookBorrow.InvokeAsync(_selected.ReaderCardId);
     }
 
     private async Task ReturnBook()
     {
-        await OnReturn.InvokeAsync(Book.Id);
+        if (Book == null)
+        {
+            return;
+        }
+        await OnBookReturn.InvokeAsync(Book.Id);
     }
 }

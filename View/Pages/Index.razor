@@ -49,8 +49,8 @@
 {
     <BorrowBookDialog Book="BorrowState.CurrentBook"
                       OnCancel="BorrowState.CancelConfigureDialog"
-                      OnReturn="async (bookId) => { var b = await BorrowState.ReturnBook(bookId); OnEntryUpdated(b); }"
-                      OnBorrow="async (readersCardId) => { var b = await BorrowState.BorrowBook(readersCardId); OnEntryUpdated(b); }"/>
+                      OnBookReturn="async (bookId) => { var b = await BorrowState.ReturnBook(bookId); OnEntryUpdated(b); }"
+                      OnBookBorrow="async (readersCardId) => { var b = await BorrowState.BorrowBook(readersCardId); OnEntryUpdated(b); }"/>
 }
 
 @code {
