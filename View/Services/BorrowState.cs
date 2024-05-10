@@ -46,17 +46,33 @@ public class BorrowState
         ShowingConfigureDialog = false;
     }
 
-    public async Task BorrowBook(int readersCardId)
+    public async Task<BookModel> BorrowBook(int readersCardId)
     {
-        await _booksService.BorrowBook(CurrentBook.Id, readersCardId);
+        var borrowModel = await _booksService.BorrowBook(CurrentBook.Id, readersCardId);
+        var borrowedBook = CurrentBook;
         CurrentBook = null;
         ShowingConfigureDialog = false;
+        return new BookModel()
+        {
+            Id = borrowedBook.Id,
+            Name = borrowedBook.Name,
+            Author = borrowedBook.Author,
+            Borrowed = borrowModel
+        };
     }
 
-    public async Task ReturnBook(int bookId)
+    public async Task<BookModel> ReturnBook(int bookId)
     {
         await _booksService.ReturnBook(bookId);
+        var returnedBook = CurrentBook;
         CurrentBook = null;
         ShowingConfigureDialog = false;
+        return new BookModel()
+        {
+            Id = returnedBook.Id,
+            Name = returnedBook.Name,
+            Author = returnedBook.Author,
+            Borrowed = null
+        };
     }
 }

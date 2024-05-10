@@ -1,0 +1,134 @@
+﻿@using Contracts.Models
+@using View.Services
+@using Index = View.Pages.Index
+
+<tr style="text-align: left;" @onclick="ClickRow">
+    <td>@Book.Id</td>
+    @if (@EditState.IsEditMode && EditState.IsMeEdit(this))
+    {
+        <td><input type="text" name="name" value="@_BookEdit.Name" @onchange="OnNameChanged"/></td>
+        <td><input type="text" name="author" value="@_BookEdit.Author" @onchange="OnAuthorChanged"/></td>
+    }
+    else
+    {
+        <td>@Book.Name</td>
+        <td>@Book.Author</td>
+    }
+    <td>
+        <div>@(Book.Borrowed != null ? @BorrowedBy(Book.Borrowed) : "Free")</div>
+    </td>
+</tr>
+
+
+@code {
+    
+    
+    [Parameter]
+    public Index Root { get; set; }
+    
+    [Parameter] public BookModel Book { get; set; }
+    private BookModel? _BookEdit { get; set; }
+    
+    [Parameter]
+    public EventCallback<BookModel> OnBorrowBook { get; set; }
+
+    [Parameter] public EditState EditState { get; set; }
+    private bool _isEdited;
+    private bool _dirty;
+
+    protected override Task OnInitializedAsync()
+    {
+        Root.Add(this);
+        return base.OnInitializedAsync();
+    }
+
+    private async Task ClickRow()
+    {
+        if (EditState.IsEditMode)
+        {
+            if (!_isEdited)
+            {
+                _isEdited = true;
+                EnterEdit();
+                EditState.StartEditEntry(this);
+            }
+            
+            return;
+        }
+        
+        await OnBorrowBook.InvokeAsync(Book);
+    }
+
+    private static string BorrowedBy(BorrowModel borrowModel)
+    {
+        return "'" + borrowModel.FirstName + " " + borrowModel.LastName + "' borrowed on [" + borrowModel.From.ToString("dd MMMM yyyy") + "]";
+    }
+
+    private void EnterEdit()
+    {
+        _BookEdit = new BookModel
+        {
+            Id = Book.Id,
+            Name = Book.Name,
+            Author = Book.Author,
+            Borrowed = Book.Borrowed
+        };
+    }
+    
+    private async Task OnNameChanged(ChangeEventArgs args)
+    {
+        _dirty = true;
+        _BookEdit.Name = !string.IsNullOrEmpty((string) args.Value!) ? (string)args.Value : "";
+    }
+    
+    private async Task OnAuthorChanged(ChangeEventArgs args)
+    {
+        _dirty = true;
+        _BookEdit.Author = !string.IsNullOrEmpty((string) args.Value!) ? (string)args.Value : "";
+    }
+
+    public async Task SaveChanges(BooksService booksService)
+    {
+        if (!_dirty || _BookEdit == null)
+        {
+            _isEdited = false;
+            return;
+        }
+
+        await booksService.UpdateBook(_BookEdit);
+        
+        UpdateEntry(_BookEdit);
+        _dirty = false;
+        _isEdited = false;
+    }
+
+    public async Task DiscardChanges()
+    {
+        if (!_dirty || _BookEdit == null)
+        {
+            _isEdited = false;
+            return;
+        }
+        
+        _BookEdit = new BookModel
+        {
+            Id = Book.Id,
+            Name = Book.Name,
+            Author = Book.Author,
+            Borrowed = Book.Borrowed
+        };
+
+        _dirty = false;
+        _isEdited = false;
+        
+        await Task.CompletedTask;
+    }
+
+    public void UpdateEntry(BookModel bookModel)
+    {
+        Book.Name = bookModel.Name;
+        Book.Author = bookModel.Author;
+        Book.Borrowed = bookModel.Borrowed;
+    }
+
+}

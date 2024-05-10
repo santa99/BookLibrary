@@ -1,9 +1,12 @@
-﻿using Contracts.Models;
+﻿using System.ComponentModel.DataAnnotations;
+using Contracts.Models;
 using Microsoft.AspNetCore.Components;
+using Newtonsoft.Json;
+using View.Model;
 
 namespace View.Services;
 
-public class BooksService 
+public class BooksService
 {
     private readonly NavigationManager _navigationManager;
     private readonly IHttpClientFactory _httpClientFactory;
@@ -14,17 +17,19 @@ public class BooksService
         _httpClientFactory = httpClientFactory;
     }
 
-    public async Task BorrowBook(int bookId, int readersCardId)
+    public async Task<BorrowModel> BorrowBook(int bookId, int readersCardId)
     {
         using var client = _httpClientFactory.CreateClient();
-        
-        await client.GetAsync(_navigationManager.BaseUri + $"books/borrow/{bookId}/{readersCardId}");
+
+        var borrowModel = await client.GetFromJsonAsync<BorrowModel>(_navigationManager.BaseUri + $"books/borrow/{bookId}/{readersCardId}");
+
+        return borrowModel;
     }
 
     public async Task ReturnBook(int bookId)
     {
         using var client = _httpClientFactory.CreateClient();
-        
+
         await client.GetAsync(_navigationManager.BaseUri + $"books/return/{bookId}");
     }
 
@@ -32,8 +37,20 @@ public class BooksService
     {
         using var client = _httpClientFactory.CreateClient();
 
-        var books = await client.GetFromJsonAsync<List<BookModel>>(_navigationManager.BaseUri + $"books/{start}/{count}");
-        
+        var books = await client.GetFromJsonAsync<List<BookModel>>(
+            _navigationManager.BaseUri + $"books/{start}/{count}");
+
         return books ?? new List<BookModel>();
     }
+
+    public async Task UpdateBook(BookModel bookModel)
+    {
+        using var client = _httpClientFactory.CreateClient();
+
+        var updateBookReqModel = new UpdateBookReqModel(bookModel.Id, bookModel.Name, bookModel.Author);
+
+        await client.PostAsync(_navigationManager.BaseUri + $"books/update", 
+            JsonContent.Create(updateBookReqModel));
+    }
 }
+

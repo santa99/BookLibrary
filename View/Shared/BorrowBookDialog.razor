@@ -42,19 +42,15 @@
 
 @code {
 
-    // Can pass value with opening
     [Parameter]
     public BookModel Book { get; set; }
     
-    // Called when the dialog is canceled 
     [Parameter]
     public EventCallback OnCancel { get; set; }
     
-    // Called when the book is being borrowed
     [Parameter]
     public EventCallback<int> OnBorrow { get; set; }
     
-    // Called when the book is returned
     [Parameter]
     public EventCallback<int> OnReturn { get; set; }
 

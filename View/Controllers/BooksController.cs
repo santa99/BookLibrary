@@ -1,13 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Text;
 using Contracts.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using View.Model;
 
 namespace View.Controllers;
 
 [Route("books")]
+[ApiController]
 public class BooksController : Controller
 {
     
@@ -22,13 +25,13 @@ public class BooksController : Controller
     {
         using var client = CreateClient();
         
-        var httpResponseMessage = await client.GetAsync($"/api/book/borrow/{bookId}/{readersCardId}");
-        if (!httpResponseMessage.IsSuccessStatusCode)
+        var httpResponseMessage = await client.GetFromJsonAsync<BorrowModel>($"/api/book/borrow/{bookId}/{readersCardId}");
+        if (httpResponseMessage == null)
         {
             return Forbid();
         }
         
-        return Ok();
+        return Ok(httpResponseMessage);
     }
 
     [HttpGet("return/{bookId}/")]
@@ -43,6 +46,34 @@ public class BooksController : Controller
         }
         
         return Ok();
+    }
+    
+    [HttpPost("update")]
+    public async Task<IActionResult> UpdateBook([FromBody] UpdateBookReqModel updateBookReqModel)
+    {
+        using var client = CreateClient();
+
+        
+        var bookId = updateBookReqModel.BookId;
+        var title = updateBookReqModel.Title;
+        var author = updateBookReqModel.Author;
+        
+        var httpResponseMessage = await client.GetAsync($"/api/book/edit/{bookId}?title={title}&author={author}");
+        if (!httpResponseMessage.IsSuccessStatusCode)
+        {
+            return Forbid();
+        }
+        
+        return Ok(httpResponseMessage);
+    }
+    
+    public static byte[] ReadFully(Stream input)
+    {
+        using (MemoryStream ms = new MemoryStream())
+        {
+            input.CopyTo(ms);
+            return ms.ToArray();
+        }
     }
 
     [HttpGet("add")]
@@ -171,3 +202,4 @@ public class BooksController : Controller
     //     HttpContext.Response.Cookies.Append(key, value, options);
     // }
 }
+
