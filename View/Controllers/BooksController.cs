@@ -52,28 +52,23 @@ public class BooksController : Controller
     public async Task<IActionResult> UpdateBook([FromBody] UpdateBookReqModel updateBookReqModel)
     {
         using var client = CreateClient();
-
         
-        var bookId = updateBookReqModel.BookId;
+        var bookId = updateBookReqModel?.BookId;
         var title = updateBookReqModel.Title;
         var author = updateBookReqModel.Author;
+
+        var queryStr = "";
+        queryStr = bookId == null 
+            ? $"/api/book/add?title={title}&author={author}" 
+            : $"/api/book/edit/{bookId}?title={title}&author={author}";
         
-        var httpResponseMessage = await client.GetAsync($"/api/book/edit/{bookId}?title={title}&author={author}");
+        var httpResponseMessage = await client.GetAsync(queryStr);
         if (!httpResponseMessage.IsSuccessStatusCode)
         {
             return Forbid();
         }
         
         return Ok(httpResponseMessage);
-    }
-    
-    public static byte[] ReadFully(Stream input)
-    {
-        using (MemoryStream ms = new MemoryStream())
-        {
-            input.CopyTo(ms);
-            return ms.ToArray();
-        }
     }
 
     [HttpGet("add")]

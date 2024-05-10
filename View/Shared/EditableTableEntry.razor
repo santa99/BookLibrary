@@ -37,7 +37,8 @@
     [Parameter] public EditState EditState { get; set; }
     
     private BookModel? _BookEdit { get; set; }
-    
+    public bool IsDirty => _dirty;
+
     private bool _isEdited;
     private bool _dirty;
 
@@ -56,23 +57,21 @@
     {
         if (EditState.IsEditMode)
         {
-            if (_isEdited)
-            {
-                return;
-            }
-            
-            _isEdited = true;
             EnterEdit();
-            EditState.StartEditEntry(this);
-
             return;
         }
 
         await OnBorrowBook.InvokeAsync(Book);
     }
-    
-    private void EnterEdit()
+
+    public void EnterEdit()
     {
+        if (_isEdited)
+        {
+            return;
+        }
+            
+        _isEdited = true;
         _BookEdit = new BookModel
         {
             Id = Book.Id,
@@ -80,6 +79,7 @@
             Author = Book.Author,
             Borrowed = Book.Borrowed
         };
+        EditState.StartEditEntry(this);
     }
 
     private async Task OnNameChanged(ChangeEventArgs args)
@@ -142,4 +142,5 @@
     {
         return "'" + borrowModel.FirstName + " " + borrowModel.LastName + "' borrowed on [" + borrowModel.From.ToString("dd MMMM yyyy") + "]";
     }
+    
 }

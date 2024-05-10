@@ -48,8 +48,8 @@ public class BooksService
     public async Task UpdateBook(BookModel bookModel)
     {
         using var client = _httpClientFactory.CreateClient();
-
-        var updateBookReqModel = new UpdateBookReqModel(bookModel.Id, bookModel.Name, bookModel.Author);
+        
+        var updateBookReqModel = new UpdateBookReqModel(bookModel.Id < 0 ? null : bookModel.Id, bookModel.Name, bookModel.Author);
 
         await client.PostAsync(_navigationManager.BaseUri + $"books/update", 
             JsonContent.Create(updateBookReqModel));

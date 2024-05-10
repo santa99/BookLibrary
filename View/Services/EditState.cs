@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Contracts.Models;
+using Microsoft.AspNetCore.Components;
 using View.Shared;
 
 namespace View.Services;
@@ -15,16 +16,11 @@ public class EditState
     /// <summary>
     /// Checks whether any of the displayed item has been previously edited.
     /// </summary>
-    public bool IsDirty { get; set; }
+    public bool IsDirty { get; private set; }
 
     public async Task EnterEditMode()
     {
         IsEditMode = true;
-    }
-
-    public async Task ExitEditMode()
-    {
-        IsEditMode = false;
     }
 
     private readonly List<EditableTableEntry> _editables = new();
@@ -55,10 +51,19 @@ public class EditState
         }
 
         _editables.RemoveAll(entry => copy.Contains(entry));
+        
+        IsEditMode = false;
+        IsDirty = false;
     }
 
     public async Task DiscardChanges()
     {
+        if (!IsDirty)
+        {
+            IsEditMode = false;
+            return;
+        }
+        
         var copy = new List<EditableTableEntry>(_editables);
         foreach (var editableTableEntry in copy)
         {
@@ -66,5 +71,8 @@ public class EditState
         }
         
         _editables.RemoveAll(entry => copy.Contains(entry));
+
+        IsEditMode = false;
+        IsDirty = false;
     }
 }

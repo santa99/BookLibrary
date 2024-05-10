@@ -1,7 +1,7 @@
 ﻿namespace View.Model;
 
 public record UpdateBookReqModel(
-    int BookId,
+    int? BookId,
     string Title,
     string Author
 );

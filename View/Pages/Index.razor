@@ -24,9 +24,9 @@
             }
             else
             {
-                <button @onclick="EditState.ExitEditMode">End edit</button>
+                <button @onclick="AddNewBook">Add</button>
                 <button @onclick="EditState.SaveChanges">Save</button>
-                <button @onclick="EditState.DiscardChanges">Discard</button>
+                <button @onclick="async () => { await EditState.DiscardChanges(); DiscardAdded();}">Discard</button>
             }
         </div>
     </div>
@@ -45,6 +45,11 @@
                     </th>
                     <th>Status</th>
                 </tr>
+                @foreach (var item in @_added)
+                {
+                    <EditableTableEntry Book="@item" OnBorrowBook="BorrowState.ShowConfigureDialog" EditState="EditState" Root="this"/>
+                }
+                
                 @foreach (var item in @_books)
                 {
                     <EditableTableEntry Book="@item" OnBorrowBook="BorrowState.ShowConfigureDialog" EditState="EditState" Root="this"/>
@@ -68,6 +73,7 @@
 }
 
 @code {
+    private List<BookModel> _added = new();
     private List<BookModel>? _books = new();
     private readonly List<EditableTableEntry> _entries = new();
 
@@ -96,9 +102,27 @@
         _books = await ReloadBooks();
     }
 
+
     public void Add(EditableTableEntry editableTableEntry)
     {
         _entries.Add(editableTableEntry);
+    }
+
+    private void AddNewBook()
+    {
+        _added.Insert(0, new BookModel()
+        {
+            Id = -1
+        });
+    }
+
+    private void DiscardAdded()
+    {
+        var nonDirty = _entries
+            .Where(entry => _added.Contains(entry.Book))
+            .Select(editEntry => editEntry.Book);
+
+        _added.RemoveAll(model => nonDirty.Contains(model));
     }
 
 }
