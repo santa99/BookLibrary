@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<BooksController>();
 builder.Services.AddScoped<BorrowState>();
 builder.Services.AddScoped<PaginationState>();
+builder.Services.AddScoped<EditState>();
 
 // Services for VIEW communication.
 builder.Services.AddTransient<ReadersInfoService>();

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Contracts.Models;
+using Microsoft.AspNetCore.Components;
 
 namespace View.Services;
 
@@ -25,5 +26,14 @@ public class BooksService
         using var client = _httpClientFactory.CreateClient();
         
         await client.GetAsync(_navigationManager.BaseUri + $"books/return/{bookId}");
+    }
+
+    public async Task<List<BookModel>> GetBooks(int start, int count)
+    {
+        using var client = _httpClientFactory.CreateClient();
+
+        var books = await client.GetFromJsonAsync<List<BookModel>>(_navigationManager.BaseUri + $"books/{start}/{count}");
+        
+        return books ?? new List<BookModel>();
     }
 }

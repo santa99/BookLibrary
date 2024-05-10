@@ -11,12 +11,23 @@
 @inject BooksController BooksController
 @inject BorrowState BorrowState
 @inject PaginationState PaginationState
+@inject EditState EditState
 
 
 <div class="main">
     <h3>Book page</h3>
     <div>
         <Pagination OnPageCountChanged="OnPaginationChanged" PaginationState="PaginationState"/>
+    </div>
+    <div>
+        @if (!EditState.IsEditMode)
+        {
+            <button @onclick="EditState.EnterEditMode">Edit</button>
+        }
+        else
+        {
+            <button @onclick="EditState.ExitEditMode">End edit</button>
+        }
     </div>
     <table class="table table-responsive fl-table" style="width:100%">
         <tr style="text-align: left;">
@@ -30,13 +41,16 @@
                 <label >book.Author</label>
             </th>
             <th>
-                Edit
-            </th>
-            <th>
                 Status
             </th>
+            @if (EditState.IsEditMode)
+            {
+                <th>
+                    Edit
+                </th>
+            }
         </tr>
-        
+
         @foreach (var item in @_books)
         {
             <tr style="text-align: left;" @onclick="@(() => { BorrowState.ShowConfigureDialog(@item); })">
@@ -48,13 +62,6 @@
                 </td>
                 <td>
                     @item.Author
-                </td>
-                <td>
-                    @*
-                @Html.ActionLink("Edit", "EditBook", "Home",
-                    new { bookId = item.Id }) /
-                @Html.ActionLink("Remove", "RemoveBook", "Home",
-                    new { bookId = item.Id })*@
                 </td>
                 <td>
                     @if (item.Borrowed != null)
@@ -71,6 +78,15 @@
                         </div>
                     }
                 </td>
+
+                @if (EditState.IsEditMode)
+                {
+                <td>
+                    <button class="btn btn-primary mr-auto" @onclick="@(async (e) => { await EditState.EditBook(@item.Id); })" @onclick:stopPropagation="false"> Edit</button>
+                    <button class="btn btn-secondary mr-auto" @onclick="@(async (e) => await EditState.RemoveBook(@item.Id))" @onclick:stopPropagation="false"> Remove</button>
+                </td>
+                }
+                
             </tr>
         }
     </table>
@@ -78,16 +94,17 @@
 
 @if (BorrowState.ShowingConfigureDialog)
 {
-    <BorrowBookDialog Book="BorrowState.CurrentBook" 
+    <BorrowBookDialog Book="BorrowState.CurrentBook"
                       OnCancel="BorrowState.CancelConfigureDialog"
                       OnReturn="BorrowState.ReturnBook"
-                      OnBorrow="BorrowState.BorrowBook"
-                      />
+                      OnBorrow="BorrowState.BorrowBook"/>
 }
 
 
 @code {
     private List<BookModel>? _books = new();
+
+    [Inject] BooksService BooksService { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -96,11 +113,12 @@
 
     private Task<List<BookModel>> ReloadBooks()
     {
-        return HttpClient.GetFromJsonAsync<List<BookModel>>(NavigationManager.BaseUri + $"books/{PaginationState.Start}/{PaginationState.Count}");
+        return BooksService.GetBooks(PaginationState.Start, PaginationState.Count);
     }
 
     async Task OnPaginationChanged(int newCount)
     {
         _books = await ReloadBooks();
     }
+
 }
