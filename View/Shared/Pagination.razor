@@ -8,10 +8,17 @@
 
     <label>Per page:</label>
     <select @onchange="ChangePagination">
-        <option value="1">1</option>
-        <option value="5">5</option>
-        <option value="10">10</option>
-        <option value="30">30</option>
+        @foreach(var option in options)
+        {
+            if (option == selected)
+            {
+                <option selected value="@option" >@option</option>
+            }
+            else
+            {
+                <option value="@option">@option</option>
+            }
+        }
     </select>
 </div>
 
@@ -19,27 +26,39 @@
 
     [Parameter] public PaginationState PaginationState { get; set; }
 
-    [Parameter] public EventCallback<int> OnPageCountChanged { get; set; }
+    [Parameter] public EventCallback<int> OnPaginationChanged { get; set; }
+
+    private int selected = 10;
+    private List<int> options = new List<int>()
+    {
+        1,2,5,10,30
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        PaginationState.SetDisplayCount(selected);
+        await OnPaginationChanged.InvokeAsync();
+    }
 
     private async Task ChangePagination(ChangeEventArgs val)
     {
         if (int.TryParse((string?)val.Value, out var newCount))
         {
             PaginationState.SetDisplayCount(newCount);
-            await OnPageCountChanged.InvokeAsync();
+            await OnPaginationChanged.InvokeAsync();
         }
     }
 
     private async Task NextPage(EventArgs arg)
     {
         PaginationState.SetPage(PaginationState.Page + 1);
-        await OnPageCountChanged.InvokeAsync();
+        await OnPaginationChanged.InvokeAsync();
     }
 
     private async Task PrevPage(EventArgs arg)
     {
         PaginationState.SetPage(PaginationState.Page - 1);
-        await OnPageCountChanged.InvokeAsync();
+        await OnPaginationChanged.InvokeAsync();
     }
 
 }

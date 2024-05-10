@@ -2,15 +2,7 @@
 
 public class PaginationState
 {
-    /// <summary>
-    /// Start element.
-    /// </summary>
-    public int Start => StartWindow;
-
-    /// <summary>
-    /// Element count to read.
-    /// </summary>
-    public int Count { get; private set; } = 2;
+    public int Count { get; private set; } = 1;
 
     public int Page { get; private set; } = 1;
 
