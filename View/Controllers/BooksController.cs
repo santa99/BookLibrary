@@ -71,6 +71,20 @@ public class BooksController : Controller
         return Ok(httpResponseMessage);
     }
 
+    [HttpGet("remove/{bookId}/")]
+    public async Task<IActionResult> RemoveBook(int? bookId = -1)
+    {
+        using var client = CreateClient();
+        
+        var httpResponseMessage = await client.GetAsync($"/api/book/remove/{bookId}");
+        if (!httpResponseMessage.IsSuccessStatusCode)
+        {
+            return Forbid();
+        }
+        
+        return Ok();
+    }
+
     [HttpGet("add")]
     public async Task<IActionResult> BookAdd(int? bookId = -1)
     {

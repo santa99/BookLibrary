@@ -27,6 +27,10 @@
                 <button @onclick="AddNewBook">Add</button>
                 <button @onclick="EditState.SaveChanges">Save</button>
                 <button @onclick="async () => { await EditState.DiscardChanges(); DiscardAdded();}">Discard</button>
+                @if (@ToRemove)
+                {
+                    <button @onclick="RemoveItems">Remove</button>
+                }
             }
         </div>
     </div>
@@ -47,12 +51,12 @@
                 </tr>
                 @foreach (var item in @_added)
                 {
-                    <EditableTableEntry Book="@item" OnBorrowBook="BorrowState.ShowConfigureDialog" EditState="EditState" Root="this"/>
+                    <EditableTableEntry Book="@item" OnBorrowBook="BorrowState.ShowConfigureDialog" EditState="EditState" Root="this" OnChecked="OnCheckedUpdate"/>
                 }
                 
                 @foreach (var item in @_books)
                 {
-                    <EditableTableEntry Book="@item" OnBorrowBook="BorrowState.ShowConfigureDialog" EditState="EditState" Root="this"/>
+                    <EditableTableEntry Book="@item" OnBorrowBook="BorrowState.ShowConfigureDialog" EditState="EditState" Root="this" OnChecked="OnCheckedUpdate"/>
                 }
             </table>
         </div>
@@ -125,4 +129,32 @@
         _added.RemoveAll(model => nonDirty.Contains(model));
     }
 
+    private List<EditableTableEntry> _EntriesToRemove = new();
+    private bool ToRemove => _EntriesToRemove.Count > 0;
+    
+    private void OnCheckedUpdate(EditableTableEntry editableTableEntry)
+    {
+        if (!editableTableEntry.Checked)
+        {
+            _EntriesToRemove.Add(editableTableEntry);
+        }
+        else
+        {
+            _EntriesToRemove.Remove(editableTableEntry);
+        }
+    }
+
+    private async Task RemoveItems()
+    {
+        var editableTableEntries = new List<EditableTableEntry>(_EntriesToRemove);
+        var bookModels = editableTableEntries.Select(entry => entry.Book);
+
+        foreach (var bookModel in bookModels)
+        {
+            await BooksService.RemoveBook(bookModel);
+        }
+        
+        _books.RemoveAll(model => bookModels.Contains(model));
+        _EntriesToRemove.RemoveAll(entry => bookModels.Contains(entry.Book));
+    }
 }

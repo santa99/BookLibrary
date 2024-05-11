@@ -54,5 +54,12 @@ public class BooksService
         await client.PostAsync(_navigationManager.BaseUri + $"books/update", 
             JsonContent.Create(updateBookReqModel));
     }
+
+    public async Task RemoveBook(BookModel bookModel)
+    {
+        using var client = _httpClientFactory.CreateClient();
+        
+        await client.GetAsync(_navigationManager.BaseUri + $"books/remove/{bookModel.Id}");
+    }
 }
 

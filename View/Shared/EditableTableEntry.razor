@@ -3,7 +3,13 @@
 @using Index = View.Pages.Index
 
 <tr style="text-align: left;" @onclick="ClickRow">
-    <td>@Book.Id</td>
+    <td>
+        @if (Editing())
+        {
+            <input type="checkbox" @bind="Checked" @onclick="Check"/>
+        }
+        @Book.Id
+    </td>
     <td>
         @if (Editing())
         {
@@ -35,12 +41,20 @@
     [Parameter] public BookModel Book { get; set; }
     [Parameter] public EventCallback<BookModel> OnBorrowBook { get; set; }
     [Parameter] public EditState EditState { get; set; }
+    [Parameter] public bool Checked { get; set; }
+    [Parameter] public EventCallback<EditableTableEntry> OnChecked { get; set; }
     
     private BookModel? _BookEdit { get; set; }
     public bool IsDirty => _dirty;
 
     private bool _isEdited;
     private bool _dirty;
+
+    private async Task<bool> Check()
+    {
+        await OnChecked.InvokeAsync(this);
+        return Checked;
+    }
 
     private bool Editing()
     {
@@ -105,8 +119,10 @@
         await booksService.UpdateBook(_BookEdit);
 
         UpdateEntry(_BookEdit);
+        
         _dirty = false;
         _isEdited = false;
+        Checked = false;
     }
 
     public async Task DiscardChanges()
@@ -127,6 +143,7 @@
 
         _dirty = false;
         _isEdited = false;
+        Checked = false;
 
         await Task.CompletedTask;
     }
