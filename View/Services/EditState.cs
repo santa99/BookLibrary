@@ -67,7 +67,7 @@ public class EditState
         var copy = new List<EditableTableEntry>(_editables);
         foreach (var editableTableEntry in copy)
         {
-            await editableTableEntry.DiscardChanges();
+            await editableTableEntry.DiscardChanges(BooksService);
         }
         
         _editables.RemoveAll(entry => copy.Contains(entry));

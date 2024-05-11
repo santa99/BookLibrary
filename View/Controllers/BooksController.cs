@@ -124,6 +124,16 @@ public class BooksController : Controller
         return Ok(bookModel);
     }
     
+    [HttpGet("get/{bookId}/")]
+    public async Task<BookModel?> GetBook(int bookId)
+    {
+        using var client = CreateClient();
+        
+        var book = await client.GetFromJsonAsync<BookModel>($"/api/book/get/{bookId}");
+
+        return book;
+    }
+    
     [HttpGet("{start}/{count}")]
     [HttpGet("index")]
     public async Task<List<BookModel>> GetBooks([FromRoute]int start = 0, [FromRoute] int count = -1)

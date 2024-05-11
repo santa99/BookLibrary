@@ -55,11 +55,11 @@ public class LibraryController : Controller
     /// <returns></returns>
     [HttpGet("/api/book/get/{bookId}")]
     [ProducesResponseType(typeof(BookModel), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetBook(int bookId, CancellationToken cancellationToken)
+    public async Task<BookModel> GetBook(int bookId, CancellationToken cancellationToken)
     {
         var bookModel = await _bookLibraryRepository.GetBook(bookId, cancellationToken);
 
-        return Ok(bookModel);
+        return bookModel;
     }
 
     /// <summary>

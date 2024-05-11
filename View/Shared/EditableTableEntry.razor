@@ -13,7 +13,7 @@
     <td>
         @if (Editing())
         {
-            <input type="text" name="name" value="@_BookEdit.Name" @onchange="OnNameChanged"/>
+            <input type="text" name="name" value="@Book.Name" @onchange="OnBookNameChanged"/>
         }
         else
         {
@@ -23,7 +23,7 @@
     <td>
         @if (Editing())
         {
-            <input type="text" name="author" value="@_BookEdit.Author" @onchange="OnAuthorChanged"/>
+            <input type="text" name="author" value="@Book.Author" @onchange="OnBookAuthorChanged"/>
         }
         else
         {
@@ -37,6 +37,7 @@
 
 
 @code {
+    
     [Parameter] public Index Root { get; set; }
     [Parameter] public BookModel Book { get; set; }
     [Parameter] public EventCallback<BookModel> OnBorrowBook { get; set; }
@@ -44,8 +45,6 @@
     [Parameter] public bool Checked { get; set; }
     [Parameter] public EventCallback<EditableTableEntry> OnChecked { get; set; }
     
-    private BookModel? _BookEdit { get; set; }
-
     private bool _isEdited;
     private bool _dirty;
 
@@ -85,17 +84,10 @@
         }
             
         _isEdited = true;
-        _BookEdit = new BookModel
-        {
-            Id = Book.Id,
-            Name = Book.Name,
-            Author = Book.Author,
-            Borrowed = Book.Borrowed
-        };
         EditState.StartEditEntry(this);
     }
 
-    private void OnNameChanged(ChangeEventArgs e)
+    private void OnBookNameChanged(ChangeEventArgs e)
     {
         var tmp = e.Value?.ToString();
         var bookName = !(string.IsNullOrWhiteSpace(tmp)) ? tmp : Book.Name;
@@ -104,10 +96,10 @@
             return;
         }
         _dirty = true;
-        _BookEdit.Name = bookName;
+        Book.Name = bookName;
     }
 
-    private void OnAuthorChanged(ChangeEventArgs e)
+    private void OnBookAuthorChanged(ChangeEventArgs e)
     {
         var tmp = e.Value?.ToString();
         var bookAuthor = !(string.IsNullOrWhiteSpace(tmp)) ? tmp : Book.Author;
@@ -116,51 +108,57 @@
             return;
         }
         _dirty = true;
-        _BookEdit.Author = bookAuthor;
+        Book.Author = bookAuthor;
     }
 
     public async Task SaveChanges(BooksService booksService)
     {
-        if (!_dirty || _BookEdit == null)
+        if (!_dirty)
         {
             _isEdited = false;
+            Checked = false;
             return;
         }
 
-        await booksService.UpdateBook(_BookEdit);
-
-        UpdateEntry(_BookEdit);
+        var updatedBook = await booksService.UpdateBook(Book);
+        if (updatedBook == null)
+        {
+            return;
+        }
         
+        UpdateEntry(updatedBook);
+
         _dirty = false;
         _isEdited = false;
         Checked = false;
     }
 
-    public async Task DiscardChanges()
+    public async Task DiscardChanges(BooksService booksService)
     {
-        if (!_dirty || _BookEdit == null)
+        if (!_dirty)
         {
             _isEdited = false;
+            Checked = false;
             return;
         }
 
-        _BookEdit = new BookModel
+        var revertedBook = await booksService.GetBook(Book.Id);
+        if (revertedBook == null)
         {
-            Id = Book.Id,
-            Name = Book.Name,
-            Author = Book.Author,
-            Borrowed = Book.Borrowed
-        };
+            return;
+        }
+        // Book = revertedBook;
+        // StateHasChanged();
+        UpdateEntry(revertedBook);
 
         _dirty = false;
         _isEdited = false;
         Checked = false;
-
-        await Task.CompletedTask;
     }
 
     internal void UpdateEntry(BookModel bookModel)
     {
+        Book.Id = bookModel.Id;
         Book.Name = bookModel.Name;
         Book.Author = bookModel.Author;
         Book.Borrowed = bookModel.Borrowed;

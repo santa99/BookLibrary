@@ -35,6 +35,16 @@ public class BooksService
         return bookId;
     }
 
+    public async Task<BookModel?> GetBook(int bookId)
+    {
+        using var client = _httpClientFactory.CreateClient();
+
+        var book =  await client.GetFromJsonAsync<BookModel>(
+            _navigationManager.BaseUri + $"books/get/{bookId}");
+
+        return book;
+    }
+
     public async Task<List<BookModel>> GetBooks(int start, int count)
     {
         using var client = _httpClientFactory.CreateClient();
@@ -45,7 +55,7 @@ public class BooksService
         return books ?? new List<BookModel>();
     }
 
-    public async Task UpdateBook(BookModel bookModel)
+    public async Task<BookModel?> UpdateBook(BookModel bookModel)
     {
         using var client = _httpClientFactory.CreateClient();
         
@@ -53,6 +63,8 @@ public class BooksService
 
         await client.PostAsync(_navigationManager.BaseUri + $"books/update", 
             JsonContent.Create(updateBookReqModel));
+
+        return bookModel;
     }
 
     public async Task RemoveBook(BookModel bookModel)
