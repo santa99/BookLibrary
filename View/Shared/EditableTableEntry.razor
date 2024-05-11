@@ -45,7 +45,6 @@
     [Parameter] public EventCallback<EditableTableEntry> OnChecked { get; set; }
     
     private BookModel? _BookEdit { get; set; }
-    public bool IsDirty => _dirty;
 
     private bool _isEdited;
     private bool _dirty;
@@ -78,7 +77,7 @@
         await OnBorrowBook.InvokeAsync(Book);
     }
 
-    public void EnterEdit()
+    private void EnterEdit()
     {
         if (_isEdited)
         {
@@ -96,16 +95,28 @@
         EditState.StartEditEntry(this);
     }
 
-    private async Task OnNameChanged(ChangeEventArgs args)
+    private void OnNameChanged(ChangeEventArgs e)
     {
+        var tmp = e.Value?.ToString();
+        var bookName = !(string.IsNullOrWhiteSpace(tmp)) ? tmp : Book.Name;
+        if (bookName == Book.Name)
+        {
+            return;
+        }
         _dirty = true;
-        _BookEdit.Name = !string.IsNullOrEmpty((string)args.Value!) ? (string)args.Value : "";
+        _BookEdit.Name = bookName;
     }
 
-    private async Task OnAuthorChanged(ChangeEventArgs args)
+    private void OnAuthorChanged(ChangeEventArgs e)
     {
+        var tmp = e.Value?.ToString();
+        var bookAuthor = !(string.IsNullOrWhiteSpace(tmp)) ? tmp : Book.Author;
+        if (bookAuthor == Book.Author)
+        {
+            return;
+        }
         _dirty = true;
-        _BookEdit.Author = !string.IsNullOrEmpty((string)args.Value!) ? (string)args.Value : "";
+        _BookEdit.Author = bookAuthor;
     }
 
     public async Task SaveChanges(BooksService booksService)
