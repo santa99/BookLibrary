@@ -61,10 +61,12 @@ public class BooksService
         
         var updateBookReqModel = new UpdateBookReqModel(bookModel.Id < 0 ? null : bookModel.Id, bookModel.Name, bookModel.Author);
 
-        await client.PostAsync(_navigationManager.BaseUri + $"books/update", 
+        var httpResponseMessage = await client.PostAsync(_navigationManager.BaseUri + $"books/update", 
             JsonContent.Create(updateBookReqModel));
 
-        return bookModel;
+        var readAsStringAsync = await httpResponseMessage.Content.ReadAsStringAsync();
+
+        return JsonConvert.DeserializeObject<BookModel>(readAsStringAsync);
     }
 
     public async Task RemoveBook(BookModel bookModel)

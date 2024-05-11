@@ -87,14 +87,14 @@ public class LibraryController : Controller
     [ServiceFilter(typeof(RequestModelValidationFilter))]
     [ProducesResponseType(typeof(BookModel),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorCodeModel), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UpdateBook(UpdateBookReqModel updateBookReqModel,
+    public async Task<BookModel?> UpdateBook(UpdateBookReqModel updateBookReqModel,
         CancellationToken cancellationToken)
     {
         await _bookLibraryRepository.UpdateBookDetails(updateBookReqModel.BookId, updateBookReqModel.Title,
             updateBookReqModel.Author, cancellationToken);
         var bookUpdated = await _bookLibraryRepository.GetBook(updateBookReqModel.BookId, cancellationToken);
 
-        return Ok(bookUpdated);
+        return bookUpdated;
     }
 
     /// <summary>
@@ -107,7 +107,7 @@ public class LibraryController : Controller
     [ServiceFilter(typeof(RequestModelValidationFilter))]
     [ProducesResponseType(typeof(BookModel), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorCodeModel), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> InsertBook([FromRoute] CreateBookReqModel createBookReqModel,
+    public async Task<BookModel?> InsertBook([FromRoute] CreateBookReqModel createBookReqModel,
         CancellationToken cancellationToken)
     {
         var bookId =
@@ -115,7 +115,7 @@ public class LibraryController : Controller
                 cancellationToken);
         var bookInserted = await _bookLibraryRepository.GetBook(bookId, cancellationToken);
 
-        return Ok(bookInserted);
+        return bookInserted;
     }
 
     /// <summary>

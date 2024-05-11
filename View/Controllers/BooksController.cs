@@ -49,7 +49,7 @@ public class BooksController : Controller
     }
     
     [HttpPost("update")]
-    public async Task<IActionResult> UpdateBook([FromBody] UpdateBookReqModel updateBookReqModel)
+    public async Task<BookModel> UpdateBook([FromBody] UpdateBookReqModel updateBookReqModel)
     {
         using var client = CreateClient();
         
@@ -62,13 +62,9 @@ public class BooksController : Controller
             ? $"/api/book/add?title={title}&author={author}" 
             : $"/api/book/edit/{bookId}?title={title}&author={author}";
         
-        var httpResponseMessage = await client.GetAsync(queryStr);
-        if (!httpResponseMessage.IsSuccessStatusCode)
-        {
-            return Forbid();
-        }
+        var httpResponseMessage = await client.GetFromJsonAsync<BookModel>(queryStr);
         
-        return Ok(httpResponseMessage);
+        return httpResponseMessage;
     }
 
     [HttpGet("remove/{bookId}/")]
