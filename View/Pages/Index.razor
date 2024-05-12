@@ -25,8 +25,8 @@
             else
             {
                 <button @onclick="AddNewBook">Add</button>
-                <button @onclick="async () => { await EditState.SaveChanges(); DiscardAdded();}">Save</button>
-                <button @onclick="async () => { await EditState.DiscardChanges(); DiscardAdded();}">Discard</button>
+                <button @onclick="async () => { await EditState.SaveChanges(); DiscardAdded(true);}">Save</button>
+                <button @onclick="async () => { await EditState.DiscardChanges(); DiscardAdded(false);}">Discard</button>
                 @if (@ToRemove)
                 {
                     <button @onclick="RemoveItems">Remove</button>
@@ -36,29 +36,38 @@
     </div>
     <div class="navbar-toggler">
         <div class="nav-scrollable">
-            <table class="table table-responsive fl-table" style="width:100%">
-                <tr style="text-align: left;">
-                    <th>
-                        <label >Id</label>
-                    </th>
-                    <th>
-                        <label >Name</label>
-                    </th>
-                    <th>
-                        <label >Author</label>
-                    </th>
-                    <th>Status</th>
-                </tr>
-                @foreach (var item in @_added)
-                {
-                    <EditableTableEntry Book="@item" OnBorrowBook="BorrowState.ShowConfigureDialog" EditState="EditState" Root="this" OnChecked="OnCheckedUpdate"/>
-                }
-                
-                @foreach (var item in @_books)
-                {
-                    <EditableTableEntry Book="@item" OnBorrowBook="BorrowState.ShowConfigureDialog" EditState="EditState" Root="this" OnChecked="OnCheckedUpdate"/>
-                }
-            </table>
+            
+            @if (!@_books.Any() && !@_added.Any())
+            {
+                <label>No items in the library. Please add some.</label>
+            }
+            else
+            {
+                <table class="table table-responsive fl-table" style="width:100%">
+                    <tr style="text-align: left;">
+                        <th>
+                            <label >Id</label>
+                        </th>
+                        <th>
+                            <label >Name</label>
+                        </th>
+                        <th>
+                            <label >Author</label>
+                        </th>
+                        <th>Status</th>
+                    </tr>
+
+                    @foreach (var item in @_added)
+                    {
+                        <EditableTableEntry Book="@item" OnBorrowBook="BorrowState.ShowConfigureDialog" EditState="EditState" Root="this" OnChecked="OnCheckedUpdate"/>
+                    }
+
+                    @foreach (var item in @_books)
+                    {
+                        <EditableTableEntry Book="@item" OnBorrowBook="BorrowState.ShowConfigureDialog" EditState="EditState" Root="this" OnChecked="OnCheckedUpdate"/>
+                    }
+                </table>
+            }
         </div>
     </div>
     <div class="control-panel">
@@ -120,12 +129,16 @@
         });
     }
     
-    private void DiscardAdded()
+    private void DiscardAdded(bool moveAdded)
     {
         var nonDirty = _entries
             .Where(entry => _added.Contains(entry.Book))
             .Select(editEntry => editEntry.Book);
-
+        if (moveAdded)
+        {
+            _books.AddRange(nonDirty);
+        }
+        
         _added.RemoveAll(model => nonDirty.Contains(model));
     }
 
@@ -134,7 +147,7 @@
     
     private void OnCheckedUpdate(EditableTableEntry editableTableEntry)
     {
-        if (!editableTableEntry.Checked)
+        if (editableTableEntry.Checked)
         {
             _EntriesToRemove.Add(editableTableEntry);
         }

@@ -4,9 +4,9 @@
 
 <tr style="text-align: left;" @onclick="ClickRow">
     <td>
-        @if (Editing())
+        @if (@EditState.IsEditMode)
         {
-            <input type="checkbox" @bind="Checked" @onclick="Check"/>
+            <input type="checkbox" value="@Checked" @onchange="Check"/>
         }
         @Book.Id
     </td>
@@ -48,10 +48,17 @@
     private bool _isEdited;
     private bool _dirty;
 
-    private async Task<bool> Check()
+    private async Task Check(ChangeEventArgs e)
     {
+        bool current = Checked;
+        bool.TryParse(e.Value.ToString(), out current);
+        if (current == Checked)
+        {
+            return;
+        }
+
+        Checked = current;
         await OnChecked.InvokeAsync(this);
-        return Checked;
     }
 
     private bool Editing()

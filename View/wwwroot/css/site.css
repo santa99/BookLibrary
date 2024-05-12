@@ -765,7 +765,6 @@ input[type=range] {
     flex: 1;
 }
 
-
 .navbar-toggler {
     display: block;
     background-color: #f7faff;
@@ -775,4 +774,9 @@ input[type=range] {
     display: block;
     height: calc(100vh - 14rem);
     overflow-y: auto;
+}
+
+.input [type=text] {
+    text-align: center;
+    border:0px;
 }
