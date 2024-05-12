@@ -13,6 +13,7 @@ builder.Services.AddScoped<EditState>();
 // Services for VIEW communication.
 builder.Services.AddTransient<ReadersInfoService>();
 builder.Services.AddTransient<BooksService>();
+builder.Services.AddTransient<LoginService>();
 
 builder.Services.AddHttpClient();
 builder.Services.AddRazorPages();

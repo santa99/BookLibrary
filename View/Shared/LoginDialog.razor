@@ -1,0 +1,47 @@
+﻿@using View.Services
+<div class="dialog-container">
+    <div class="dialog">
+        <div class="dialog-title">Login</div>
+        <form class="dialog-body">
+            <div>
+                <label>UserName:</label>
+                <input name="username" type="text" value="@username"/>
+            </div>
+            <div>
+                <label>Password:</label>
+                <input name="password" type="password" value="@password"/>
+            </div>
+        </form>
+        <div>
+            Space for error.
+        </div>
+        <div class="dialog-buttons">
+            <button class="btn btn-success ml-auto" @onclick="LoginButtonHandle">Ok</button>
+            <button class="btn btn-secondary mr-auto" @onclick="OnCancel">Cancel</button>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    [Inject]
+    public LoginService LoginService { get; set; }
+    
+    [Parameter]
+    public EventCallback<LoginResModel> Login { get; set; }
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+    
+    public string username { get; set; }
+    public string password { get; set; }
+
+    private async Task LoginButtonHandle()
+    {
+        var res = await LoginService.LogUserIn(new LoginReqModel(username, password));
+        if (res != null)
+        {
+            await Login.InvokeAsync(res);
+        }
+    }
+
+}

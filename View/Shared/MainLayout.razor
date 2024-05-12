@@ -1,5 +1,7 @@
+@using View.Services
 @inherits LayoutComponentBase
 
+@inject LoginService LoginService;
 
 <div class="page">
     <div class="sidebar">
@@ -8,7 +10,15 @@
 
     <main>
         <div class="top-row px-4">
-            <a href="" target="_blank">Sign In</a>
+            @if (@_loginResModel != null)
+            {
+                @_loginResModel.Username
+                <a href="" @onclick="Logout">LogOut</a>
+            }
+            else
+            {
+                <a href="" @onclick="LoginService.ShowLoginDialog">Sign In</a>
+            }
         </div>
         <article class="content px-4">
             @Body
@@ -16,9 +26,37 @@
     </main>
 </div>
 
+@if (LoginService.ShowUserLoginDialog)
+{
+    <LoginDialog OnCancel="LoginCancel" Login="Login" />
+}
+
 <div id="blazor-error-ui">
     An unhandled error has occurred.
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code {
+    LoginResModel _loginResModel { get; set; }
+    
+    protected void Login(LoginResModel loginResModel)
+    {
+        _loginResModel = loginResModel;
+        
+        LoginService.CloseLoginDialog();
+    }
+
+    private async Task Logout()
+    {
+        await LoginService.LogUserOut();
+        
+        _loginResModel = null;
+    }
+
+    protected void LoginCancel()
+    {
+        LoginService.CloseLoginDialog();
+    }
+}
 
