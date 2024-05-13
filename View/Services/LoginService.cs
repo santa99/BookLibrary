@@ -7,6 +7,13 @@ namespace View.Services;
 
 public class LoginService
 {
+    private readonly IHttpClientFactory _httpClientFactory;
+
+    public LoginService(IHttpClientFactory httpClientFactory)
+    {
+        _httpClientFactory = httpClientFactory;
+    }
+
     public async Task<UserClaim?> LogUserIn(LoginReqModel model)
     {
         var httpClient = CreateClient();
@@ -23,6 +30,11 @@ public class LoginService
         if (httpResponseMessage.StatusCode == HttpStatusCode.OK)
         {
             var enumerable = httpResponseMessage.Headers.GetValues("set-cookie").FirstOrDefault();
+
+            var strings = enumerable.Split("=");
+            var key = strings[0];
+            var value = strings[1];
+
             
             
             var userClaims = await GetUser(httpClient);
@@ -83,17 +95,11 @@ public class LoginService
 
     private HttpClient CreateClient()
     {
-        var uri = new Uri("https://localhost:7227");
-        var cookieContainer = new CookieContainer();
-        var handler = new HttpClientHandler
-        {
-            CookieContainer = cookieContainer
-        };
-        var client = new HttpClient(handler);
-        client.BaseAddress = uri;
-        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        var httpClient = _httpClientFactory.CreateClient();
 
-        return client;
+        httpClient.BaseAddress = new Uri("https://localhost:7227");
+
+        return httpClient;
     }
 }
 

@@ -17,7 +17,7 @@ public class ReadersController : Controller
     [HttpGet]
     public async Task<ActionResult> GetReaders()
     {
-        using (_createClient = _httpClientFactory.CreateClient("BookLibrary"))
+        using (_createClient = CreateClient())
         {
             try
             {
@@ -36,7 +36,7 @@ public class ReadersController : Controller
     {
         try
         {
-            using (_createClient = _httpClientFactory.CreateClient("BookLibrary"))
+            using (_createClient = CreateClient())
             {
 
                 var result = await _createClient.GetFromJsonAsync<ReadersInfo>($"/api/readers/get/{readersCardId}");
@@ -54,5 +54,12 @@ public class ReadersController : Controller
             return StatusCode(StatusCodes.Status500InternalServerError,
                 "Error retrieving data from the database");
         }
+    }
+    
+    private HttpClient CreateClient()
+    {
+        var httpClient = _httpClientFactory.CreateClient();
+        httpClient.BaseAddress = new Uri("https://localhost:7227");
+        return httpClient;
     }
 }

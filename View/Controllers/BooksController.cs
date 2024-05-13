@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Net;
-using System.Net.Http.Headers;
 using Contracts.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -12,7 +10,13 @@ namespace View.Controllers;
 [ApiController]
 public class BooksController : Controller
 {
-    
+    private readonly IHttpClientFactory _httpClientFactory;
+
+    public BooksController(IHttpClientFactory httpClientFactory)
+    {
+        _httpClientFactory = httpClientFactory;
+    }
+
     public record LoginReqModel(
         string Username,
         [DataType(DataType.Password)] 
@@ -133,87 +137,30 @@ public class BooksController : Controller
     [HttpGet("index")]
     public async Task<List<BookModel>> GetBooks([FromRoute]int start = 0, [FromRoute] int count = -1)
     {
-        
         using var client = CreateClient();
-
-        if (HttpContext.User.Identity is { IsAuthenticated: false })
-        {
-            // var createdAtActionResult = CreatedAtAction(nameof(GetBooks), new LoginReqModel("m", "b"));
-            
-            // await client.PostAsync("/account/login", new StreamContent())
-            var httpResponseMessage = await client.GetAsync("/account/login?returnUrl=/");
-            
-            // var loginResponse = await client.PostAsJsonAsync("/account/login/?returnUrl=/", new LoginReqModel("m", "b"));
-
-            var responseCookies = httpResponseMessage;
-            
-            var requestCookie = Request.Cookies["usr"];
-
-            // var user = Request.Cookies["usr"];
-            // if (user != null)
-            // {
-            //     // client.DefaultRequestHeaders = Response.Cookies
-            //     // cookieContainer.Add(uri, new Cookie("usr", user));
-            // }
-        }
         
-
         var res = await client.GetAsync($"/api/book/select/-1/{start}/{count}");
         var bookModels = new List<BookModel>();
-        if (!res.IsSuccessStatusCode)
-        {
-            /*var errorCodeModel = JsonConvert.DeserializeObject<ErrorCodeModel>(res.Content.ReadAsStringAsync().Result);
-
-            if (errorCodeModel != null)
-            {
-                ViewData["errorMessage"] = errorCodeModel.Message;
-            }
-            
-            return View(bookModels);*/
-        }
 
         var response = res.Content.ReadAsStringAsync().Result;
-        bookModels = JsonConvert.DeserializeObject<List<BookModel>>(response);
+        try
+        {
+            bookModels = JsonConvert.DeserializeObject<List<BookModel>>(response);
+        }
+        catch (Exception e)
+        {
+            
+        }
         
         return bookModels;
     }
-    
+
     private HttpClient CreateClient()
     {
-        var uri = new Uri("https://localhost:7227");
-        var cookieContainer = new CookieContainer();
-        var handler = new HttpClientHandler()
-        {
-            
-        };
-        // handler.CookieContainer = cookieContainer;
-        var client = new HttpClient(handler);
-        client.BaseAddress = uri;
-        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-        
-        var user = Request.Cookies["usr"];
-        
-        // if (user != null)
-        // {
-        //     cookieContainer.Add(uri, new Cookie("usr", user));
-        // }
-
-        return client;
+        var httpClient = _httpClientFactory.CreateClient();
+        httpClient.BaseAddress = new Uri("https://localhost:7227");
+        return httpClient;
     }
-    
-    // public IActionResult Write(string key, string value, bool isPersistent)
-    // {
-    //     CookieOptions options = new CookieOptions();
-    //     if (isPersistent)
-    //     {
-    //         options.Expires = DateTime.Now.AddDays(1);
-    //     }
-    //     else
-    //     {
-    //         options.Expires = DateTime.Now.AddSeconds(5);
-    //     }
-    //     HttpContext.Response.Cookies.Append(key, value, options);
-    // }
+
 }
 

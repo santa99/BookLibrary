@@ -1,11 +1,11 @@
 using System.Net.Http.Headers;
 using Api.Middleware;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
 using View.Controllers;
 using View.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 
 builder.Services.AddSingleton<BooksController>();
@@ -22,10 +22,26 @@ builder.Services.AddHttpClient();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
-builder.Services.AddHttpClient("BookLibrary", httpClient =>
+// builder.Services.AddScoped<SessionIdHandler>();
+// builder.Services.ConfigureAll<HttpClientFactoryOptions>(options =>
+// {
+//     options.HttpMessageHandlerBuilderActions.Add(builder =>
+//     {
+//         builder.AdditionalHandlers.Add(builder.Services.GetRequiredService<SessionIdHandler>());
+//     });
+// });
+
+builder.Services.AddCors(options =>
 {
-    httpClient.BaseAddress = new Uri("https://localhost:7227");
-    httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+        policy =>
+        {
+            policy.WithOrigins("https://localhost:7227/");
+            policy.AllowCredentials();
+            policy.AllowAnyHeader();
+            policy.AllowAnyMethod();
+            policy.WithHeaders();
+        });
 });
 
 var app = builder.Build();
@@ -36,6 +52,8 @@ app.MapControllerRoute("default", "{controller=Books}/{action=Index}/{id?}");
 //wwwroot mapping
 app.UseStaticFiles();
 app.UseRouting();
+
+app.UseCors(MyAllowSpecificOrigins);
 
 // Razor pages
 app.MapRazorPages();
