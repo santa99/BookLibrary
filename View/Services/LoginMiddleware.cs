@@ -1,11 +1,11 @@
 ﻿namespace Api.Middleware;
 
-public class MyHandler
+public class LoginMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ILogger<MyHandler> _logger;
+    private readonly ILogger<LoginMiddleware> _logger;
 
-    public MyHandler(RequestDelegate next, ILogger<MyHandler> logger)
+    public LoginMiddleware(RequestDelegate next, ILogger<LoginMiddleware> logger)
     {
         _next = next;
         _logger = logger;
@@ -15,7 +15,9 @@ public class MyHandler
     {
         _logger.LogInformation($"Received request: {context.Request.Path}");
 
-        if (context.User.Identity.IsAuthenticated)
+        var containsKey = context.Request.Cookies.ContainsKey("auth");
+
+        if (containsKey || context.User.Identity.IsAuthenticated)
         {
             var x = "AYES";
         }

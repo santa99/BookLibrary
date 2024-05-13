@@ -1,3 +1,5 @@
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Mvc
 @using View.Services
 @inherits LayoutComponentBase
 
@@ -10,9 +12,9 @@
 
     <main>
         <div class="top-row px-4">
-            @if (@_loginResModel != null)
+            @if (Identity != null)
             {
-                @_loginResModel.Username
+                @Identity?.Value
                 <a href="" @onclick="Logout">LogOut</a>
             }
             else
@@ -38,20 +40,31 @@
 </div>
 
 @code {
-    LoginResModel _loginResModel { get; set; }
-    
-    protected void Login(LoginResModel loginResModel)
+    private List<UserClaim>? UserClaims;
+    private UserClaim? Identity;
+
+    protected override async Task OnInitializedAsync()
     {
-        _loginResModel = loginResModel;
-        
+        UserClaims = await LoginService.GetUser();
+        if (UserClaims != null)
+        {
+            Identity = UserClaims?.Where(claim => claim.Type == ClaimTypes.Name).FirstOrDefault();
+        }
+    }
+
+    protected void Login(UserClaim loginClaim)
+    {
+        Identity = loginClaim;
         LoginService.CloseLoginDialog();
     }
 
-    private async Task Logout()
+    private async Task<IActionResult> Logout()
     {
         await LoginService.LogUserOut();
-        
-        _loginResModel = null;
+
+        Identity = null;
+
+        return new LocalRedirectResult("/");
     }
 
     protected void LoginCancel()

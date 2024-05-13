@@ -5,11 +5,11 @@
         <form class="dialog-body">
             <div>
                 <label>UserName:</label>
-                <input name="username" type="text" value="@username"/>
+                <input name="username" type="text" @bind="@username"/>
             </div>
             <div>
                 <label>Password:</label>
-                <input name="password" type="password" value="@password"/>
+                <input name="password" type="password" @bind="@password"/>
             </div>
         </form>
         <div>
@@ -28,12 +28,12 @@
     public LoginService LoginService { get; set; }
     
     [Parameter]
-    public EventCallback<LoginResModel> Login { get; set; }
+    public EventCallback<UserClaim> Login { get; set; }
     [Parameter]
     public EventCallback OnCancel { get; set; }
     
-    public string username { get; set; }
-    public string password { get; set; }
+    public string username { get; private set; }
+    public string password { get; private set; }
 
     private async Task LoginButtonHandle()
     {

@@ -10,21 +10,35 @@ using DataAccess;
 using DataAccess.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using SimpleAuthentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 builder.Services.Configure<UserIdentityConfiguration>(builder.Configuration.GetSection("UserIdentity"));
 builder.Services.Configure<BookLibraryDataSourceConfig>(builder.Configuration.GetSection("DataSource"));
 
-builder.Services.AddTransient<MyHandler>();
+builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.TryAddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
-/*builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+        policy  =>
+        {
+            policy.WithOrigins("https://localhost:7292");
+            policy.AllowCredentials();
+        });
+});
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.LoginPath = "/account/login/";
         options.LogoutPath = "/account/logout/";
-        options.Cookie.Name = "usr";
         options.SlidingExpiration = true;
         options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
     });
@@ -35,7 +49,7 @@ builder.Services.AddAuthorization(options =>
         .AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme)
         .RequireAuthenticatedUser()
         .Build();
-});*/
+});
 
 builder.Services.AddSingleton<RequestModelValidationFilter>();
 builder.Services.AddSingleton<BookStateMapper>();
@@ -55,12 +69,15 @@ var app = builder.Build();
 
 app.UseCookiePolicy(new CookiePolicyOptions
 {
-    MinimumSameSitePolicy = SameSiteMode.None,
+    MinimumSameSitePolicy = SameSiteMode.Lax,
 });
+
+app.UseCors(MyAllowSpecificOrigins);
 
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseMiddleware<MyHandler>();
 app.UseMiddleware<ErrorHandlerMiddleware>();
 app.UseAuthenticationAndAuthorization();
 app.UseStaticFiles();

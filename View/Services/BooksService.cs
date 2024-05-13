@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Contracts.Models;
+﻿using Contracts.Models;
 using Microsoft.AspNetCore.Components;
 using Newtonsoft.Json;
 using View.Model;
@@ -49,9 +48,16 @@ public class BooksService
     {
         using var client = _httpClientFactory.CreateClient();
 
-        var books = await client.GetFromJsonAsync<List<BookModel>>(
-            _navigationManager.BaseUri + $"books/{start}/{count}");
-
+        List<BookModel> books = null;
+        try
+        {
+            books = await client.GetFromJsonAsync<List<BookModel>>(
+                _navigationManager.BaseUri + $"books/{start}/{count}");
+        }
+        catch (Exception ex)
+        {
+            
+        }
         return books ?? new List<BookModel>();
     }
 

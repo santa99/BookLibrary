@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Http.Headers;
-using System.Text;
 using Contracts.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;

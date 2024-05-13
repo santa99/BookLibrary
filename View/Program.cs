@@ -1,4 +1,7 @@
 using System.Net.Http.Headers;
+using Api.Middleware;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using View.Controllers;
 using View.Services;
 
@@ -13,7 +16,7 @@ builder.Services.AddScoped<EditState>();
 // Services for VIEW communication.
 builder.Services.AddTransient<ReadersInfoService>();
 builder.Services.AddTransient<BooksService>();
-builder.Services.AddTransient<LoginService>();
+builder.Services.AddSingleton<LoginService>();
 
 builder.Services.AddHttpClient();
 builder.Services.AddRazorPages();
@@ -37,6 +40,8 @@ app.UseRouting();
 // Razor pages
 app.MapRazorPages();
 app.MapBlazorHub();
+
+app.UseMiddleware<LoginMiddleware>();
 
 // Initial page
 app.MapFallbackToPage("/_Host");

@@ -77,7 +77,7 @@ public class AccountController : Controller
             {
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
 
-                return View(model);
+                return BadRequest(new AccountResponse(false, "Invalid credentials."));
             }
 
             var claims = new List<Claim>()
@@ -90,20 +90,21 @@ public class AccountController : Controller
                 claims, CookieAuthenticationDefaults.AuthenticationScheme
             );
 
-            var authenticationProperties = new AuthenticationProperties()
+            var authenticationProperties = new AuthenticationProperties
             {
+                IsPersistent = true,
+                AllowRefresh = true,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
             };
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity),
                 authenticationProperties);
 
-            WriteAuthCookie();
-
-            return LocalRedirect(returnUrl);
+            return Ok(new AccountResponse(true, "Signed in successfully"));
         }
 
-        return View(model);
+        return BadRequest(new AccountResponse(false, "Invalid data."));
     }
 
     [AllowAnonymous]
@@ -115,6 +116,16 @@ public class AccountController : Controller
             CookieAuthenticationDefaults.AuthenticationScheme);
 
         return LocalRedirect(returnUrl);
+    }
+    
+    [Authorize]
+    [HttpGet("/account/user")]
+    public Task<IActionResult> GetUser()
+    {
+        var enumerable = HttpContext.User.Claims.Select(claim => new UserClaim(claim.Type, claim.Value));
+        var userClaims =  enumerable.ToList();
+        
+        return Task.FromResult<IActionResult>(Ok(userClaims));
     }
 
     private Task<UserModel?> AuthenticateUser(LoginReqModel login)
@@ -134,4 +145,8 @@ public class AccountController : Controller
     /// </summary>
     /// <param name="Name">Display name</param>
     private record UserModel(string Name);
+
+    private record AccountResponse(bool IsSuccess, string Message);
+
+    private record UserClaim(string Type, string Value);
 }
