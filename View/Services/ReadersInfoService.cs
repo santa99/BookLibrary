@@ -1,26 +1,42 @@
 ﻿using Contracts.Models;
-using Microsoft.AspNetCore.Components;
 
 namespace View.Services;
 
 public class ReadersInfoService
 {
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly NavigationManager _navigationManager;
 
-    public ReadersInfoService(IHttpClientFactory httpClientFactory, NavigationManager navigationManager)
+    public ReadersInfoService(IHttpClientFactory httpClientFactory)
     {
         _httpClientFactory = httpClientFactory;
-        _navigationManager = navigationManager;
     }
 
-    public async Task<ReadersInfo> GetReadersInfo(int readersCardId)
+    public async Task<ReadersInfo?> GetReadersInfo(int readersCardId)
     {
-        return await _httpClientFactory.CreateClient().GetFromJsonAsync<ReadersInfo>(_navigationManager.BaseUri + $"readers/{readersCardId}");
+        using var client = CreateClient();
+
+        var result = await client
+            .GetFromJsonAsync<ReadersInfo>($"api/readers/get/{readersCardId}");
+
+        return result;
     }
 
+    /// <summary>
+    /// Retrieves all readers.
+    /// </summary>
+    /// <returns>Readers info list.</returns>
     public async Task<List<ReadersInfo>> GetAllReaders()
     {
-        return await _httpClientFactory.CreateClient().GetFromJsonAsync<List<ReadersInfo>>(_navigationManager.BaseUri + "readers");
+        using var client = CreateClient();
+
+        var results = await client.GetFromJsonAsync<List<ReadersInfo>>("api/readers/select");
+        return results ?? new List<ReadersInfo>();
+    }
+
+    private HttpClient CreateClient()
+    {
+        var httpClient = _httpClientFactory.CreateClient();
+        httpClient.BaseAddress = new Uri("https://localhost:7227");
+        return httpClient;
     }
 }

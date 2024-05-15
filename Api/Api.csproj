@@ -29,8 +29,4 @@
       <None Include="bin\Debug\net6.0\Library.xml" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Compile Remove="Middleware\MyHandler.cs" />
-    </ItemGroup>
-
 </Project>

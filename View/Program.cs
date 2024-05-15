@@ -1,6 +1,4 @@
-using System.Net.Http.Headers;
 using Api.Middleware;
-using View.Controllers;
 using View.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +6,6 @@ var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 
-builder.Services.AddSingleton<BooksController>();
 builder.Services.AddScoped<BorrowState>();
 builder.Services.AddScoped<PaginationState>();
 builder.Services.AddScoped<EditState>();

@@ -39,14 +39,14 @@ public class LibraryController : Controller
     /// <returns>List of <see cref="BookModel"/></returns>
     [HttpGet("/api/book/select/{bookState}/{start}/{count}")]
     [ProducesResponseType(typeof(List<BookModel>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Index(int? bookState, CancellationToken cancellationToken, int start = 0, int count = -1)
+    public async Task<List<BookModel>> Index([FromRoute] int? bookState, CancellationToken cancellationToken, [FromRoute] int start = 0, [FromRoute] int count = -1)
     {
         bookState ??= (int)BookState.All;
 
         var bookModels =
             await _bookLibraryRepository.ListBooks(_bookStateMapper.Map(bookState.Value), cancellationToken, count, start);
 
-        return Ok(bookModels);
+        return bookModels;
     }
 
     /// <summary>
@@ -54,7 +54,7 @@ public class LibraryController : Controller
     /// </summary>
     /// <param name="bookId">Unique book id.</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
-    /// <returns<see cref="BookModel"/> when sucessed.</returns>
+    /// <returns><see cref="BookModel"/> when sucessed.</returns>
     [HttpGet("/api/book/get/{bookId}")]
     [ProducesResponseType(typeof(BookModel), StatusCodes.Status200OK)]
     public async Task<BookModel> GetBook(int bookId, CancellationToken cancellationToken)

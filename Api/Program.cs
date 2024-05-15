@@ -62,21 +62,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
     });
 
-// builder.Services.AddAuthorization(options =>
-// {
-//     options.DefaultPolicy = new AuthorizationPolicyBuilder()
-//         .AddAuthenticationSchemes(CookieAuthenticationDefaults.AuthenticationScheme)
-//         .RequireAuthenticatedUser()
-//         .Build();
-// });
-
-// builder.Services.AddSession(options =>
-// {
-//     options.Cookie.Name = "auth";
-//     options.IdleTimeout = TimeSpan.FromSeconds(10);
-//     options.Cookie.IsEssential = true;
-// });
-
 builder.Services.AddSingleton<RequestModelValidationFilter>();
 builder.Services.AddSingleton<BookStateMapper>();
 builder.Services.AddSingleton<IReadersInfoRepository, ReadersInfoRepository>();
@@ -92,21 +77,17 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI(options =>
+if (app.Environment.IsDevelopment())
 {
-    var swaggerEndpointPath = $"swagger/v1/swagger.json";
-    options.SwaggerEndpoint($"../{swaggerEndpointPath}", "v1");
-}); 
-
-// app.UseCookiePolicy(new CookiePolicyOptions
-// {
-//     MinimumSameSitePolicy = SameSiteMode.None,
-// });
-
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        var swaggerEndpointPath = $"swagger/v1/swagger.json";
+        options.SwaggerEndpoint($"../{swaggerEndpointPath}", "v1");
+    });
+}
 
 app.UseCors(MyAllowSpecificOrigins);
-// app.UseSession();
 
 app.UseAuthentication();
 app.UseAuthorization();

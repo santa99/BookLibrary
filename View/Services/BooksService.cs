@@ -7,79 +7,94 @@ namespace View.Services;
 
 public class BooksService
 {
-    private readonly NavigationManager _navigationManager;
     private readonly IHttpClientFactory _httpClientFactory;
 
-    public BooksService(NavigationManager navigationManager, IHttpClientFactory httpClientFactory)
+    public BooksService(IHttpClientFactory httpClientFactory)
     {
-        _navigationManager = navigationManager;
         _httpClientFactory = httpClientFactory;
     }
 
-    public async Task<BorrowModel> BorrowBook(int bookId, int readersCardId)
+    public async Task<BorrowModel?> BorrowBook(int bookId, int readersCardId)
     {
-        using var client = _httpClientFactory.CreateClient();
+        using var client = CreateClient();
 
-        var borrowModel = await client.GetFromJsonAsync<BorrowModel>(_navigationManager.BaseUri + $"books/borrow/{bookId}/{readersCardId}");
+        var borrowModel = await client.GetFromJsonAsync<BorrowModel>($"api/book/borrow/{bookId}/{readersCardId}");
 
         return borrowModel;
     }
 
     public async Task<int> ReturnBook(int bookId)
     {
-        using var client = _httpClientFactory.CreateClient();
+        using var client = CreateClient();
 
-        await client.GetAsync(_navigationManager.BaseUri + $"books/return/{bookId}");
+        var result = await client.GetFromJsonAsync<int>($"api/book/return/{bookId}");
 
+        if (result != bookId)
+        {
+            return -1;
+        }
+        
         return bookId;
     }
 
     public async Task<BookModel?> GetBook(int bookId)
     {
-        using var client = _httpClientFactory.CreateClient();
+        using var client = CreateClient();
 
         var book =  await client.GetFromJsonAsync<BookModel>(
-            _navigationManager.BaseUri + $"books/get/{bookId}");
+            $"api/book/get/{bookId}");
 
         return book;
     }
 
-    public async Task<List<BookModel>> GetBooks(int start, int count)
+    public async Task<List<BookModel>> GetBooks(int start = 0, int count = -1)
     {
-        using var client = _httpClientFactory.CreateClient();
+        using var client = CreateClient();
+        // var result = await client.GetFromJsonAsync<List<BookModel>>(
+        //     $"api/book/select/-1/{start}/{count}");
+        // return result ?? new List<BookModel>();
 
-        List<BookModel> books = null;
+        var res = await client.GetAsync($"/api/book/select/-1/{start}/{count}");
+        var bookModels = new List<BookModel>();
+
+        var response = res.Content.ReadAsStringAsync().Result;
         try
         {
-            books = await client.GetFromJsonAsync<List<BookModel>>(
-                _navigationManager.BaseUri + $"books/{start}/{count}");
+            bookModels = JsonConvert.DeserializeObject<List<BookModel>>(response);
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            
         }
-        return books ?? new List<BookModel>();
+
+        return bookModels;
     }
 
     public async Task<BookModel?> UpdateBook(BookModel bookModel)
     {
-        using var client = _httpClientFactory.CreateClient();
+        using var client = CreateClient();
         
         var updateBookReqModel = new UpdateBookReqModel(bookModel.Id < 0 ? null : bookModel.Id, bookModel.Name, bookModel.Author);
 
-        var httpResponseMessage = await client.PostAsync(_navigationManager.BaseUri + $"books/update", 
-            JsonContent.Create(updateBookReqModel));
-
-        var readAsStringAsync = await httpResponseMessage.Content.ReadAsStringAsync();
-
-        return JsonConvert.DeserializeObject<BookModel>(readAsStringAsync);
+        var queryStr = "";
+        queryStr = updateBookReqModel.BookId == null 
+            ? $"/api/book/add?title={updateBookReqModel.Title}&author={updateBookReqModel.Author}" 
+            : $"/api/book/edit/{updateBookReqModel.BookId}?title={updateBookReqModel.Title}&author={updateBookReqModel.Author}";
+        
+        return await client.GetFromJsonAsync<BookModel>(queryStr);
     }
 
     public async Task RemoveBook(BookModel bookModel)
     {
-        using var client = _httpClientFactory.CreateClient();
+        using var client = CreateClient();
         
-        await client.GetAsync(_navigationManager.BaseUri + $"books/remove/{bookModel.Id}");
+        await client.DeleteAsync($"/api/book/remove/{bookModel.Id}");
+    }
+    
+    private HttpClient CreateClient()
+    {
+        var httpClient = _httpClientFactory.CreateClient();
+        httpClient.BaseAddress = new Uri("https://localhost:7227");
+        return httpClient;
     }
 }
 
