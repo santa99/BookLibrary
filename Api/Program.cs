@@ -1,3 +1,4 @@
+using System.Reflection;
 using Api;
 using Api.Configuration;
 using Api.Filters;
@@ -9,11 +10,12 @@ using Contracts;
 using DataAccess;
 using DataAccess.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
+using Microsoft.OpenApi.Models;
 using SimpleAuthentication;
+using View;
 using View.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +27,15 @@ builder.Services.Configure<BookLibraryDataSourceConfig>(builder.Configuration.Ge
 
 builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.TryAddSingleton<IActionContextAccessor, ActionContextAccessor>();
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo() {Title = "Book Library API Doc", Version = "v1"});
+    options.IncludeXmlComments(Path.Combine(
+        AppContext.BaseDirectory, 
+        $"{Assembly.GetExecutingAssembly().GetName().Name}.xml")
+    );
+});
 
 builder.Services.AddCors(options =>
 {
@@ -81,6 +92,13 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
+app.UseSwagger();
+app.UseSwaggerUI(options =>
+{
+    var swaggerEndpointPath = $"swagger/v1/swagger.json";
+    options.SwaggerEndpoint($"../{swaggerEndpointPath}", "v1");
+}); 
+
 // app.UseCookiePolicy(new CookiePolicyOptions
 // {
 //     MinimumSameSitePolicy = SameSiteMode.None,
@@ -93,7 +111,6 @@ app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseMiddleware<MyHandler>();
 app.UseMiddleware<ErrorHandlerMiddleware>();
 app.UseAuthenticationAndAuthorization();
 app.UseStaticFiles();

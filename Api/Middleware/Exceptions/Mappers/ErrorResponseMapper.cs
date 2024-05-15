@@ -42,6 +42,7 @@ public interface IErrorResponseMapper
 /// <inheritdoc />
 public class ErrorResponseMapper : IErrorResponseMapper
 {
+    /// <inheritdoc />
     public ErrorCodeModel MapBookLibraryException(BookLibraryException exception)
     {
         return new ErrorCodeModel(

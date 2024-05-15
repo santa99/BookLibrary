@@ -31,6 +31,10 @@ public class ErrorHandlerMiddleware
         _logger = logger;
     }
 
+    /// <summary>
+    /// Invoke middleware action. 
+    /// </summary>
+    /// <param name="context">Context.</param>
     public async Task Invoke(HttpContext context)
     {
         try

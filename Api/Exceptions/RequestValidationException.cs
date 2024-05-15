@@ -11,7 +11,8 @@ public class RequestValidationException : Exception
     /// Associated error code.
     /// </summary>
     public ErrorCode ErrorCode { get; }
-    
+
+    /// <inheritdoc />
     public RequestValidationException(string message) : base(message)
     {
         ErrorCode = ErrorCode.RequestValidationFailure;

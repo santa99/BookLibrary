@@ -23,7 +23,7 @@ public class BooksController : Controller
         string Password
     );
 
-    [Route("borrow/{bookId}/{readersCardId}")]
+    [HttpGet("borrow/{bookId}/{readersCardId}")]
     public async Task<IActionResult> BorrowBook(int bookId, int readersCardId)
     {
         using var client = CreateClient();

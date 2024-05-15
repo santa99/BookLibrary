@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
+/// <inheritdoc />
 [Authorize]
 [ProducesResponseType(typeof(List<ErrorCodeModel>), StatusCodes.Status401Unauthorized)]
 public class LibraryController : Controller
@@ -18,6 +19,7 @@ public class LibraryController : Controller
     private readonly IBorrowBookCommand _borrowBookCommand;
     private readonly BookStateMapper _bookStateMapper;
 
+    /// <inheritdoc />
     public LibraryController(IBookLibraryRepository bookLibraryRepository,
         IBorrowBookCommand borrowBookCommand,
         BookStateMapper bookStateMapper)
@@ -35,7 +37,7 @@ public class LibraryController : Controller
     /// <param name="start">Start count.</param>
     /// <param name="count">Number of element to read.</param>
     /// <returns>List of <see cref="BookModel"/></returns>
-    [Route("/api/book/select/{bookState}/{start}/{count}")]
+    [HttpGet("/api/book/select/{bookState}/{start}/{count}")]
     [ProducesResponseType(typeof(List<BookModel>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Index(int? bookState, CancellationToken cancellationToken, int start = 0, int count = -1)
     {
@@ -52,7 +54,7 @@ public class LibraryController : Controller
     /// </summary>
     /// <param name="bookId">Unique book id.</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
-    /// <returns></returns>
+    /// <returns<see cref="BookModel"/> when sucessed.</returns>
     [HttpGet("/api/book/get/{bookId}")]
     [ProducesResponseType(typeof(BookModel), StatusCodes.Status200OK)]
     public async Task<BookModel> GetBook(int bookId, CancellationToken cancellationToken)
@@ -66,9 +68,9 @@ public class LibraryController : Controller
     /// Removes the book from the library.
     /// </summary>
     /// <param name="bookId">Unique book id.</param>
-    /// <param name="cancellationToken"></param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns></returns>
-    [Route("/api/book/remove/{bookId}")]
+    [HttpDelete("/api/book/remove/{bookId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> RemoveBook(int bookId, CancellationToken cancellationToken)
     {
@@ -141,7 +143,7 @@ public class LibraryController : Controller
     /// </summary>
     /// <param name="bookId">Unique identifier of the book.</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
-    [Route("/api/book/return/{bookId}")]
+    [HttpGet("/api/book/return/{bookId}")]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
     public async Task<IActionResult> ReturnBook(int bookId, CancellationToken cancellationToken)
     {

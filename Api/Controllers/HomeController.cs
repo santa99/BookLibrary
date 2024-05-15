@@ -17,7 +17,7 @@ public class HomeController : Controller
 {
     
     [Authorize]
-    [Route("/")]
+    [HttpGet("/")]
     public async Task<IActionResult> Index()
     {
         var httpContextUser = HttpContext.User;
@@ -48,7 +48,13 @@ public class HomeController : Controller
         return View(bookModels);
     }
 
-    [Route("home/edit/{bookId}")]
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="bookId"></param>
+    /// <returns></returns>
+    [HttpGet("home/edit/{bookId}")]
+    [HttpPost("home/edit/{bookId}")] //Maybe put?
     public async Task<IActionResult> EditBook([FromRoute] int bookId)
     {
 
@@ -104,7 +110,7 @@ public class HomeController : Controller
         }
     }
 
-    [Route("home/remove/{bookId}")]
+    [HttpDelete("home/remove/{bookId}")]
     public async Task<IActionResult> RemoveBook(int bookId)
     {
         using var client = CreateClient();
@@ -114,7 +120,7 @@ public class HomeController : Controller
         return RedirectToAction("Index");
     }
     
-    [Route("/home/return/{bookId}")]
+    [HttpGet("/home/return/{bookId}")]
     public async Task<IActionResult> ReturnBook(int bookId)
     {
         using var client = CreateClient();
@@ -124,7 +130,8 @@ public class HomeController : Controller
         return RedirectToAction("Index");
     }
 
-    [Route("/home/borrow/{bookId}")]
+    [HttpGet("/home/borrow/{bookId}")]
+    [HttpPost("/home/borrow/{bookId}")]
     public async Task<IActionResult> BorrowBook(int bookId)
     {
         using var client = CreateClient();

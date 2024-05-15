@@ -8,6 +8,7 @@ namespace Api.Filters;
 /// </summary>
 public class RequestModelValidationFilter : IAsyncActionFilter
 {
+    /// <inheritdoc />
     public Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
         if (context.ModelState.IsValid)
