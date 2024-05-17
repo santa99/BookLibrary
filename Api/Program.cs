@@ -2,8 +2,8 @@ using System.Reflection;
 using Api;
 using Api.Configuration;
 using Api.Filters;
+using Api.Logging;
 using Api.Mappers;
-using Api.Middleware;
 using Api.Middleware.Exceptions;
 using Api.Middleware.Exceptions.Mappers;
 using Contracts;
@@ -12,21 +12,31 @@ using DataAccess.Configuration;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Http;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using SimpleAuthentication;
-using View;
-using View.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
+builder.Host.ConfigureLogging(loggingBuilder =>
+{
+    loggingBuilder.ClearProviders();
+});
+builder.Host.UseSerilog((context, configuration) =>
+{
+    configuration.ReadFrom.Configuration(context.Configuration);
+});
+
 builder.Services.Configure<UserIdentityConfiguration>(builder.Configuration.GetSection("UserIdentity"));
 builder.Services.Configure<BookLibraryDataSourceConfig>(builder.Configuration.GetSection("DataSource"));
 
+
+builder.Services.AddSingleton<IBookLibraryLoggerProvider, BookLibraryLoggerProvider>();
 builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.TryAddSingleton<IActionContextAccessor, ActionContextAccessor>();
+builder.Services.AddSingleton<IHttpRequestLogger>(_ => builder.Services.BuildServiceProvider().GetRequiredService<IBookLibraryLoggerProvider>().InLogger);
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -92,6 +102,7 @@ app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseMiddleware<HttpTrafficLoggerMiddleware>();
 app.UseMiddleware<ErrorHandlerMiddleware>();
 app.UseAuthenticationAndAuthorization();
 app.UseStaticFiles();
