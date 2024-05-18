@@ -1,7 +1,7 @@
 ﻿using System.Security.Authentication;
 using Api.Exceptions;
-using Api.Models.Responses;
 using Contracts.Exceptions;
+using Contracts.Models.Responses;
 
 namespace Api.Middleware.Exceptions.Mappers;
 

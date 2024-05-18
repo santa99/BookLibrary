@@ -2,10 +2,10 @@
 using Api.Filters;
 using Api.Mappers;
 using Api.Models;
-using Api.Models.Responses;
 using Contracts;
 using Contracts.Enums;
 using Contracts.Models;
+using Contracts.Models.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,4 +1,4 @@
-namespace Api.Models.Responses;
+namespace Contracts.Models.Responses;
 
 /// <summary>
 ///    Class <see cref="ErrorCodeModel"/> represents model used for reporting errors.

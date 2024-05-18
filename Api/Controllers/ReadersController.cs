@@ -1,6 +1,6 @@
-﻿using Api.Models.Responses;
-using Contracts;
+﻿using Contracts;
 using Contracts.Models;
+using Contracts.Models.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
