@@ -93,11 +93,11 @@ public class BookLibraryDaoNewImpl : IBookLibraryDao
         var libraryModel = LoadDocument();
 
         var toRemove = libraryModel.Books.FirstOrDefault(model => model.Id == bookId);
-        if (toRemove != null)
+        if (toRemove == null)
         {
-            libraryModel.Books.Remove(toRemove);
+            return;
         }
-
+        libraryModel.Books.Remove(toRemove);
         Store(libraryModel);
     }
 
@@ -105,7 +105,7 @@ public class BookLibraryDaoNewImpl : IBookLibraryDao
     {
         var libraryModel = LoadDocument();
 
-        return new List<BookModel>(libraryModel.Books);
+        return new List<BookModel>(libraryModel.Books.OrderBy(model => model.Id));
     }
     
     private Library LoadDocument()
