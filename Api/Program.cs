@@ -76,7 +76,7 @@ builder.Services.AddSingleton<RequestModelValidationFilter>();
 builder.Services.AddSingleton<BookStateMapper>();
 builder.Services.AddSingleton<IReadersInfoRepository, ReadersInfoRepository>();
 builder.Services.AddSingleton<IBookLibraryRepository, BookLibraryRepository>();
-builder.Services.AddSingleton<IBookLibraryDao, BookLibraryDaoImpl>();
+builder.Services.AddSingleton<IBookLibraryDao, BookLibraryDaoNewImpl>();
 builder.Services.AddSingleton<IReadersInfoDao, ReadersInfoDaoImpl>();
 builder.Services.AddSingleton<IBorrowBookCommand, BorrowBookCommand>();
 builder.Services.AddSingleton<IResponseStatusCodeMapper, ResponseStatusCodeMapper>();
