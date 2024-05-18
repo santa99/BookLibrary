@@ -1,4 +1,5 @@
-﻿using Api.Filters;
+﻿using System.Net;
+using Api.Filters;
 using Api.Mappers;
 using Api.Models;
 using Api.Models.Responses;
@@ -57,10 +58,14 @@ public class LibraryController : Controller
     /// <returns><see cref="BookModel"/> when sucessed.</returns>
     [HttpGet("/api/book/get/{bookId}")]
     [ProducesResponseType(typeof(BookModel), StatusCodes.Status200OK)]
-    public async Task<BookModel> GetBook(int bookId, CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(BookModel), StatusCodes.Status404NotFound)]
+    public async Task<BookModel?> GetBook(int bookId, CancellationToken cancellationToken)
     {
         var bookModel = await _bookLibraryRepository.GetBook(bookId, cancellationToken);
-
+        if (bookModel == null)
+        {
+            NotFound();
+        }
         return bookModel;
     }
 
@@ -71,12 +76,12 @@ public class LibraryController : Controller
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns></returns>
     [HttpDelete("/api/book/remove/{bookId}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> RemoveBook(int bookId, CancellationToken cancellationToken)
     {
         await _bookLibraryRepository.RemoveBook(bookId, cancellationToken);
-
-        return Ok();
+        
+        return NoContent();
     }
 
     /// <summary>
@@ -107,7 +112,7 @@ public class LibraryController : Controller
     /// <returns>Completed action with valid data or invalid <see cref="ErrorCodeModel"/>.</returns>
     [HttpGet("/api/book/add/")]
     [ServiceFilter(typeof(RequestModelValidationFilter))]
-    [ProducesResponseType(typeof(BookModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BookModel), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ErrorCodeModel), StatusCodes.Status400BadRequest)]
     public async Task<BookModel?> InsertBook([FromRoute] CreateBookReqModel createBookReqModel,
         CancellationToken cancellationToken)
@@ -117,6 +122,11 @@ public class LibraryController : Controller
                 cancellationToken);
         var bookInserted = await _bookLibraryRepository.GetBook(bookId, cancellationToken);
 
+        if (bookInserted != null)
+        {
+            HttpContext.Response.StatusCode = (int) HttpStatusCode.Created;
+        }
+        
         return bookInserted;
     }
 
