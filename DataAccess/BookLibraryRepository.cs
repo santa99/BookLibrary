@@ -47,7 +47,7 @@ public class BookLibraryRepository : IBookLibraryRepository
         var bookModel = _bookLibraryDao.Read(bookId);
         if (bookModel == null)
         {
-            throw new BookLibraryException($"Requested bookId: {bookId} does not exist.", ErrorCode.BookNotFound);
+            throw new BookNotFoundException(bookId);
         }
 
         _bookLibraryDao.Update(new BookModel
@@ -66,7 +66,7 @@ public class BookLibraryRepository : IBookLibraryRepository
         var bookModel = _bookLibraryDao.Read(bookId);
         if (bookModel == null)
         {
-            throw new BookLibraryException($"Requested bookId: {bookId} does not exist.", ErrorCode.BookNotFound);
+            throw new BookNotFoundException(bookId);
         }
 
         if (bookModel.Borrowed != null)
@@ -98,7 +98,7 @@ public class BookLibraryRepository : IBookLibraryRepository
         var bookModel = _bookLibraryDao.Read(bookId);
         if (bookModel == null)
         {
-            throw new BookLibraryException($"Requested bookId: {bookId} does not exist.", ErrorCode.BookNotFound);
+            throw new BookNotFoundException(bookId);
         }
 
         if (bookModel.Borrowed == null)

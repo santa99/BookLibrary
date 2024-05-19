@@ -12,3 +12,10 @@ public class BookLibraryException : Exception
         ErrorCode = errorCode;
     }
 }
+
+public class BookNotFoundException : BookLibraryException
+{
+    public BookNotFoundException(int bookId) : base($"Requested bookId: {bookId} does not exist.", ErrorCode.BookNotFound)
+    {
+    }
+}

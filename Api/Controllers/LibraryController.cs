@@ -139,6 +139,7 @@ public class LibraryController : Controller
     [ServiceFilter(typeof(RequestModelValidationFilter))]
     [ProducesResponseType(typeof(BorrowModel), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorCodeModel), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorCodeModel), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> BorrowBook([FromRoute] CreateBorrowReqModel borrowReqModel,
         CancellationToken cancellationToken)
     {
@@ -155,6 +156,7 @@ public class LibraryController : Controller
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     [HttpGet("/api/book/return/{bookId}")]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(int), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ReturnBook(int bookId, CancellationToken cancellationToken)
     {
         var bookIdReturned = await _borrowBookCommand.ReturnBook(bookId, cancellationToken);
