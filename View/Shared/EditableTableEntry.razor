@@ -62,6 +62,16 @@
         Root.Add(this);
         return base.OnInitializedAsync();
     }
+
+    public async Task<bool> Remove(BooksService booksService)
+    {
+        var removeBook = await booksService.RemoveBook(Book);
+        if (!removeBook) return false;
+
+        Root.Remove(this);
+
+        return true;
+    }
     
     private void EnterEdit()
     {

@@ -26,6 +26,11 @@ public class EditState
     public bool IsDirty { get; private set; }
 
     /// <summary>
+    /// Checks whether any of the displayed items has been checked.
+    /// </summary>
+    public bool IsAnySelected => _editables.Any(entry => entry.Checked);
+
+    /// <summary>
     /// Callback when the save of the edit ended with success or fail.
     /// </summary>
     public EventHandler<bool>? OnSaveCompleted { get; set; }
@@ -34,6 +39,11 @@ public class EditState
     /// Callback fired when the discard ended with success or fail.
     /// </summary>
     public EventHandler<bool>? OnDiscardCompleted { get; set; }
+    
+    /// <summary>
+    /// Callback fired when checked items have been removed.
+    /// </summary>
+    public EventHandler<bool>? OnRemovalCompleted { get; set; }
 
     /// <summary>
     /// Call this method when edit mode entered.
@@ -118,5 +128,32 @@ public class EditState
         IsDirty = false;
         
         OnDiscardCompleted?.Invoke(this, true);
+    }
+
+    public async Task RemoveSelected()
+    {
+        var check = new List<EditableTableEntry>(_editables.Where(entry => entry.Checked));
+        var completed = new List<EditableTableEntry>();
+        
+        foreach (var editableTableEntry in check)
+        {
+            if (await editableTableEntry.Remove(BooksService))
+            {
+                completed.Add(editableTableEntry);
+            }
+        }
+
+        _editables.RemoveAll(entry => check.Contains(entry));
+        
+        if (check.Count != completed.Count)
+        {
+            OnRemovalCompleted?.Invoke(this, false);
+            return;
+        }
+        
+        IsEditMode = false;
+        IsDirty = false;
+        
+        OnRemovalCompleted?.Invoke(this, true);
     }
 }

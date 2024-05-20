@@ -23,10 +23,10 @@
                 <button @onclick="AddNewBook">Add</button>
                 <button @onclick="EditState.SaveChanges">Save</button>
                 <button @onclick="EditState.DiscardChanges">Discard</button>
-                @if (@ToRemove)
-                {
-                    <button @onclick="RemoveItems">Remove</button>
-                }
+                @* @if (@EditState.IsAnySelected) *@
+                @* { *@
+                    <button @onclick="EditState.RemoveSelected">Remove</button>
+                /*}*/
             }
         </div>
     </div>
@@ -37,7 +37,7 @@
                 return;
             }
 
-            @if (!@_books.Any() && !@_added.Any())
+            @if (!@_books.Any())
             {
                 <label>No items in the library. Please add some.</label>
             }
@@ -56,15 +56,9 @@
                         </th>
                         <th>Status</th>
                     </tr>
-
-                    @foreach (var item in @_added)
-                    {
-                        <EditableTableEntry Book="@item" OnBorrowBook="BorrowState.ShowConfigureDialog" EditState="EditState" Root="this" OnChecked="OnCheckedUpdate"/>
-                    }
-
                     @foreach (var item in @_books)
                     {
-                        <EditableTableEntry Book="@item" OnBorrowBook="BorrowState.ShowConfigureDialog" EditState="EditState" Root="this" OnChecked="OnCheckedUpdate"/>
+                        <EditableTableEntry Book="@item" OnBorrowBook="BorrowState.ShowConfigureDialog" EditState="EditState" Root="this"/>
                     }
                 </table>
             }
@@ -86,7 +80,6 @@
 }
 
 @code {
-    private readonly List<BookModel> _added = new();
     private List<BookModel>? _books = new();
     private readonly List<EditableTableEntry> _entries = new();
 
@@ -98,6 +91,7 @@
         EditState.BooksService = BooksService;
         EditState.OnSaveCompleted = OnSaveCompleted;
         EditState.OnDiscardCompleted = OnDiscardCompleted;
+        EditState.OnRemovalCompleted = OnRemovalCompleted;
         BorrowState.BookModelUpdated = BookModelUpdated;
     }
 
@@ -127,9 +121,14 @@
         _entries.Add(editableTableEntry);
     }
 
+    public void Remove(EditableTableEntry editableTableEntry)
+    {
+        _books?.Remove(editableTableEntry.Book);
+    }
+
     private void AddNewBook()
     {
-        _added.Insert(0, new BookModel()
+        _books?.Insert(0, new BookModel
         {
             Id = -1
         });
@@ -138,7 +137,6 @@
     private void OnSaveCompleted(object? sender,bool succeed)
     {
         if (!succeed) return;
-        DiscardAdded(true);
         
         InvokeAsync(StateHasChanged);
     }
@@ -146,51 +144,15 @@
     private void OnDiscardCompleted(object? sender, bool succeed)
     {
         if (!succeed) return;
-        DiscardAdded(false);
         
         InvokeAsync(StateHasChanged);
     }
 
-    private void DiscardAdded(bool moveAdded)
+    private void OnRemovalCompleted(object? sender, bool succeed)
     {
-        var nonDirty = _entries
-            .Where(entry => _added.Contains(entry.Book))
-            .Select(editEntry => editEntry.Book);
-        if (moveAdded)
-        {
-            _books.AddRange(nonDirty);
-        }
+        if (!succeed) return;
         
-        _added.RemoveAll(model => nonDirty.Contains(model));
-        _entriesToRemove.Clear();
+        InvokeAsync(StateHasChanged);
     }
 
-    private readonly List<EditableTableEntry> _entriesToRemove = new();
-    private bool ToRemove => _entriesToRemove.Count > 0;
-    
-    private void OnCheckedUpdate(EditableTableEntry editableTableEntry)
-    {
-        if (editableTableEntry.Checked)
-        {
-            _entriesToRemove.Add(editableTableEntry);
-        }
-        else
-        {
-            _entriesToRemove.Remove(editableTableEntry);
-        }
-    }
-
-    private async Task RemoveItems()
-    {
-        var editableTableEntries = new List<EditableTableEntry>(_entriesToRemove);
-        var bookModels = editableTableEntries.Select(entry => entry.Book);
-
-        foreach (var bookModel in bookModels)
-        {
-            await BooksService.RemoveBook(bookModel);
-        }
-        
-        _books.RemoveAll(model => bookModels.Contains(model));
-        _entriesToRemove.RemoveAll(entry => bookModels.Contains(entry.Book));
-    }
 }

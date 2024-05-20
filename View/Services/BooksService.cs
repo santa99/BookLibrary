@@ -92,11 +92,13 @@ public class BooksService
         };
     }
 
-    public async Task RemoveBook(BookModel bookModel)
+    public async Task<bool> RemoveBook(BookModel bookModel)
     {
         using var client = CreateClient();
         
         await client.DeleteAsync($"/api/book/remove/{bookModel.Id}");
+
+        return true;
     }
     
     private HttpClient CreateClient()
