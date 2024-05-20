@@ -1,4 +1,7 @@
-﻿using View.Shared;
+﻿using Contracts.Models;
+using Contracts.Models.Responses;
+using Microsoft.AspNetCore.Mvc;
+using View.Shared;
 
 namespace View.Services;
 
@@ -9,21 +12,16 @@ namespace View.Services;
 public class EditState
 {
     private readonly List<EditableTableEntry> _editables = new();
-    
+
     /// <summary>
     /// Book service for basic crud operations with books.
     /// </summary>
     public BooksService BooksService { get; set; }
-    
+
     /// <summary>
     /// Checks whether in edit mode.
     /// </summary>
     public bool IsEditMode { get; private set; }
-    
-    /// <summary>
-    /// Checks whether any of the displayed item has been previously changed.
-    /// </summary>
-    public bool IsDirty { get; private set; }
 
     /// <summary>
     /// Checks whether any of the displayed items has been checked.
@@ -34,12 +32,12 @@ public class EditState
     /// Callback when the save of the edit ended with success or fail.
     /// </summary>
     public EventHandler<bool>? OnSaveCompleted { get; set; }
-    
+
     /// <summary>
     /// Callback fired when the discard ended with success or fail.
     /// </summary>
     public EventHandler<bool>? OnDiscardCompleted { get; set; }
-    
+
     /// <summary>
     /// Callback fired when checked items have been removed.
     /// </summary>
@@ -59,10 +57,8 @@ public class EditState
         {
             return;
         }
-        
-        _editables.Add(editableTableEntry);
 
-        IsDirty = true;
+        _editables.Add(editableTableEntry);
     }
 
     public bool IsEntryInEdit(EditableTableEntry editableTableEntry)
@@ -70,90 +66,151 @@ public class EditState
         return _editables.Contains(editableTableEntry);
     }
 
+    /// <summary>
+    /// Call this method to store previously edited changes.
+    /// </summary>
     public async Task SaveChanges()
     {
-        var dirty = new List<EditableTableEntry>(_editables.Where(entry => entry.IsDirty));
+        var dirty = _editables.Where(entry => entry.IsDirty).ToList();
+        if (!dirty.Any())
+        {
+            IsEditMode = false;
+            return;
+        }
+
         var completed = new List<EditableTableEntry>();
-        
+
         foreach (var editableTableEntry in dirty)
         {
-            if (await editableTableEntry.SaveChanges(BooksService))
+            if (await Save(editableTableEntry.Book, editableTableEntry.Save, editableTableEntry.DisplayError))
             {
                 completed.Add(editableTableEntry);
             }
         }
 
         _editables.RemoveAll(entry => completed.Contains(entry));
-        
+
         if (dirty.Count != completed.Count)
         {
             OnSaveCompleted?.Invoke(this, false);
             return;
         }
-        
+
         IsEditMode = false;
-        IsDirty = false;
-        
-        OnSaveCompleted?.Invoke(this,true);
+
+        OnSaveCompleted?.Invoke(this, true);
     }
 
+    /// <summary>
+    /// Call this method to restore previous state before editing.
+    /// </summary>
     public async Task DiscardChanges()
     {
-        if (!IsDirty)
+        var dirty = _editables.Where(entry => entry.IsDirty).ToList();
+        if (!dirty.Any())
         {
             IsEditMode = false;
             return;
         }
-        
-        var dirty = new List<EditableTableEntry>(_editables.Where(entry => entry.IsDirty));
+
         var completed = new List<EditableTableEntry>();
-        
+
         foreach (var editableTableEntry in dirty)
         {
-            if (await editableTableEntry.DiscardChanges(BooksService))
+            if (await Discard(editableTableEntry.Book, editableTableEntry.Save, editableTableEntry.DisplayError))
             {
                 completed.Add(editableTableEntry);
             }
         }
 
         _editables.RemoveAll(entry => completed.Contains(entry));
-        
+
         if (dirty.Count != completed.Count)
         {
             OnDiscardCompleted?.Invoke(this, false);
             return;
         }
-        
+
         IsEditMode = false;
-        IsDirty = false;
-        
+
         OnDiscardCompleted?.Invoke(this, true);
     }
 
+    /// <summary>
+    /// Remove all selected entries.
+    /// </summary>
     public async Task RemoveSelected()
     {
-        var check = new List<EditableTableEntry>(_editables.Where(entry => entry.Checked));
+        var check = _editables.Where(entry => entry.Checked).ToList();
+        if (!check.Any())
+        {
+            IsEditMode = false;
+            return;
+        }
+
         var completed = new List<EditableTableEntry>();
-        
+
         foreach (var editableTableEntry in check)
         {
-            if (await editableTableEntry.Remove(BooksService))
+            if (await Remove(editableTableEntry.Book, editableTableEntry.Remove, editableTableEntry.DisplayError))
             {
                 completed.Add(editableTableEntry);
             }
         }
 
         _editables.RemoveAll(entry => check.Contains(entry));
-        
+
         if (check.Count != completed.Count)
         {
             OnRemovalCompleted?.Invoke(this, false);
             return;
         }
-        
+
         IsEditMode = false;
-        IsDirty = false;
-        
+
         OnRemovalCompleted?.Invoke(this, true);
+    }
+
+    private async Task<bool> Save(BookModel book, Action<BookModel> onSuccess, Action<ErrorCodeModel> onFailure)
+    {
+        var updatedBook = await BooksService.UpdateBook(book);
+
+        switch (updatedBook)
+        {
+            case OkObjectResult { Value: BookModel bookModel }:
+                onSuccess.Invoke(bookModel);
+                return true;
+            case BadRequestObjectResult { Value: ErrorCodeModel errorCodeModel }:
+                onFailure.Invoke(errorCodeModel);
+                return false;
+        }
+
+        return false;
+    }
+
+    private async Task<bool> Discard(BookModel book, Action<BookModel> onSuccess, Action<ErrorCodeModel> onFailure)
+    {
+        var revertedBook = await BooksService.GetBook(book.Id);
+        if (revertedBook == null)
+        {
+            onFailure.Invoke(new ErrorCodeModel(-1, "Define in GetBook.", ""));
+            return false;
+        }
+
+        onSuccess.Invoke(revertedBook);
+        return true;
+    }
+
+    private async Task<bool> Remove(BookModel book, Action onSuccess, Action<ErrorCodeModel> onFailure)
+    {
+        var removeBook = await BooksService.RemoveBook(book);
+        if (!removeBook)
+        {
+            onFailure.Invoke(new ErrorCodeModel(-1, "Define in RemoveBook.", ""));
+            return false;
+        }
+
+        onSuccess.Invoke();
+        return true;
     }
 }

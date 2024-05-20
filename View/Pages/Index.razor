@@ -14,7 +14,7 @@
     <h3>Book page</h3>
     <div class="control-panel">
         <div class="child2">
-            @if (!EditState.IsEditMode)
+            @if (!@EditState.IsEditMode)
             {
                 <button @onclick="EditState.EnterEditMode">Edit</button>
             }
@@ -23,10 +23,7 @@
                 <button @onclick="AddNewBook">Add</button>
                 <button @onclick="EditState.SaveChanges">Save</button>
                 <button @onclick="EditState.DiscardChanges">Discard</button>
-                @* @if (@EditState.IsAnySelected) *@
-                @* { *@
-                    <button @onclick="EditState.RemoveSelected">Remove</button>
-                /*}*/
+                <button @onclick="EditState.RemoveSelected">Remove</button>
             }
         </div>
     </div>
@@ -99,7 +96,7 @@
     {
         var editableTableEntry = _entries.FirstOrDefault(entry => entry.Book.Id == bookModel.Id);
         editableTableEntry?.UpdateEntry(bookModel);
-        
+
         InvokeAsync(StateHasChanged);
     }
 
@@ -112,7 +109,7 @@
     async Task OnPaginationChanged(int newCount)
     {
         _books = await ReloadBooks();
-        
+
         await InvokeAsync(StateHasChanged);
     }
 
@@ -134,24 +131,24 @@
         });
     }
 
-    private void OnSaveCompleted(object? sender,bool succeed)
+    private void OnSaveCompleted(object? sender, bool succeed)
     {
         if (!succeed) return;
-        
+
         InvokeAsync(StateHasChanged);
     }
 
     private void OnDiscardCompleted(object? sender, bool succeed)
     {
         if (!succeed) return;
-        
+
         InvokeAsync(StateHasChanged);
     }
 
     private void OnRemovalCompleted(object? sender, bool succeed)
     {
         if (!succeed) return;
-        
+
         InvokeAsync(StateHasChanged);
     }
 

@@ -1,12 +1,12 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Library>
+<?xml version="1.0" encoding="utf-8"?>
+<Library xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Book id="1">
     <Name>Starec a more</Name>
     <Author>Ernest Hemingway</Author>
     <Borrowed>
       <FirstName>Tibor</FirstName>
       <LastName>Vesely</LastName>
-      <From>0001-01-01T00:00:00Z</From>
+      <From>1. 1. 0001 0:00:00 +00:00</From>
     </Borrowed>
   </Book>
   <Book id="2">
@@ -15,7 +15,7 @@
     <Borrowed>
       <FirstName>Ivan</FirstName>
       <LastName>Maly</LastName>
-      <From>0001-01-01T00:00:00Z</From>
+      <From>1. 1. 0001 0:00:00 +00:00</From>
     </Borrowed>
   </Book>
   <Book id="3">
@@ -24,7 +24,7 @@
     <Borrowed>
       <FirstName>Matej</FirstName>
       <LastName>Treti</LastName>
-      <From>1.2.2017</From>
+      <From>1. 2. 2017 0:00:00 +01:00</From>
     </Borrowed>
   </Book>
   <Book id="4">
@@ -33,7 +33,7 @@
     <Borrowed>
       <FirstName>X</FirstName>
       <LastName>Y</LastName>
-      <From>25.10.2009</From>
+      <From>25. 10. 2009 0:00:00 +02:00</From>
     </Borrowed>
   </Book>
   <Book id="5">
@@ -42,7 +42,7 @@
     <Borrowed>
       <FirstName>Marek</FirstName>
       <LastName>Blanar</LastName>
-      <From>2024-04-30T00:00:00+02:00</From>
+      <From>30. 4. 2024 0:00:00 +02:00</From>
     </Borrowed>
   </Book>
   <Book id="6">
@@ -51,16 +51,11 @@
     <Borrowed>
       <FirstName>X</FirstName>
       <LastName>Y</LastName>
-      <From>25.10.2009</From>
+      <From>25. 10. 2009 0:00:00 +02:00</From>
     </Borrowed>
   </Book>
   <Book id="7">
-    <Name>O tebe a o mne</Name>
-    <Author>Zdenko Dobry</Author>
-    <Borrowed>
-      <FirstName>Tibor</FirstName>
-      <LastName>Vesely</LastName>
-      <From>2024-04-30T00:00:00+02:00</From>
-    </Borrowed>
+    <Name>FFF</Name>
+    <Author>FFF</Author>
   </Book>
 </Library>

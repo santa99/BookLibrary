@@ -1,6 +1,5 @@
 ﻿@using Contracts.Models
 @using Contracts.Models.Responses
-@using Microsoft.AspNetCore.Mvc
 @using View.Services
 @using Index = View.Pages.Index
 
@@ -62,15 +61,10 @@
         Root.Add(this);
         return base.OnInitializedAsync();
     }
-
-    public async Task<bool> Remove(BooksService booksService)
+    
+    public void Remove()
     {
-        var removeBook = await booksService.RemoveBook(Book);
-        if (!removeBook) return false;
-
         Root.Remove(this);
-
-        return true;
     }
     
     private void EnterEdit()
@@ -132,61 +126,28 @@
         Book.Author = bookAuthor;
     }
 
-    public async Task<bool> SaveChanges(BooksService booksService)
+    public void Save(BookModel bookModel)
     {
         if (!IsDirty)
         {
             _isEdited = false;
             Checked = false;
-            return true;
+            return;
         }
-
-        var updatedBook = await booksService.UpdateBook(Book);
-
-        switch (updatedBook)
-        {
-            case OkObjectResult { Value: BookModel bookModel }:
-                
-                UpdateEntry(bookModel);
+        
+        UpdateEntry(bookModel);
             
-                IsDirty = false;
-                _isEdited = false;
-                Checked = false;
-                EntryErrorMessage = "";
-
-                return true;
-            case BadRequestObjectResult { Value: ErrorCodeModel errorCodeModel}:
-                EntryErrorMessage = errorCodeModel.Message;
-                break;
-        }
-
-        return false;
-    }
-
-    public async Task<bool> DiscardChanges(BooksService booksService)
-    {
-        if (!IsDirty)
-        {
-            _isEdited = false;
-            Checked = false;
-            return true;
-        }
-
-        var revertedBook = await booksService.GetBook(Book.Id);
-        if (revertedBook == null)
-        {
-            return true;
-        }
-        UpdateEntry(revertedBook);
-
         IsDirty = false;
         _isEdited = false;
         Checked = false;
         EntryErrorMessage = "";
-
-        return true;
     }
 
+    public void DisplayError(ErrorCodeModel errorCodeModel)
+    {
+        EntryErrorMessage = errorCodeModel.Message;
+    }
+    
     internal void UpdateEntry(BookModel bookModel)
     {
         Book.Id = bookModel.Id;

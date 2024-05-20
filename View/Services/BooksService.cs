@@ -86,6 +86,7 @@ public class BooksService
         return result.StatusCode switch
         {
             HttpStatusCode.OK => new OkObjectResult(JsonConvert.DeserializeObject<BookModel>(content)),
+            HttpStatusCode.Created => new OkObjectResult(JsonConvert.DeserializeObject<BookModel>(content)),
             HttpStatusCode.BadRequest => new BadRequestObjectResult(
                 JsonConvert.DeserializeObject<ErrorCodeModel>(content)),
             _ => null
