@@ -1,11 +1,18 @@
-﻿using Contracts.Models;
-using Microsoft.AspNetCore.Components;
-using View.Shared;
+﻿using View.Shared;
 
 namespace View.Services;
 
+/// <summary>
+/// Class <see cref="EditState"/> serves as a state for editable entries. It can update or discard book
+/// properties that have been previously changed.
+/// </summary>
 public class EditState
 {
+    private readonly List<EditableTableEntry> _editables = new();
+    
+    /// <summary>
+    /// Book service for basic crud operations with books.
+    /// </summary>
     public BooksService BooksService { get; set; }
     
     /// <summary>
@@ -14,20 +21,31 @@ public class EditState
     public bool IsEditMode { get; private set; }
     
     /// <summary>
-    /// Checks whether any of the displayed item has been previously edited.
+    /// Checks whether any of the displayed item has been previously changed.
     /// </summary>
     public bool IsDirty { get; private set; }
 
+    /// <summary>
+    /// Callback when the save of the edit ended with success or fail.
+    /// </summary>
+    public EventHandler<bool>? OnSaveCompleted { get; set; }
+    
+    /// <summary>
+    /// Callback fired when the discard ended with success or fail.
+    /// </summary>
+    public EventHandler<bool>? OnDiscardCompleted { get; set; }
+
+    /// <summary>
+    /// Call this method when edit mode entered.
+    /// </summary>
     public async Task EnterEditMode()
     {
         IsEditMode = true;
     }
 
-    private readonly List<EditableTableEntry> _editables = new();
-
     public void StartEditEntry(EditableTableEntry editableTableEntry)
     {
-        if (IsMeEdit(editableTableEntry))
+        if (IsEntryInEdit(editableTableEntry))
         {
             return;
         }
@@ -37,23 +55,36 @@ public class EditState
         IsDirty = true;
     }
 
-    public bool IsMeEdit(EditableTableEntry editableTableEntry)
+    public bool IsEntryInEdit(EditableTableEntry editableTableEntry)
     {
         return _editables.Contains(editableTableEntry);
     }
 
     public async Task SaveChanges()
     {
-        var copy = new List<EditableTableEntry>(_editables);
-        foreach (var editableTableEntry in copy)
+        var dirty = new List<EditableTableEntry>(_editables.Where(entry => entry.IsDirty));
+        var completed = new List<EditableTableEntry>();
+        
+        foreach (var editableTableEntry in dirty)
         {
-            await editableTableEntry.SaveChanges(BooksService);
+            if (await editableTableEntry.SaveChanges(BooksService))
+            {
+                completed.Add(editableTableEntry);
+            }
         }
 
-        _editables.RemoveAll(entry => copy.Contains(entry));
+        _editables.RemoveAll(entry => completed.Contains(entry));
+        
+        if (dirty.Count != completed.Count)
+        {
+            OnSaveCompleted?.Invoke(this, false);
+            return;
+        }
         
         IsEditMode = false;
         IsDirty = false;
+        
+        OnSaveCompleted?.Invoke(this,true);
     }
 
     public async Task DiscardChanges()
@@ -64,15 +95,28 @@ public class EditState
             return;
         }
         
-        var copy = new List<EditableTableEntry>(_editables);
-        foreach (var editableTableEntry in copy)
+        var dirty = new List<EditableTableEntry>(_editables.Where(entry => entry.IsDirty));
+        var completed = new List<EditableTableEntry>();
+        
+        foreach (var editableTableEntry in dirty)
         {
-            await editableTableEntry.DiscardChanges(BooksService);
+            if (await editableTableEntry.DiscardChanges(BooksService))
+            {
+                completed.Add(editableTableEntry);
+            }
+        }
+
+        _editables.RemoveAll(entry => completed.Contains(entry));
+        
+        if (dirty.Count != completed.Count)
+        {
+            OnDiscardCompleted?.Invoke(this, false);
+            return;
         }
         
-        _editables.RemoveAll(entry => copy.Contains(entry));
-
         IsEditMode = false;
         IsDirty = false;
+        
+        OnDiscardCompleted?.Invoke(this, true);
     }
 }

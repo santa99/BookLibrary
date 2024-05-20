@@ -21,8 +21,8 @@
             else
             {
                 <button @onclick="AddNewBook">Add</button>
-                <button @onclick="async () => { await EditState.SaveChanges(); DiscardAdded(true);}">Save</button>
-                <button @onclick="async () => { await EditState.DiscardChanges(); DiscardAdded(false);}">Discard</button>
+                <button @onclick="EditState.SaveChanges">Save</button>
+                <button @onclick="EditState.DiscardChanges">Discard</button>
                 @if (@ToRemove)
                 {
                     <button @onclick="RemoveItems">Remove</button>
@@ -96,6 +96,8 @@
     {
         _books = await ReloadBooks();
         EditState.BooksService = BooksService;
+        EditState.OnSaveCompleted = OnSaveCompleted;
+        EditState.OnDiscardCompleted = OnDiscardCompleted;
         BorrowState.BookModelUpdated = BookModelUpdated;
     }
 
@@ -132,7 +134,23 @@
             Id = -1
         });
     }
-    
+
+    private void OnSaveCompleted(object? sender,bool succeed)
+    {
+        if (!succeed) return;
+        DiscardAdded(true);
+        
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OnDiscardCompleted(object? sender, bool succeed)
+    {
+        if (!succeed) return;
+        DiscardAdded(false);
+        
+        InvokeAsync(StateHasChanged);
+    }
+
     private void DiscardAdded(bool moveAdded)
     {
         var nonDirty = _entries

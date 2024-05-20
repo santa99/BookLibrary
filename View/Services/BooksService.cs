@@ -1,4 +1,8 @@
-﻿using Contracts.Models;
+﻿using System.Net;
+using Contracts.Exceptions;
+using Contracts.Models;
+using Contracts.Models.Responses;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using View.Model;
 
@@ -65,7 +69,7 @@ public class BooksService
         return bookModels;
     }
 
-    public async Task<BookModel?> UpdateBook(BookModel bookModel)
+    public async Task<IActionResult?> UpdateBook(BookModel bookModel)
     {
         using var client = CreateClient();
         
@@ -75,8 +79,17 @@ public class BooksService
         queryStr = updateBookReqModel.BookId == null 
             ? $"/api/book/add?title={updateBookReqModel.Title}&author={updateBookReqModel.Author}" 
             : $"/api/book/edit/{updateBookReqModel.BookId}?title={updateBookReqModel.Title}&author={updateBookReqModel.Author}";
-        
-        return await client.GetFromJsonAsync<BookModel>(queryStr);
+
+        var result = await client.GetAsync(queryStr);
+        var content = await result.Content.ReadAsStringAsync();
+
+        return result.StatusCode switch
+        {
+            HttpStatusCode.OK => new OkObjectResult(JsonConvert.DeserializeObject<BookModel>(content)),
+            HttpStatusCode.BadRequest => new BadRequestObjectResult(
+                JsonConvert.DeserializeObject<ErrorCodeModel>(content)),
+            _ => null
+        };
     }
 
     public async Task RemoveBook(BookModel bookModel)

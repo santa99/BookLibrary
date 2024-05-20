@@ -1,18 +1,21 @@
 ﻿@using Contracts.Models
+@using Contracts.Models.Responses
+@using Microsoft.AspNetCore.Mvc
 @using View.Services
 @using Index = View.Pages.Index
 
-<tr style="text-align: left;" @onclick="ClickRow">
+<tr style="text-align: left;" @onclick="OnRowClicked">
     <td>
         @if (@EditState.IsEditMode)
         {
-            <input type="checkbox" value="@Checked" @onchange="Check"/>
+            <input type="checkbox" value="@Checked" @onchange="OnCheckChanged"/>
         }
         @Book.Id
     </td>
     <td>
         @if (Editing())
         {
+            <div class="validation-message">@EntryErrorMessage</div>
             <input type="text" name="name" value="@Book.Name" @onchange="OnBookNameChanged"/>
         }
         else
@@ -45,25 +48,13 @@
     [Parameter] public bool Checked { get; set; }
     [Parameter] public EventCallback<EditableTableEntry> OnChecked { get; set; }
     
+    private string? EntryErrorMessage { get; set; }
+    public bool IsDirty { get; private set; }
     private bool _isEdited;
-    private bool _dirty;
-
-    private async Task Check(ChangeEventArgs e)
-    {
-        bool current = Checked;
-        bool.TryParse(e.Value.ToString(), out current);
-        if (current == Checked)
-        {
-            return;
-        }
-
-        Checked = current;
-        await OnChecked.InvokeAsync(this);
-    }
 
     private bool Editing()
     {
-        return @EditState.IsEditMode && EditState.IsMeEdit(this);
+        return @EditState.IsEditMode && EditState.IsEntryInEdit(this);
     }
 
     protected override Task OnInitializedAsync()
@@ -71,18 +62,7 @@
         Root.Add(this);
         return base.OnInitializedAsync();
     }
-
-    private async Task ClickRow()
-    {
-        if (EditState.IsEditMode)
-        {
-            EnterEdit();
-            return;
-        }
-
-        await OnBorrowBook.InvokeAsync(Book);
-    }
-
+    
     private void EnterEdit()
     {
         if (_isEdited)
@@ -93,6 +73,30 @@
         _isEdited = true;
         EditState.StartEditEntry(this);
     }
+    
+    private async Task OnRowClicked()
+    {
+        if (EditState.IsEditMode)
+        {
+            EnterEdit();
+            return;
+        }
+
+        await OnBorrowBook.InvokeAsync(Book);
+    }
+    
+    private async Task OnCheckChanged(ChangeEventArgs e)
+    {
+        var current = Checked;
+        bool.TryParse(e.Value?.ToString(), out current);
+        if (current == Checked)
+        {
+            return;
+        }
+
+        Checked = current;
+        await OnChecked.InvokeAsync(this);
+    }
 
     private void OnBookNameChanged(ChangeEventArgs e)
     {
@@ -102,7 +106,7 @@
         {
             return;
         }
-        _dirty = true;
+        IsDirty = true;
         Book.Name = bookName;
     }
 
@@ -114,51 +118,63 @@
         {
             return;
         }
-        _dirty = true;
+        IsDirty = true;
         Book.Author = bookAuthor;
     }
 
-    public async Task SaveChanges(BooksService booksService)
+    public async Task<bool> SaveChanges(BooksService booksService)
     {
-        if (!_dirty)
+        if (!IsDirty)
         {
             _isEdited = false;
             Checked = false;
-            return;
+            return true;
         }
 
         var updatedBook = await booksService.UpdateBook(Book);
-        if (updatedBook == null)
-        {
-            return;
-        }
-        
-        UpdateEntry(updatedBook);
 
-        _dirty = false;
-        _isEdited = false;
-        Checked = false;
+        switch (updatedBook)
+        {
+            case OkObjectResult { Value: BookModel bookModel }:
+                
+                UpdateEntry(bookModel);
+            
+                IsDirty = false;
+                _isEdited = false;
+                Checked = false;
+                EntryErrorMessage = "";
+
+                return true;
+            case BadRequestObjectResult { Value: ErrorCodeModel errorCodeModel}:
+                EntryErrorMessage = errorCodeModel.Message;
+                break;
+        }
+
+        return false;
     }
 
-    public async Task DiscardChanges(BooksService booksService)
+    public async Task<bool> DiscardChanges(BooksService booksService)
     {
-        if (!_dirty)
+        if (!IsDirty)
         {
             _isEdited = false;
             Checked = false;
-            return;
+            return true;
         }
 
         var revertedBook = await booksService.GetBook(Book.Id);
         if (revertedBook == null)
         {
-            return;
+            return true;
         }
         UpdateEntry(revertedBook);
 
-        _dirty = false;
+        IsDirty = false;
         _isEdited = false;
         Checked = false;
+        EntryErrorMessage = "";
+
+        return true;
     }
 
     internal void UpdateEntry(BookModel bookModel)
