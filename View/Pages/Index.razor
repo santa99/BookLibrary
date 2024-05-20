@@ -5,8 +5,6 @@
 @using Contracts.Models
 @using View.Services
 
-@inject HttpClient HttpClient
-@inject NavigationManager NavigationManager
 @inject BorrowState BorrowState
 @inject PaginationState PaginationState
 @inject EditState EditState
@@ -88,7 +86,7 @@
 }
 
 @code {
-    private List<BookModel> _added = new();
+    private readonly List<BookModel> _added = new();
     private List<BookModel>? _books = new();
     private readonly List<EditableTableEntry> _entries = new();
 
@@ -117,7 +115,6 @@
         _books = await ReloadBooks();
     }
 
-
     public void Add(EditableTableEntry editableTableEntry)
     {
         _entries.Add(editableTableEntry);
@@ -142,26 +139,27 @@
         }
         
         _added.RemoveAll(model => nonDirty.Contains(model));
+        _entriesToRemove.Clear();
     }
 
-    private List<EditableTableEntry> _EntriesToRemove = new();
-    private bool ToRemove => _EntriesToRemove.Count > 0;
+    private readonly List<EditableTableEntry> _entriesToRemove = new();
+    private bool ToRemove => _entriesToRemove.Count > 0;
     
     private void OnCheckedUpdate(EditableTableEntry editableTableEntry)
     {
         if (editableTableEntry.Checked)
         {
-            _EntriesToRemove.Add(editableTableEntry);
+            _entriesToRemove.Add(editableTableEntry);
         }
         else
         {
-            _EntriesToRemove.Remove(editableTableEntry);
+            _entriesToRemove.Remove(editableTableEntry);
         }
     }
 
     private async Task RemoveItems()
     {
-        var editableTableEntries = new List<EditableTableEntry>(_EntriesToRemove);
+        var editableTableEntries = new List<EditableTableEntry>(_entriesToRemove);
         var bookModels = editableTableEntries.Select(entry => entry.Book);
 
         foreach (var bookModel in bookModels)
@@ -170,6 +168,6 @@
         }
         
         _books.RemoveAll(model => bookModels.Contains(model));
-        _EntriesToRemove.RemoveAll(entry => bookModels.Contains(entry.Book));
+        _entriesToRemove.RemoveAll(entry => bookModels.Contains(entry.Book));
     }
 }

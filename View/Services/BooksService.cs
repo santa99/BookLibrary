@@ -1,5 +1,4 @@
 ﻿using Contracts.Models;
-using Microsoft.AspNetCore.Components;
 using Newtonsoft.Json;
 using View.Model;
 
@@ -50,9 +49,6 @@ public class BooksService
     public async Task<List<BookModel>> GetBooks(int start = 0, int count = -1)
     {
         using var client = CreateClient();
-        // var result = await client.GetFromJsonAsync<List<BookModel>>(
-        //     $"api/book/select/-1/{start}/{count}");
-        // return result ?? new List<BookModel>();
 
         var res = await client.GetAsync($"/api/book/select/-1/{start}/{count}");
         var bookModels = new List<BookModel>();
