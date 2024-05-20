@@ -1,13 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Net;
-using System.Net.Http.Headers;
+using System.Runtime.Serialization;
 using System.Security.Claims;
+using Newtonsoft.Json;
 
 namespace View.Services;
 
 public class LoginService
 {
     private readonly IHttpClientFactory _httpClientFactory;
+    
+    public Action<AccountResponse> OnLoginFailure { get;set; }
 
     public LoginService(IHttpClientFactory httpClientFactory)
     {
@@ -44,9 +47,25 @@ public class LoginService
                 return new UserClaim(firstOrDefault.Type, firstOrDefault.Value);
             }
         }
+        else if (httpResponseMessage.StatusCode == HttpStatusCode.BadRequest)
+        {
+            var readAsStringAsync = await httpResponseMessage.Content.ReadAsStringAsync();
+            try
+            {
+                var deserializeObject = JsonConvert.DeserializeObject<AccountResponse>(readAsStringAsync);
+                
+                OnLoginFailure?.Invoke(deserializeObject);
+            }
+            catch (SerializationException ex)
+            {
+                
+            }
+        }
 
         return null;
     }
+    
+    public record AccountResponse(bool IsSuccess, string Message);
 
     public async Task LogUserOut()
     {

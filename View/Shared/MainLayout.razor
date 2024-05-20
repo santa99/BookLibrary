@@ -2,6 +2,8 @@
 @using Microsoft.AspNetCore.Mvc
 @using View.Services
 @inherits LayoutComponentBase
+@inject NavigationManager NavigationManager;
+
 
 @inject LoginService LoginService;
 
@@ -30,7 +32,7 @@
 
 @if (LoginService.ShowUserLoginDialog)
 {
-    <LoginDialog OnCancel="LoginCancel" Login="Login" />
+    <LoginDialog OnCancel="LoginCancel" Login="Login"/>
 }
 
 <div id="blazor-error-ui">
@@ -56,6 +58,8 @@
     {
         Identity = loginClaim;
         LoginService.CloseLoginDialog();
+        
+        NavigationManager.NavigateTo("/", true);
     }
 
     private async Task<IActionResult> Logout()

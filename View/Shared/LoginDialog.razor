@@ -13,7 +13,7 @@
             </div>
         </form>
         <div>
-            Space for error.
+            @ErrorMessage
         </div>
         <div class="dialog-buttons">
             <button class="btn btn-success ml-auto" @onclick="LoginButtonHandle">Ok</button>
@@ -24,6 +24,8 @@
 
 @code {
 
+    private string ErrorMessage { get; set; }
+    
     [Inject]
     public LoginService LoginService { get; set; }
     
@@ -32,9 +34,18 @@
     [Parameter]
     public EventCallback OnCancel { get; set; }
     
+    
     public string username { get; private set; }
     public string password { get; private set; }
 
+    protected override void OnInitialized()
+    {
+        LoginService.OnLoginFailure = response =>
+        {
+            ErrorMessage = response.Message;
+        };
+    }
+    
     private async Task LoginButtonHandle()
     {
         var res = await LoginService.LogUserIn(new LoginReqModel(username, password));
@@ -43,5 +54,4 @@
             await Login.InvokeAsync(res);
         }
     }
-
 }
