@@ -51,6 +51,8 @@
     public bool IsDirty { get; private set; }
     private bool _isEdited;
 
+    public bool IsNewEntry => Book.Id <= 0;
+    
     private bool Editing()
     {
         return @EditState.IsEditMode && EditState.IsEntryInEdit(this);

@@ -117,7 +117,10 @@ public class EditState
 
         foreach (var editableTableEntry in dirty)
         {
-            if (await Discard(editableTableEntry.Book, editableTableEntry.Save, editableTableEntry.DisplayError))
+            var task = editableTableEntry.IsNewEntry
+                ? DiscardNew(editableTableEntry.Remove)
+                : Discard(editableTableEntry.Book, editableTableEntry.Save, editableTableEntry.DisplayError);
+            if (await task)
             {
                 completed.Add(editableTableEntry);
             }
@@ -187,7 +190,13 @@ public class EditState
 
         return false;
     }
-
+    
+    private Task<bool> DiscardNew(Action onSuccess)
+    {
+        onSuccess.Invoke();
+        return Task.FromResult(true);
+    }
+    
     private async Task<bool> Discard(BookModel book, Action<BookModel> onSuccess, Action<ErrorCodeModel> onFailure)
     {
         var revertedBook = await BooksService.GetBook(book.Id);
