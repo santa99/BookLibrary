@@ -103,16 +103,21 @@
     {
         var editableTableEntry = _entries.FirstOrDefault(entry => entry.Book.Id == bookModel.Id);
         editableTableEntry?.UpdateEntry(bookModel);
+        
+        InvokeAsync(StateHasChanged);
     }
 
     private Task<List<BookModel>> ReloadBooks()
     {
+        _entries.Clear();
         return BooksService.GetBooks(PaginationState.StartWindow, PaginationState.Count);
     }
 
     async Task OnPaginationChanged(int newCount)
     {
         _books = await ReloadBooks();
+        
+        await InvokeAsync(StateHasChanged);
     }
 
     public void Add(EditableTableEntry editableTableEntry)
