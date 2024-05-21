@@ -54,8 +54,4 @@
       <From>25. 10. 2009 0:00:00 +02:00</From>
     </Borrowed>
   </Book>
-  <Book id="7">
-    <Name>FFF</Name>
-    <Author>FFF</Author>
-  </Book>
 </Library>

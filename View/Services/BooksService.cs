@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Contracts.Exceptions;
 using Contracts.Models;
 using Contracts.Models.Responses;
 using Microsoft.AspNetCore.Mvc;
@@ -20,8 +19,7 @@ public class BooksService
     public async Task<BorrowModel?> BorrowBook(int bookId, int readersCardId)
     {
         using var client = CreateClient();
-
-        var borrowModel = await client.GetFromJsonAsync<BorrowModel>($"api/book/borrow/{bookId}/{readersCardId}");
+        var borrowModel = await client.GetFromJsonAsync<BorrowModel>($"api/book/borrow/{bookId}/{readersCardId}?From={DateTime.UtcNow}");
 
         return borrowModel;
     }
