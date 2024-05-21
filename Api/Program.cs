@@ -40,11 +40,33 @@ builder.Services.AddSingleton<IHttpRequestLogger>(_ => builder.Services.BuildSer
 
 builder.Services.AddSwaggerGen(options =>
 {
+    options.AddSecurityDefinition(CookieAuthenticationDefaults.AuthenticationScheme, new OpenApiSecurityScheme
+    {
+        Scheme = "cookies",
+        Type = SecuritySchemeType.ApiKey,
+        Name = "auth",
+        In = ParameterLocation.Cookie,
+        Description = "Please enter auth cookie read from login response headers."
+    });
     options.SwaggerDoc("v1", new OpenApiInfo() {Title = "Book Library API Doc", Version = "v1"});
     options.IncludeXmlComments(Path.Combine(
         AppContext.BaseDirectory, 
         $"{Assembly.GetExecutingAssembly().GetName().Name}.xml")
     );
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = CookieAuthenticationDefaults.AuthenticationScheme
+                }
+            },
+            new string[]{}
+        }
+    });
 });
 
 builder.Services.AddCors(options =>

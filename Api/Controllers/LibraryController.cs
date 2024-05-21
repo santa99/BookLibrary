@@ -6,13 +6,14 @@ using Contracts;
 using Contracts.Enums;
 using Contracts.Models;
 using Contracts.Models.Responses;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
 
 /// <inheritdoc />
-[Authorize]
+[Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
 [ProducesResponseType(typeof(List<ErrorCodeModel>), StatusCodes.Status401Unauthorized)]
 public class LibraryController : Controller
 {

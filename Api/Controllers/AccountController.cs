@@ -14,7 +14,7 @@ namespace Api.Controllers;
 /// <summary>
 /// Account controller handles login/logout.
 /// </summary>
-[Authorize]
+[Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
 public class AccountController : Controller
 {
     private readonly IOptions<UserIdentityConfiguration> _userIdentity;
