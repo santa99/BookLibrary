@@ -39,7 +39,12 @@ public class BookLibraryRepository : IBookLibraryRepository
 
     public Task<BookModel?> GetBook(int bookId, CancellationToken cancellationToken)
     {
-        return Task.FromResult(_bookLibraryDao.Read(bookId));
+        var bookModel = _bookLibraryDao.Read(bookId);
+        if (bookModel == null)
+        {
+            throw new BookNotFoundException(bookId);
+        }
+        return Task.FromResult(bookModel);
     }
 
     public Task UpdateBookDetails(int bookId, string? name, string? author, CancellationToken cancellationToken)
@@ -54,7 +59,8 @@ public class BookLibraryRepository : IBookLibraryRepository
         {
             Id = bookId,
             Name = string.IsNullOrWhiteSpace(name) ? bookModel.Name : name,
-            Author = string.IsNullOrWhiteSpace(author) ? bookModel.Author : author
+            Author = string.IsNullOrWhiteSpace(author) ? bookModel.Author : author,
+            Borrowed = bookModel.Borrowed
         });
         
         return Task.CompletedTask;

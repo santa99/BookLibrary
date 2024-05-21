@@ -49,7 +49,7 @@ public class BookLibraryDaoNewImpl : IBookLibraryDao
     {
         if (bookId <= 0)
         {
-            throw new InvalidOperationException("Invalid book id.");
+            return null;
         }
 
         var libraryModel = LoadDocument();
@@ -87,7 +87,7 @@ public class BookLibraryDaoNewImpl : IBookLibraryDao
     {
         if (bookId <= 0)
         {
-            throw new InvalidOperationException("Invalid book id.");
+            return;
         }
 
         var libraryModel = LoadDocument();

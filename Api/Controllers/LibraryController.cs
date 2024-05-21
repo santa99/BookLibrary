@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Mime;
 using Api.Filters;
 using Api.Mappers;
 using Api.Models;
@@ -15,6 +16,7 @@ namespace Api.Controllers;
 /// <inheritdoc />
 [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
 [ProducesResponseType(typeof(List<ErrorCodeModel>), StatusCodes.Status401Unauthorized)]
+[Produces( MediaTypeNames.Application.Json )]
 public class LibraryController : Controller
 {
     private readonly IBookLibraryRepository _bookLibraryRepository;
