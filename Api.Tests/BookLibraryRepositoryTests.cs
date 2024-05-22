@@ -24,7 +24,7 @@ public class BookLibraryRepositoryTests : TestBase
     }
 
     [Fact]
-    public async Task BorrowBook_InvalidBookId_ThrowsBookLibraryException()
+    public async Task BorrowBook_InvalidBookId_ThrowsBookNotFoundException()
     {
         // Arrange
         var bookModel = Fixture.Create<BookModel>();
@@ -38,7 +38,7 @@ public class BookLibraryRepositoryTests : TestBase
             await _sut.BorrowBook(bookModel.Id, readersCardId, dateTimeOffset, CancellationToken.None);
 
         // Assert
-        await Assert.ThrowsAsync<BookLibraryException>(async () => await borrowABook());
+        await Assert.ThrowsAsync<BookNotFoundException>(async () => await borrowABook());
     }
 
     [Fact]
@@ -63,7 +63,7 @@ public class BookLibraryRepositoryTests : TestBase
     }
     
     [Fact]
-    public async Task BorrowBook_ReadersInfoDoesExist_ThrowsBookLibraryException()
+    public async Task BorrowBook_ReadersInfoDoesExist_ThrowsReadersCardIdNotFoundException()
     {
         // Arrange
         var bookModel = Fixture.Create<BookModel>();
@@ -78,13 +78,13 @@ public class BookLibraryRepositoryTests : TestBase
             await _sut.BorrowBook(bookModel.Id, readersCardId, dateTimeOffset, CancellationToken.None);
 
         // Assert
-        await Assert.ThrowsAsync<BookLibraryException>(async () => await borrowABook());
+        await Assert.ThrowsAsync<ReadersCardIdNotFoundException>(async () => await borrowABook());
         _bookLibraryDao.Received(1).Read(bookModel.Id);
         _readersInfoDao.Received(1).Read(readersCardId);
     }
     
     [Fact]
-    public async Task ReturnBook_BookIdInvalid_ThrowsBookLibraryException()
+    public async Task ReturnBook_BookIdInvalid_ThrowsBookNotFoundException()
     {
         // Arrange
         var bookModel = Fixture.Create<BookModel>();
@@ -96,7 +96,7 @@ public class BookLibraryRepositoryTests : TestBase
             await _sut.ReturnBook(bookModel.Id, CancellationToken.None);
 
         // Assert
-        await Assert.ThrowsAsync<BookLibraryException>(async () => await returnBook());
+        await Assert.ThrowsAsync<BookNotFoundException>(async () => await returnBook());
         _bookLibraryDao.Received(1).Read(bookModel.Id);
     }
     
@@ -152,7 +152,7 @@ public class BookLibraryRepositoryTests : TestBase
     }
     
     [Fact]
-    public async Task UpdateBookDetails_InvalidBookId_ThrowsBookLibraryException()
+    public async Task UpdateBookDetails_InvalidBookId_ThrowsBookNotFoundException()
     {
         // Arrange
         var bookModel = Fixture.Create<BookModel>();
@@ -162,7 +162,7 @@ public class BookLibraryRepositoryTests : TestBase
         var updateBookDetails = async () => await _sut.UpdateBookDetails(bookModel.Id,bookModel.Name, bookModel.Author, CancellationToken.None);
 
         // Assert
-        await Assert.ThrowsAsync<BookLibraryException>(async () => await updateBookDetails());
+        await Assert.ThrowsAsync<BookNotFoundException>(async () => await updateBookDetails());
         _bookLibraryDao.Received(1).Read(bookModel.Id);
     }
     
@@ -174,10 +174,10 @@ public class BookLibraryRepositoryTests : TestBase
         _bookLibraryDao.Read(bookModel.Id).Returns((BookModel) null!);
 
         // Act
-        var book = await _sut.GetBook(bookModel.Id, CancellationToken.None);
+        var book = async () => await _sut.GetBook(bookModel.Id, CancellationToken.None);
 
         // Assert
-        Assert.Null(book);
+        await Assert.ThrowsAsync<BookNotFoundException>(async () => await book());
         _bookLibraryDao.Received(1).Read(bookModel.Id);
     }
     
