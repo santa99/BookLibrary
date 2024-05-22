@@ -78,7 +78,9 @@ public class BooksService
             ? $"/api/book/add?title={updateBookReqModel.Title}&author={updateBookReqModel.Author}" 
             : $"/api/book/edit/{updateBookReqModel.BookId}?title={updateBookReqModel.Title}&author={updateBookReqModel.Author}";
 
-        var result = await client.GetAsync(queryStr);
+        var result = updateBookReqModel.BookId == null
+                ? await client.GetAsync(queryStr)
+                : await client.PatchAsync(queryStr, null);
         var content = await result.Content.ReadAsStringAsync();
 
         return result.StatusCode switch

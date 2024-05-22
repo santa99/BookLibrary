@@ -93,10 +93,11 @@ public class LibraryController : Controller
     /// <param name="updateBookReqModel"><see cref="UpdateBookReqModel"/></param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns></returns>
-    [HttpGet("/api/book/edit/{bookId}")]
+    [HttpPatch("/api/book/edit/{BookId}")]
     [ServiceFilter(typeof(RequestModelValidationFilter))]
     [ProducesResponseType(typeof(BookModel),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorCodeModel), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ErrorCodeModel), StatusCodes.Status404NotFound)]
     public async Task<BookModel?> UpdateBook(UpdateBookReqModel updateBookReqModel,
         CancellationToken cancellationToken)
     {
