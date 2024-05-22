@@ -139,12 +139,12 @@ public class LibraryController : Controller
     /// </summary>
     /// <param name="borrowReqModel"><see cref="CreateBorrowReqModel"/></param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
-    [HttpGet("/api/book/borrow/{bookId}/{readersCardId}")]
+    [HttpPost("/api/book/borrow/")]
     [ServiceFilter(typeof(RequestModelValidationFilter))]
     [ProducesResponseType(typeof(BorrowModel), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorCodeModel), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorCodeModel), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> BorrowBook([FromRoute] CreateBorrowReqModel borrowReqModel,
+    public async Task<IActionResult> BorrowBook([FromBody] CreateBorrowReqModel borrowReqModel,
         CancellationToken cancellationToken)
     {
         var borrowModel = await _borrowBookCommand.BorrowBook(borrowReqModel.BookId, borrowReqModel.ReadersCardId,
@@ -158,13 +158,11 @@ public class LibraryController : Controller
     /// </summary>
     /// <param name="bookId">Unique identifier of the book.</param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
-    [HttpGet("/api/book/return/{bookId}")]
+    [HttpPut("/api/book/return/{bookId}")]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(int), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorCodeModel), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ReturnBook(int bookId, CancellationToken cancellationToken)
     {
-        var bookIdReturned = await _borrowBookCommand.ReturnBook(bookId, cancellationToken);
-
-        return Ok(bookIdReturned);
+        return Ok(await _borrowBookCommand.ReturnBook(bookId, cancellationToken));
     }
 }

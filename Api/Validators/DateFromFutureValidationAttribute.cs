@@ -16,7 +16,7 @@ public class DateFromFutureValidationAttribute : ValidationAttribute
         
         var date = (DateTimeOffset)value;
         var nowDate = DateTimeOffset.UtcNow;
-        if (date.Day > nowDate.Day && date.Month > nowDate.Month && date.Year > nowDate.Year)
+        if (date.Day > nowDate.Day || date.Month > nowDate.Month || date.Year > nowDate.Year)
         {
             return new ValidationResult(string.Format(ErrorMessage ?? "Date can't be from the future."));
         }

@@ -3,6 +3,7 @@ using Contracts.Models;
 using Contracts.Models.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using View.Exceptions;
 using View.Model;
 
 namespace View.Services;
@@ -16,26 +17,46 @@ public class BooksService
         _httpClientFactory = httpClientFactory;
     }
 
-    public async Task<BorrowModel?> BorrowBook(int bookId, int readersCardId)
+    public async Task<BorrowModel> BorrowBook(int bookId, int readersCardId)
     {
         using var client = CreateClient();
-        var borrowModel = await client.GetFromJsonAsync<BorrowModel>($"api/book/borrow/{bookId}/{readersCardId}?From={DateTime.UtcNow}");
-
-        return borrowModel;
+        var result = await client.PostAsync("api/book/borrow/",
+            JsonContent.Create(new CreateBorrowReqModel(bookId, readersCardId, DateTime.UtcNow)));
+        var content = await result.Content.ReadAsStringAsync();
+        
+        if (result.StatusCode == HttpStatusCode.OK)
+        {
+            return JsonConvert.DeserializeObject<BorrowModel>(content);
+        }
+        
+        var errorCodeModel = JsonConvert.DeserializeObject<ErrorCodeModel>(content);
+        if (errorCodeModel is { ClientMessage: not null })
+        {
+            throw new SpecifiedException(errorCodeModel.ClientMessage);
+        }
+            
+        throw new UnspecifiedException();
     }
 
     public async Task<int> ReturnBook(int bookId)
     {
         using var client = CreateClient();
 
-        var result = await client.GetFromJsonAsync<int>($"api/book/return/{bookId}");
+        var result = await client.PutAsync($"api/book/return/{bookId}", null);
+        var content = await result.Content.ReadAsStringAsync();
 
-        if (result != bookId)
+        if (result.StatusCode == HttpStatusCode.OK)
         {
-            return -1;
+            return JsonConvert.DeserializeObject<int>(content);
         }
-        
-        return bookId;
+
+        var errorCodeModel = JsonConvert.DeserializeObject<ErrorCodeModel>(content);
+        if (errorCodeModel is { ClientMessage: not null })
+        {
+            throw new SpecifiedException(errorCodeModel.ClientMessage);
+        }
+            
+        throw new UnspecifiedException();
     }
 
     public async Task<BookModel?> GetBook(int bookId)

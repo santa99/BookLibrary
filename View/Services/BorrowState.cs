@@ -1,4 +1,5 @@
 ﻿using Contracts.Models;
+using View.Exceptions;
 
 namespace View.Services;
 
@@ -9,6 +10,8 @@ public class BorrowState
     public bool ShowingBookConfigurationDialog { get; private set; }
     public BookModel? CurrentBook { get; private set; }
 
+    public string ErrorMessage { get; set; }
+    
     public BorrowState(BooksService booksService)
     {
         _booksService = booksService;
@@ -57,8 +60,16 @@ public class BorrowState
         {
             return;
         }
-        
-        var borrowModel = await _booksService.BorrowBook(CurrentBook.Id, readersCardId);
+
+        BorrowModel borrowModel = null;
+        try
+        {
+            borrowModel = await _booksService.BorrowBook(CurrentBook.Id, readersCardId);
+        }
+        catch (ClientException ce)
+        {
+            //TODO: call dialog to show message.
+        }
         
         BookModelUpdated.Invoke(this, new BookModel
         {
@@ -82,8 +93,17 @@ public class BorrowState
         {
             return;
         }
+
+        var returnedBook = -1;
+        try
+        {
+            returnedBook = await _booksService.ReturnBook(bookId);
+        }
+        catch (ClientException ex)
+        {
+            //TODO: call dialog to show message.
+        }
         
-        var returnedBook = await _booksService.ReturnBook(bookId);
         if (bookId != returnedBook)
         {
             return;
