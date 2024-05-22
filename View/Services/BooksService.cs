@@ -79,7 +79,7 @@ public class BooksService
             : $"/api/book/edit/{updateBookReqModel.BookId}?title={updateBookReqModel.Title}&author={updateBookReqModel.Author}";
 
         var result = updateBookReqModel.BookId == null
-                ? await client.GetAsync(queryStr)
+                ? await client.PostAsync(queryStr, JsonContent.Create(new CreateBookReqModel(bookModel.Name, bookModel.Author)))
                 : await client.PatchAsync(queryStr, null);
         var content = await result.Content.ReadAsStringAsync();
 
@@ -109,4 +109,3 @@ public class BooksService
         return httpClient;
     }
 }
-

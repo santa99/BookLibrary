@@ -114,11 +114,11 @@ public class LibraryController : Controller
     /// <param name="createBookReqModel"><see cref="CreateBookReqModel"/></param>
     /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns>Completed action with valid data or invalid <see cref="ErrorCodeModel"/>.</returns>
-    [HttpGet("/api/book/add/")]
+    [HttpPost("/api/book/add/")]
     [ServiceFilter(typeof(RequestModelValidationFilter))]
     [ProducesResponseType(typeof(BookModel), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ErrorCodeModel), StatusCodes.Status400BadRequest)]
-    public async Task<BookModel?> InsertBook([FromRoute] CreateBookReqModel createBookReqModel,
+    public async Task<BookModel?> InsertBook(CreateBookReqModel createBookReqModel,
         CancellationToken cancellationToken)
     {
         var bookId =
