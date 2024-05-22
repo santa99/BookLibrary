@@ -118,7 +118,7 @@ public class LibraryController : Controller
     [ServiceFilter(typeof(RequestModelValidationFilter))]
     [ProducesResponseType(typeof(BookModel), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ErrorCodeModel), StatusCodes.Status400BadRequest)]
-    public async Task<BookModel?> InsertBook(CreateBookReqModel createBookReqModel,
+    public async Task<BookModel?> InsertBook([FromBody] CreateBookReqModel createBookReqModel,
         CancellationToken cancellationToken)
     {
         var bookId =
