@@ -15,7 +15,16 @@ public class BookLibraryException : Exception
 
 public class BookNotFoundException : BookLibraryException
 {
-    public BookNotFoundException(int bookId) : base($"Requested bookId: {bookId} does not exist.", ErrorCode.BookNotFound)
+    public BookNotFoundException(int bookId) : base($"Requested bookId: {bookId} does not exist.",
+        ErrorCode.BookNotFound)
+    {
+    }
+}
+
+public class ReadersCardIdNotFoundException : BookLibraryException
+{
+    public ReadersCardIdNotFoundException(int readersCardId) : base(
+        $"Requested readers card info: '{readersCardId}' does not exist.", ErrorCode.ReadersCardNotFound)
     {
     }
 }

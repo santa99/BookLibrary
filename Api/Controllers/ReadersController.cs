@@ -1,4 +1,6 @@
-﻿using Contracts;
+﻿using System.Net.Mime;
+using Contracts;
+using Contracts.Exceptions;
 using Contracts.Models;
 using Contracts.Models.Responses;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -9,7 +11,8 @@ namespace Api.Controllers;
 
 /// <inheritdoc />
 [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
-[ProducesResponseType(typeof(List<ErrorCodeModel>), StatusCodes.Status401Unauthorized)]
+[ProducesResponseType( StatusCodes.Status401Unauthorized)]
+[Produces( MediaTypeNames.Application.Json )]
 public class ReadersController : Controller
 {
     private readonly IReadersInfoRepository _readersInfoRepository;
@@ -42,13 +45,14 @@ public class ReadersController : Controller
     /// <returns>Single readers info or not found.</returns>
     [HttpGet("/api/readers/get/{readersCardId}")]
     [ProducesResponseType(typeof(ReadersInfo), StatusCodes.Status200OK)]
+    [ProducesResponseType( typeof(ErrorCodeModel),StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetReadersInfo(int readersCardId, CancellationToken cancellationToken)
     {
         var result = await _readersInfoRepository.GetReadersInfo(readersCardId, cancellationToken);
 
         if (result == null)
         {
-            return NotFound($"Readers info for given id '{readersCardId}' wasn't found.");
+            throw new ReadersCardIdNotFoundException(readersCardId);
         }
         
         return Ok(result);

@@ -84,7 +84,7 @@ public class BookLibraryRepository : IBookLibraryRepository
         var readerInfo = _readersInfoDao.Read(readersCardId);
         if (readerInfo == null)
         {
-            throw new BookLibraryException($"Requested readers card info: '{readersCardId}' does not exist.", ErrorCode.ReadersCardNotFound);
+            throw new ReadersCardIdNotFoundException(readersCardId);
         }
 
         bookModel.Borrowed = new BorrowModel
