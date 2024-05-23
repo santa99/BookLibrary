@@ -7,7 +7,7 @@
     <td>
         @if (@EditState.IsEditMode)
         {
-            <input type="checkbox" value="@Checked" @onchange="OnCheckChanged"/>
+            <input type="checkbox" value="@Checked" @onchange="OnBookCheckChanged"/>
         }
         @Book.Id
     </td>
@@ -45,7 +45,6 @@
     [Parameter] public EventCallback<BookModel> OnBorrowBook { get; set; }
     [Parameter] public EditState EditState { get; set; }
     [Parameter] public bool Checked { get; set; }
-    [Parameter] public EventCallback<EditableTableEntry> OnChecked { get; set; }
     
     private string? EntryErrorMessage { get; set; }
     public bool IsDirty { get; private set; }
@@ -91,7 +90,7 @@
         await OnBorrowBook.InvokeAsync(Book);
     }
     
-    private async Task OnCheckChanged(ChangeEventArgs e)
+    private void OnBookCheckChanged(ChangeEventArgs e)
     {
         var current = Checked;
         bool.TryParse(e.Value?.ToString(), out current);
@@ -102,7 +101,6 @@
 
         Checked = current;
         IsDirty = true;
-        await OnChecked.InvokeAsync(this);
     }
 
     private void OnBookNameChanged(ChangeEventArgs e)
