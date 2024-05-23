@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Net.Mime;
+using System.Security.Claims;
 using Api.Configuration;
 using Api.Models;
 using Microsoft.AspNetCore.Authentication;
@@ -43,37 +44,17 @@ public class AccountController : Controller
     }
 
     /// <summary>
-    /// Call this method to retrieve dialog.
-    /// </summary>
-    /// <param name="returnUrl">Return url.</param>
-    /// <returns></returns>
-    [AllowAnonymous]
-    [HttpGet("/account/login")]
-    public Task<IActionResult> Login(string returnUrl = "/")
-    {
-        if (!ModelState.IsValid)
-        {
-            return Task.FromResult<IActionResult>(View());
-        }
-
-        if (HttpContext.User.Identity is { IsAuthenticated: true })
-        {
-            WriteAuthCookie();
-
-            return Task.FromResult<IActionResult>(LocalRedirect(returnUrl));
-        }
-
-        return Task.FromResult<IActionResult>(View());
-    }
-
-    /// <summary>
-    /// Call this method to send credentials.
+    /// Call this method to send sign in.
     /// </summary>
     /// <param name="model">Credentials.</param>
     /// <param name="returnUrl">Return url</param>
     /// <returns></returns>
     [AllowAnonymous]
     [HttpPost("/account/login")]
+    [ProducesResponseType(typeof(AccountResponse),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AccountResponse),StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(AccountResponse),StatusCodes.Status401Unauthorized)]
+    [Produces( MediaTypeNames.Application.Json )]
     public async Task<IActionResult> Login([FromForm] LoginReqModel model, string returnUrl = "/")
     {
         if (!ModelState.IsValid)
@@ -87,7 +68,7 @@ public class AccountController : Controller
         {
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
 
-            return BadRequest(new AccountResponse(false, "Invalid credentials."));
+            return Unauthorized(new AccountResponse(false, "Invalid credentials."));
         }
 
         var claims = new List<Claim>()
