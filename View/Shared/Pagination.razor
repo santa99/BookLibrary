@@ -8,9 +8,9 @@
 
     <label>Per page:</label>
     <select @onchange="ChangePagination">
-        @foreach(var option in options)
+        @foreach(var option in _options)
         {
-            if (option == selected)
+            if (option == _selected)
             {
                 <option selected value="@option" >@option</option>
             }
@@ -28,15 +28,15 @@
 
     [Parameter] public EventCallback<int> OnPaginationChanged { get; set; }
 
-    private int selected = 10;
-    private List<int> options = new List<int>()
+    private int _selected = 10;
+    private List<int> _options = new()
     {
         1,2,5,10,30
     };
 
     protected override async Task OnInitializedAsync()
     {
-        PaginationState.SetDisplayCount(selected);
+        PaginationState.SetDisplayCount(_selected);
         await OnPaginationChanged.InvokeAsync();
     }
 
@@ -51,12 +51,22 @@
 
     private async Task NextPage(EventArgs arg)
     {
+        if (!PaginationState.IsNextAvailable)
+        {
+            return;
+        }
+        
         PaginationState.SetPage(PaginationState.Page + 1);
         await OnPaginationChanged.InvokeAsync();
     }
 
     private async Task PrevPage(EventArgs arg)
     {
+        if (!PaginationState.IsPrevAvailable)
+        {
+            return;
+        }
+        
         PaginationState.SetPage(PaginationState.Page - 1);
         await OnPaginationChanged.InvokeAsync();
     }

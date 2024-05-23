@@ -90,6 +90,7 @@
         EditState.OnDiscardCompleted = OnDiscardCompleted;
         EditState.OnRemovalCompleted = OnRemovalCompleted;
         BorrowState.BookModelUpdated = BookModelUpdated;
+        PaginationState.Available = _books.Count;
     }
 
     private void BookModelUpdated(object? sender, BookModel bookModel)
@@ -109,6 +110,8 @@
     async Task OnPaginationChanged(int newCount)
     {
         _books = await ReloadBooks();
+
+        PaginationState.Available = _books.Count;
 
         await InvokeAsync(StateHasChanged);
     }
