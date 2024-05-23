@@ -25,17 +25,36 @@ public class AccountController : Controller
     }
 
     /// <summary>
-    /// Call this method to send sign in.
+    /// Call this method to ensure the login status and return unauthorized state in all cases when
+    /// the user is not logged in.
+    /// </summary>
+    /// <returns></returns>
+    [AllowAnonymous]
+    [HttpGet("/account/login")]
+    [ProducesResponseType(typeof(AccountResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AccountResponse), StatusCodes.Status401Unauthorized)]
+    public Task<IActionResult> Login()
+    {
+        if (HttpContext.User.Identity is { IsAuthenticated: true })
+        {
+            Ok(new AccountResponse(true, $"You are signed in."));
+        }
+
+        return Task.FromResult<IActionResult>(Unauthorized(new AccountResponse(false, "You are not signed in.")));
+    }
+
+    /// <summary>
+    /// Call this method to sign in with provided credentials.
     /// </summary>
     /// <param name="model">Credentials.</param>
     /// <param name="returnUrl">Return url</param>
     /// <returns></returns>
     [AllowAnonymous]
     [HttpPost("/account/login")]
-    [ProducesResponseType(typeof(AccountResponse),StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(AccountResponse),StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(AccountResponse),StatusCodes.Status401Unauthorized)]
-    [Produces( MediaTypeNames.Application.Json )]
+    [ProducesResponseType(typeof(AccountResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AccountResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(AccountResponse), StatusCodes.Status401Unauthorized)]
+    [Produces(MediaTypeNames.Application.Json)]
     public async Task<IActionResult> Login([FromForm] LoginReqModel model, string returnUrl = "/")
     {
         if (!ModelState.IsValid)
@@ -79,15 +98,13 @@ public class AccountController : Controller
     /// <summary>
     /// Log out current user.
     /// </summary>
-    /// <param name="returnUrl"></param>
     /// <returns></returns>
     [AllowAnonymous]
     [HttpGet("/account/logout")]
-    public async Task<IActionResult> Logout(string? returnUrl = "/")
+    [ProducesResponseType( StatusCodes.Status200OK)]
+    public Task<IActionResult> Logout()
     {
-        await HttpContext.SignOutAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme);
-        return Ok(returnUrl);        
+        return Task.FromResult<IActionResult>(SignOut(CookieAuthenticationDefaults.AuthenticationScheme));
     }
 
     /// <summary>
@@ -95,8 +112,8 @@ public class AccountController : Controller
     /// </summary>
     /// <returns>User claims.</returns>
     [HttpGet("/account/user")]
-    [ProducesResponseType(typeof(List<UserClaim>),StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(List<UserClaim>),StatusCodes.Status405MethodNotAllowed)]
+    [ProducesResponseType(typeof(List<UserClaim>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<UserClaim>), StatusCodes.Status401Unauthorized)]
     public Task<List<UserClaim>> GetUser()
     {
         var enumerable = HttpContext.User.Claims.Select(claim => new UserClaim(claim.Type, claim.Value));
@@ -127,7 +144,7 @@ public class AccountController : Controller
     /// </summary>
     /// <param name="Name">Display name</param>
     private record UserModel(string Name);
-    
+
     /// <summary>
     /// Account response model.
     /// </summary>
