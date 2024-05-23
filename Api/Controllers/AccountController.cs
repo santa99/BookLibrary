@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
-using Microsoft.Net.Http.Headers;
 
 namespace Api.Controllers;
 
@@ -24,23 +22,6 @@ public class AccountController : Controller
     public AccountController(IOptions<UserIdentityConfiguration> userIdentity)
     {
         _userIdentity = userIdentity;
-    }
-
-    private void WriteAuthCookie()
-    {
-        if (Request.Cookies.TryGetValue("usr", out var val) && val != null)
-        {
-            CookieOptions option = new CookieOptions
-            {
-                Expires = DateTime.Now.AddMilliseconds(10)
-            };
-            Response.Cookies.Append("usr", val, option);
-
-            CookieHeaderValue cookieHeaderValue = new CookieHeaderValue("usr", val);
-            Response.Headers.Cookie.Append(cookieHeaderValue.ToString());
-
-            Response.Headers.SetCookie = new StringValues(cookieHeaderValue.ToString());
-        }
     }
 
     /// <summary>
@@ -92,7 +73,7 @@ public class AccountController : Controller
             new ClaimsPrincipal(claimsIdentity),
             authenticationProperties);
 
-        return Ok(new AccountResponse(true, "Signed in successfully"));
+        return Ok(new AccountResponse(true, "Signed in successfully."));
     }
 
     /// <summary>
@@ -104,25 +85,24 @@ public class AccountController : Controller
     [HttpGet("/account/logout")]
     public async Task<IActionResult> Logout(string? returnUrl = "/")
     {
-        // Clear the existing external cookie
         await HttpContext.SignOutAsync(
             CookieAuthenticationDefaults.AuthenticationScheme);
-
-        return LocalRedirect(returnUrl);
+        return Ok(returnUrl);        
     }
 
     /// <summary>
     /// Get current claims of currently signed in user.
     /// </summary>
     /// <returns>User claims.</returns>
-    [Authorize]
     [HttpGet("/account/user")]
-    public Task<IActionResult> GetUser()
+    [ProducesResponseType(typeof(List<UserClaim>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<UserClaim>),StatusCodes.Status405MethodNotAllowed)]
+    public Task<List<UserClaim>> GetUser()
     {
         var enumerable = HttpContext.User.Claims.Select(claim => new UserClaim(claim.Type, claim.Value));
         var userClaims = enumerable.ToList();
 
-        return Task.FromResult<IActionResult>(Ok(userClaims));
+        return Task.FromResult(userClaims);
     }
 
     /// <summary>
@@ -160,5 +140,5 @@ public class AccountController : Controller
     /// </summary>
     /// <param name="Type">Type of claim like Name, Fullname any other key.</param>
     /// <param name="Value">Value of claim.</param>
-    private record UserClaim(string Type, string Value);
+    public record UserClaim(string Type, string Value);
 }

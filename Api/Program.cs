@@ -126,7 +126,6 @@ app.UseAuthorization();
 
 app.UseMiddleware<HttpTrafficLoggerMiddleware>();
 app.UseMiddleware<ErrorHandlerMiddleware>();
-app.UseAuthenticationAndAuthorization();
 app.UseStaticFiles();
 
 app.MapControllers();
