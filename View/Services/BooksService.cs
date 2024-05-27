@@ -3,6 +3,7 @@ using Contracts.Models;
 using Contracts.Models.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using View.Data;
 using View.Exceptions;
 using View.Model;
 
@@ -59,16 +60,33 @@ public class BooksService
         throw new UnspecifiedException();
     }
 
-    public async Task<BookModel?> GetBook(int bookId)
+    public async Task<IActionResult?> GetBook(int bookId)
     {
         using var client = CreateClient();
 
-        var book =  await client.GetFromJsonAsync<BookModel>(
+        var httpResponse =  await client.GetAsync(
             $"api/book/get/{bookId}");
 
-        return book;
+        var response = httpResponse.Content.ReadAsStringAsync().Result;
+        return httpResponse.StatusCode switch
+        {
+            HttpStatusCode.OK =>
+                new OkObjectResult(JsonConvert.DeserializeObject<BookModel>(response)),
+            HttpStatusCode.NotFound =>
+                new BadRequestObjectResult(JsonConvert.DeserializeObject<ErrorCodeModel>(response)),
+            _ => null
+        };
     }
 
+    public async ValueTask<ItemsQueryResult<BookModel>> GetAllBooks(int start = 0, int count = -1)
+    {
+        // TODO: this needs a new endpoint for retrieving only count.
+        var totalCount = (await  GetBooks(0, -1)).Count;
+        var books = await GetBooks(start, count);
+
+        return new ItemsQueryResult<BookModel>(books, totalCount, true);
+    }
+    
     public async Task<List<BookModel>> GetBooks(int start = 0, int count = -1)
     {
         using var client = CreateClient();

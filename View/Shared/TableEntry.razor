@@ -1,0 +1,25 @@
+﻿@using Contracts.Models
+<tr style="text-align: left;">
+    <td>
+        @Book.Id
+    </td>
+    <td>
+        @Book.Name
+    </td>
+    <td>
+        @Book.Author
+    </td>
+    <td>
+        @if (Book.Borrowed != null)
+        {
+        <div>
+            <div><b>@Book.Borrowed.FirstName @Book.Borrowed.LastName</b></div>
+            <div>@Book.Borrowed.From.ToString("dd/MM/yyyy")</div>
+        </div>
+        }
+    </td>
+</tr>
+
+@code {
+    [Parameter] public BookModel Book { get; set; } = default!;
+}

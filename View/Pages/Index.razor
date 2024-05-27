@@ -1,158 +1,34 @@
 ﻿@page "/"
-
-@namespace View.Pages
-
 @using Contracts.Models
-@using View.Services
-
-@inject BorrowState BorrowState
-@inject PaginationState PaginationState
-@inject EditState EditState
-
+@using View.Data
+@inject IEditableListViewService<BookModel> EditableBooksViewService;
 
 <div class="main">
     <h3>Book page</h3>
     <div class="control-panel">
         <div class="child2">
-            @if (!@EditState.IsEditMode)
-            {
-                <button @onclick="EditState.EnterEditMode">Edit</button>
-            }
-            else
-            {
-                <button @onclick="AddNewBook">Add</button>
-                <button @onclick="EditState.SaveChanges">Save</button>
-                <button @onclick="EditState.DiscardChanges">Discard</button>
-                <button @onclick="EditState.RemoveSelected">Remove</button>
-            }
+            <EditControl Service="EditableBooksViewService"/>
         </div>
     </div>
     <div class="navbar-toggler">
         <div class="nav-scrollable">
-            @if (_books == null)
-            {
-                return;
-            }
-
-            @if (!@_books.Any())
-            {
-                <label>No items in the library. Please add some.</label>
-            }
-            else
-            {
-                <table class="table table-responsive fl-table" style="width:100%">
-                    <tr style="text-align: left;">
-                        <th>
-                            <label >Id</label>
-                        </th>
-                        <th>
-                            <label >Name</label>
-                        </th>
-                        <th>
-                            <label >Author</label>
-                        </th>
-                        <th>Status</th>
-                    </tr>
-                    @foreach (var item in @_books)
-                    {
-                        <EditableTableEntry Book="@item" OnBorrowBook="BorrowState.ShowConfigureDialog" EditState="EditState" Root="this"/>
-                    }
-                </table>
-            }
+            <CascadingValue Value="EditableBooksViewService">
+                <EditableTable @ref="Table"/>
+            </CascadingValue>
         </div>
     </div>
     <div class="control-panel">
         <div class="child2">
-            <Pagination OnPaginationChanged="OnPaginationChanged" PaginationState="PaginationState"/>
+            <Pagination Service="EditableBooksViewService"/>
         </div>
     </div>
 </div>
 
-@if (BorrowState.ShowingBookConfigurationDialog)
-{
-    <BorrowBookDialog Book="BorrowState.CurrentBook"
-                      OnCancel="BorrowState.CancelConfigureDialog"
-                      OnBookReturn="BorrowState.ReturnBook"
-                      OnBookBorrow="BorrowState.BorrowBook"/>
-}
-
 @code {
-    private List<BookModel>? _books = new();
-    private readonly List<EditableTableEntry> _entries = new();
+    private EditableTable Table { get; set; } = default!;
 
-    [Inject] BooksService BooksService { get; set; }
-
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        _books = await ReloadBooks();
-        EditState.BooksService = BooksService;
-        EditState.OnSaveCompleted = OnSaveCompleted;
-        EditState.OnDiscardCompleted = OnDiscardCompleted;
-        EditState.OnRemovalCompleted = OnRemovalCompleted;
-        BorrowState.BookModelUpdated = BookModelUpdated;
-        PaginationState.Available = _books.Count;
+        EditableBooksViewService.NotifyPageChanged(this, EditableBooksViewService.PaginationState.PageSize);
     }
-
-    private void BookModelUpdated(object? sender, BookModel bookModel)
-    {
-        var editableTableEntry = _entries.FirstOrDefault(entry => entry.Book.Id == bookModel.Id);
-        editableTableEntry?.UpdateEntry(bookModel);
-
-        InvokeAsync(StateHasChanged);
-    }
-
-    private Task<List<BookModel>> ReloadBooks()
-    {
-        _entries.Clear();
-        return BooksService.GetBooks(PaginationState.StartWindow, PaginationState.Count);
-    }
-
-    async Task OnPaginationChanged(int newCount)
-    {
-        _books = await ReloadBooks();
-
-        PaginationState.Available = _books.Count;
-
-        await InvokeAsync(StateHasChanged);
-    }
-
-    public void Add(EditableTableEntry editableTableEntry)
-    {
-        _entries.Add(editableTableEntry);
-    }
-
-    public void Remove(EditableTableEntry editableTableEntry)
-    {
-        _books?.Remove(editableTableEntry.Book);
-    }
-
-    private void AddNewBook()
-    {
-        _books?.Insert(0, new BookModel
-        {
-            Id = -1
-        });
-    }
-
-    private void OnSaveCompleted(object? sender, bool succeed)
-    {
-        if (!succeed) return;
-
-        InvokeAsync(StateHasChanged);
-    }
-
-    private void OnDiscardCompleted(object? sender, bool succeed)
-    {
-        if (!succeed) return;
-
-        InvokeAsync(StateHasChanged);
-    }
-
-    private void OnRemovalCompleted(object? sender, bool succeed)
-    {
-        if (!succeed) return;
-
-        InvokeAsync(StateHasChanged);
-    }
-
 }

@@ -1,12 +1,13 @@
 ﻿@inject HttpClient HttpClient
 @using Contracts.Models
-@using View.Services
+@using View.Data
+@implements IDisposable
 
 <div class="dialog-container">
     <div class="dialog">
         <div class="dialog-title">
             @if (Book == null) return;
-            
+
             <h2>@Book.Name</h2>
             Author: @Book.Author
         </div>
@@ -17,7 +18,7 @@
                 @if (Book.Borrowed == null)
                 {
                     <select class="select" @onchange="SelectReader">
-                        @foreach (var readersInfo in ReadersInfos)
+                        @foreach (var readersInfo in BorrowLendViewService.BorrowState.ReadersList)
                         {
                             <option value="@readersInfo.ReaderCardId">@readersInfo.FirstName @readersInfo.LastName</option>
                         }
@@ -27,7 +28,7 @@
         </form>
 
         <div class="dialog-buttons">
-            <button class="btn btn-secondary mr-auto" @onclick="OnCancel">Cancel</button>
+            <button class="btn btn-secondary mr-auto" @onclick="CancelSelection">Cancel</button>
 
             @if (Book == null) return;
 
@@ -44,61 +45,54 @@
 </div>
 
 @code {
-    
-    [Inject]
-    public ReadersInfoService? ReadersInfoService { get; set; }
 
-    [Parameter]
-    public BookModel? Book { get; set; }
+    [CascadingParameter] public IBorrowLendViewService BorrowLendViewService { get; set; } = default!;
     
-    [Parameter]
-    public EventCallback OnCancel { get; set; }
-    
-    [Parameter]
-    public EventCallback<int> OnBookBorrow { get; set; }
-    
-    [Parameter]
-    public EventCallback<int> OnBookReturn { get; set; }
-    
-    private ReadersInfo? _selected;
-    private List<ReadersInfo> ReadersInfos { get; set; } = new();
-    
-    protected override async Task OnInitializedAsync()
+    [Parameter] public EventCallback<bool> OnCancel { get; set; }
+
+    private BookModel? Book { get; set; }
+
+    protected override void OnInitialized()
     {
-        if (ReadersInfoService == null)
-        {
-            return;
-        }
-        
-        ReadersInfos = await ReadersInfoService.GetAllReaders();
-        _selected = ReadersInfos.FirstOrDefault();
+        BorrowLendViewService.ItemSelected += BorrowLendViewServiceOnItemSelected;
+        Book = BorrowLendViewService.BorrowState.CurrentBook;
     }
-    
-    private Task SelectReader(ChangeEventArgs changeEvent)
+
+    public void Dispose()
+    {
+        BorrowLendViewService.ItemSelected -= BorrowLendViewServiceOnItemSelected;
+    }
+
+    private void BorrowLendViewServiceOnItemSelected(object? sender, int bookId)
+    {
+        Book = BorrowLendViewService.BorrowState.CurrentBook;
+    }
+
+    private void SelectReader(ChangeEventArgs changeEvent)
     {
         if (int.TryParse(changeEvent.Value?.ToString(), out var newReadersCardId) && newReadersCardId != -1)
         {
-            _selected = ReadersInfos.FirstOrDefault(info => info.ReaderCardId == newReadersCardId);
+            BorrowLendViewService.BorrowState.SelectReader(newReadersCardId);
         }
+    }
 
-        return Task.CompletedTask;
+    private async Task CancelSelection()
+    {
+        BorrowLendViewService.BorrowState.CancelConfigureDialog();
+        
+        await OnCancel.InvokeAsync();
+        
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task BorrowBook()
     {
-        if (_selected == null)
-        {
-            return;
-        }
-        await OnBookBorrow.InvokeAsync(_selected.ReaderCardId);
+        await BorrowLendViewService.NotifyBookBorrowed();
     }
 
     private async Task ReturnBook()
     {
-        if (Book == null)
-        {
-            return;
-        }
-        await OnBookReturn.InvokeAsync(Book.Id);
+        await BorrowLendViewService.NotifyBookReturned();
     }
+
 }

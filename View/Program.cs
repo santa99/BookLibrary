@@ -1,4 +1,6 @@
 using Api.Middleware;
+using Contracts.Models;
+using View.Data;
 using View.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,12 +10,16 @@ var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 builder.Services.AddScoped<BorrowState>();
 builder.Services.AddScoped<PaginationState>();
-builder.Services.AddScoped<EditState>();
 
 // Services for VIEW communication.
-builder.Services.AddTransient<ReadersInfoService>();
-builder.Services.AddTransient<BooksService>();
+builder.Services.AddSingleton<ReadersInfoService>();
 builder.Services.AddSingleton<LoginService>();
+builder.Services.AddSingleton<BooksService>();
+builder.Services.AddTransient<BookViewService>();
+builder.Services.AddTransient<IListViewService<BookModel>, BookViewService>();
+builder.Services.AddTransient<IBorrowLendViewService, BorrowLendViewService>();
+builder.Services.AddTransient<IEditableListViewService<BookModel>, EditableBookViewService>();
+
 
 builder.Services.AddHttpClient();
 builder.Services.AddRazorPages();

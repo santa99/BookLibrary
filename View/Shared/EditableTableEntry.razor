@@ -1,106 +1,133 @@
 ﻿@using Contracts.Models
 @using Contracts.Models.Responses
-@using View.Services
-@using Index = View.Pages.Index
+@using View.Data
+@implements IDisposable
 
-<tr style="text-align: left;" @onclick="OnRowClicked">
+<tr style="text-align: left;">
     <td>
-        @if (@EditState.IsEditMode)
-        {
+        <p>
+            @Book.Id
             <input type="checkbox" value="@Checked" @onchange="OnBookCheckChanged"/>
-        }
-        @Book.Id
+        </p>
     </td>
     <td>
-        @if (Editing())
+        <input type="text" name="name" value="@Book.Name" @onchange="OnBookNameChanged"/>
+    </td>
+    <td>
+        <input type="text" name="author" value="@Book.Author" @onchange="OnBookAuthorChanged"/>
+    </td>
+    <td>
+        @if (Book.Borrowed != null)
         {
-            <div class="validation-message">@EntryErrorMessage</div>
-            <input type="text" name="name" value="@Book.Name" @onchange="OnBookNameChanged"/>
+            <div>
+                <div>
+                    <b>@Book.Borrowed.FirstName @Book.Borrowed.LastName</b>
+                </div>
+                <div>@Book.Borrowed.From.ToString("dd/MM/yyyy")</div>
+            </div>
         }
         else
         {
-            @Book.Name
+            <ul>
+                <li>Free</li>
+            </ul>
         }
-    </td>
-    <td>
-        @if (Editing())
-        {
-            <input type="text" name="author" value="@Book.Author" @onchange="OnBookAuthorChanged"/>
-        }
-        else
-        {
-            @Book.Author
-        }
-    </td>
-    <td>
-        <div>@(Book.Borrowed != null ? @BorrowedBy(Book.Borrowed) : "Free")</div>
     </td>
 </tr>
-
+@if (!string.IsNullOrEmpty(EntryErrorMessage))
+{
+    <div class="validation-message">@EntryErrorMessage</div>
+}
 
 @code {
-    
-    [Parameter] public Index Root { get; set; }
-    [Parameter] public BookModel Book { get; set; }
-    [Parameter] public EventCallback<BookModel> OnBorrowBook { get; set; }
-    [Parameter] public EditState EditState { get; set; }
+
+    [Parameter] public IEditableListViewService<BookModel> Service { get; set; } = default!;
+    [Parameter] public EditableTable Table { get; set; } = default!;
+    [Parameter] public BookModel Book { get; set; } = default!;
     [Parameter] public bool Checked { get; set; }
-    
+
     private string? EntryErrorMessage { get; set; }
-    public bool IsDirty { get; private set; }
-    private bool _isEdited;
 
-    public bool IsNewEntry => Book.Id <= 0;
-    
-    private bool Editing()
+    protected override void OnInitialized()
     {
-        return @EditState.IsEditMode && EditState.IsEntryInEdit(this);
+        ArgumentNullException.ThrowIfNull(Service);
+        ArgumentNullException.ThrowIfNull(Table);
+        ArgumentNullException.ThrowIfNull(Book);
+        Checked = Service.EditableState.IsSelected(Book);
+        Service.ItemChanged += ServiceOnItemChanged;
+        Service.ItemSelected += ServiceOnItemSelected;
+        Service.OnItemError += ServiceOnOnItemError;;
+        EntryErrorMessage = null;
     }
 
-    protected override Task OnInitializedAsync()
+    private void ServiceOnOnItemError(object? sender, (BookModel, ErrorCodeModel) e)
     {
-        Root.Add(this);
-        return base.OnInitializedAsync();
-    }
-    
-    public void Remove()
-    {
-        Root.Remove(this);
-    }
-    
-    private void EnterEdit()
-    {
-        if (_isEdited)
+        if (e.Item1.Id != Book.Id)
         {
             return;
         }
-            
-        _isEdited = true;
-        EditState.StartEditEntry(this);
-    }
-    
-    private async Task OnRowClicked()
-    {
-        if (EditState.IsEditMode)
+        
+        EntryErrorMessage = e.Item2.Message;
+        
+        if (sender != null)
         {
-            EnterEdit();
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void ServiceOnItemSelected(object? sender, Tuple<BookModel, bool> e)
+    {
+        if (e.Item1.Id != Book.Id)
+        {
+            return;
+        }
+        
+        if (Checked == e.Item2)
+        {
             return;
         }
 
-        await OnBorrowBook.InvokeAsync(Book);
+        Checked = e.Item2;
+        
+        if (sender != null)
+        {
+            InvokeAsync(StateHasChanged);
+        }
     }
-    
+
+    private void ServiceOnItemChanged(object? sender, BookModel changedItem)
+    {
+        if (Book.Id != changedItem.Id)
+        {
+            return;
+        }
+        
+        Book = changedItem;
+        
+        if (sender != null)
+        {
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public void Dispose()
+    {
+        Service.ItemSelected -= ServiceOnItemSelected;
+        Service.ItemChanged -= ServiceOnItemChanged;
+        EntryErrorMessage = "";
+        Checked = false;
+    }
+
     private void OnBookCheckChanged(ChangeEventArgs e)
     {
-        var current = Checked;
-        bool.TryParse(e.Value?.ToString(), out current);
+        bool.TryParse(e.Value?.ToString(), out var current);
         if (current == Checked)
         {
             return;
         }
 
         Checked = current;
-        IsDirty = true;
+        Service.NotifyItemSelected(this, Book, Checked);
     }
 
     private void OnBookNameChanged(ChangeEventArgs e)
@@ -111,8 +138,9 @@
         {
             return;
         }
-        IsDirty = true;
+
         Book.Name = bookName;
+        Service.NotifyItemChanged(this, Book);
     }
 
     private void OnBookAuthorChanged(ChangeEventArgs e)
@@ -123,43 +151,8 @@
         {
             return;
         }
-        IsDirty = true;
+
         Book.Author = bookAuthor;
+        Service.NotifyItemChanged(this, Book);
     }
-
-    public void Save(BookModel bookModel)
-    {
-        if (!IsDirty)
-        {
-            _isEdited = false;
-            Checked = false;
-            return;
-        }
-        
-        UpdateEntry(bookModel);
-            
-        IsDirty = false;
-        _isEdited = false;
-        Checked = false;
-        EntryErrorMessage = "";
-    }
-
-    public void DisplayError(ErrorCodeModel errorCodeModel)
-    {
-        EntryErrorMessage = errorCodeModel.Message;
-    }
-    
-    internal void UpdateEntry(BookModel bookModel)
-    {
-        Book.Id = bookModel.Id;
-        Book.Name = bookModel.Name;
-        Book.Author = bookModel.Author;
-        Book.Borrowed = bookModel.Borrowed;
-    }
-
-    private static string BorrowedBy(BorrowModel borrowModel)
-    {
-        return "'" + borrowModel.FirstName + " " + borrowModel.LastName + "' borrowed on [" + borrowModel.From.ToString("dd MMMM yyyy") + "]";
-    }
-    
 }

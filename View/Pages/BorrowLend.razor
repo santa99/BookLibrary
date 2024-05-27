@@ -1,0 +1,42 @@
+﻿@page "/BorrowLend"
+@using View.Data
+@inject IBorrowLendViewService BorrowLendViewService;
+
+<div class="main">
+    <h3>Borrow / Lend book</h3>
+    <div class="navbar-toggler">
+        <div class="nav-scrollable">
+            <CascadingValue Value="BorrowLendViewService">
+                <BorrowTable/>
+            </CascadingValue>
+        </div>
+    </div>
+    <div class="control-panel">
+        <div class="child2">
+            <Pagination Service="BorrowLendViewService"/>
+        </div>
+    </div>
+</div>
+
+@if (BorrowLendViewService.BorrowState.ShowingBookConfigurationDialog)
+{
+    <CascadingValue Value="BorrowLendViewService">
+        <BorrowBookDialog OnCancel="OnCancel"/>
+    </CascadingValue>
+}
+
+
+@code {
+
+    protected override void OnInitialized()
+    {
+        BorrowLendViewService.NotifyPageChanged(this, BorrowLendViewService.PaginationState.PageSize);
+        BorrowLendViewService.ItemSelected += (sender, i) => InvokeAsync(StateHasChanged);
+        BorrowLendViewService.ItemChanged += (sender, args) => InvokeAsync(StateHasChanged);
+    }
+
+    private static void OnCancel()
+    {
+    }
+
+}

@@ -1,6 +1,8 @@
-﻿@using View.Services
-<div>
+﻿@using View.Data
+@using View.Services
+@implements IDisposable
 
+<div>
     <button @onclick="PrevPage">Prev</button>
     <label>Page:</label>
     @PaginationState.Page
@@ -8,11 +10,11 @@
 
     <label>Per page:</label>
     <select @onchange="ChangePagination">
-        @foreach(var option in _options)
+        @foreach (var option in _options)
         {
             if (option == _selected)
             {
-                <option selected value="@option" >@option</option>
+                <option selected value="@option">@option</option>
             }
             else
             {
@@ -23,52 +25,58 @@
 </div>
 
 @code {
+    
+    [Parameter] public IPaginationService Service { get; set; } = default!;
 
-    [Parameter] public PaginationState PaginationState { get; set; }
-
-    [Parameter] public EventCallback<int> OnPaginationChanged { get; set; }
+    private PaginationState PaginationState => Service.PaginationState;
 
     private int _selected = 10;
+
     private List<int> _options = new()
     {
-        1,2,5,10,30
+        1, 2, 5, 10, 30
     };
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         PaginationState.SetDisplayCount(_selected);
-        await OnPaginationChanged.InvokeAsync();
+        Service.PageChanged += OnPageChanged;
     }
 
-    private async Task ChangePagination(ChangeEventArgs val)
+    private void OnPageChanged(object? sender, int pageNumber)
     {
-        if (int.TryParse((string?)val.Value, out var newCount))
+        if (sender != this)
         {
-            PaginationState.SetDisplayCount(newCount);
-            await OnPaginationChanged.InvokeAsync();
+            InvokeAsync(StateHasChanged);
         }
     }
 
-    private async Task NextPage(EventArgs arg)
+    private void ChangePagination(ChangeEventArgs val)
     {
-        if (!PaginationState.IsNextAvailable)
+        if (!int.TryParse((string?)val.Value, out var newCount))
         {
             return;
         }
-        
+
+        PaginationState.SetDisplayCount(newCount);
+        Service.NotifyPageChanged(this, PaginationState.Page);
+    }
+
+    private void NextPage()
+    {
         PaginationState.SetPage(PaginationState.Page + 1);
-        await OnPaginationChanged.InvokeAsync();
+        Service.NotifyPageChanged(this, PaginationState.Page);
     }
 
-    private async Task PrevPage(EventArgs arg)
+    private void PrevPage()
     {
-        if (!PaginationState.IsPrevAvailable)
-        {
-            return;
-        }
-        
         PaginationState.SetPage(PaginationState.Page - 1);
-        await OnPaginationChanged.InvokeAsync();
+        Service.NotifyPageChanged(this, PaginationState.Page);
+    }
+
+    public void Dispose()
+    {
+        Service.PageChanged -= OnPageChanged;
     }
 
 }

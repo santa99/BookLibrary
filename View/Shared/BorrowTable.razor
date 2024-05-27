@@ -1,0 +1,88 @@
+﻿@using Contracts.Models
+@using View.Data
+@implements IDisposable
+
+@if (!Service.Items.Any())
+{
+    <label>No items.</label>
+}
+else
+{
+    <table class="table table-responsive fl-table" style="width:100%">
+        <tr style="text-align: left;">
+            <th>
+                <label >Name</label>
+            </th>
+            <th>
+                <label >Author</label>
+            </th>
+            <th>Status</th>
+        </tr>
+
+        @foreach (var item in Service.Items)
+        {
+            var classType = selectedId == @item.Id ? "background-color:#00ffe014;" : "background-color:default;";
+            
+            <tr style="text-align: left; @classType" id="@item.Id" @onclick="@(()=>OnItemClicked(@item.Id))">
+                <td>
+                    @item.Name
+                </td>
+                <td>
+                    @item.Author
+                </td>
+                <td>
+                    @if (item.Borrowed != null)
+                    {
+                        <div>
+                            <div>
+                                <b>@item.Borrowed.FirstName @item.Borrowed.LastName</b>
+                            </div>
+                            <div>@item.Borrowed.From.ToString("dd/MM/yyyy")</div>
+                        </div>
+                    }
+                </td>
+            </tr>
+        }
+    </table>
+}
+
+
+@code {
+    
+    [CascadingParameter] private IBorrowLendViewService Service { get; set; } = default!;
+
+    private int selectedId;
+    
+    protected override void OnInitialized()
+    {
+        ArgumentNullException.ThrowIfNull(Service);
+        Service.ListChanged += OnListChanged;
+        Service.PageChanged += ServiceOnPageChanged;
+        Service.ItemSelected += ServiceOnItemSelected;
+    }
+
+    private void ServiceOnItemSelected(object? sender, int id)
+    {
+        selectedId = id;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void ServiceOnPageChanged(object? sender, int pageNumber)
+        => InvokeAsync(StateHasChanged);
+
+    private void OnListChanged(object? sender, EventArgs e)
+        => InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        Service.ListChanged -= OnListChanged;
+        Service.PageChanged -= ServiceOnPageChanged;
+        Service.ItemSelected -= ServiceOnItemSelected;
+    }
+
+    private void OnItemClicked(int itemId)
+    {
+        Service.NotifyItemSelected(this, itemId);
+    }
+
+}

@@ -1,0 +1,101 @@
+﻿@using Contracts.Models
+@using View.Data
+@implements IDisposable
+
+@if (!Service.Items.Any())
+{
+    <label>No items.</label>
+}
+else
+{
+    <table class="table table-responsive fl-table" style="width:100%">
+        <tr style="text-align: left;">
+            <th>
+                <label >Id</label>
+            </th>
+            <th>
+                <label >Name</label>
+            </th>
+            <th>
+                <label >Author</label>
+            </th>
+            <th>Status</th>
+        </tr>
+
+        @foreach (var item in Service.EditableItems)
+        {
+            if (Service.EditableState.IsEditMode)
+            {
+                <EditableTableEntry
+                    Table="this"
+                    Book="@item"
+                    Service="Service"
+                    Checked="false"/>
+            }
+            else
+            {
+                <TableEntry Book="@item"/>
+            }
+        }
+    </table>
+}
+
+
+@code {
+
+    [CascadingParameter] private IEditableListViewService<BookModel> Service { get; set; } = default!;
+
+    private List<EditableTableEntry> _tableEntries = new();
+    
+    protected override void OnInitialized()
+    {
+        ArgumentNullException.ThrowIfNull(Service);
+        _tableEntries.Clear();
+        Service.ListChanged += OnListChanged;
+        Service.ItemChanged += OnItemChanged;
+        Service.ItemAdded += OnItemAdded;
+        Service.EditModeEntered += ServiceOnEditModeEntered;
+        Service.PageChanged += ServiceOnPageChanged;
+    }
+
+    private void ServiceOnPageChanged(object? sender, int pageNumber)
+    {
+        if (sender != null)
+            InvokeAsync(StateHasChanged);
+    }
+
+    private void ServiceOnEditModeEntered(object? sender, bool editMode)
+    {
+        if (sender != null)
+            InvokeAsync(StateHasChanged);
+    }
+
+    private void OnItemChanged(object? sender, BookModel item)
+    {
+        if (sender != null)
+        {
+            InvokeAsync(StateHasChanged);
+        }
+    }
+    
+    private void OnItemAdded(object? sender, BookModel item)
+    {
+        if (sender != null)
+        {
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void OnListChanged(object? sender, EventArgs e)
+        => InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        Service.EditModeEntered -= ServiceOnEditModeEntered;
+        Service.ItemAdded -= OnItemAdded;
+        Service.ItemChanged -= OnItemChanged;
+        Service.ListChanged -= OnListChanged;
+        Service.PageChanged -= ServiceOnPageChanged;
+    }
+
+}

@@ -1,0 +1,82 @@
+﻿@using Contracts.Models
+@using View.Data
+@implements IDisposable
+
+@if (!Service.EditableState.IsEditMode)
+{
+    <button @onclick="EnterEditMode">Edit</button>
+}
+else
+{
+    <button @onclick="AddNewItem">Add</button>
+    <button @onclick="SaveChanges">Save</button>
+    <button @onclick="RemoveSelected">Remove</button>
+    <button @onclick="DiscardChanges">Discard</button>
+}
+
+@code {
+    [Parameter] public IEditableListViewService<BookModel> Service { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        Service.ListChanged += ServiceOnListChanged;
+        Service.EditFinished += ServiceOnEditFinished;
+    }
+
+    private void ServiceOnEditFinished(object? sender, bool withSuccess)
+    {
+        if (withSuccess)
+        {
+            Service.NotifyEditModeEntered(this, false);
+        }
+    }
+
+    private void ServiceOnItemChanged(object? sender, BookModel changedBook)
+    {
+        if (sender != this)
+        {
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public void Dispose()
+    {
+        Service.EditFinished -= ServiceOnEditFinished;
+        Service.ListChanged -= ServiceOnListChanged;
+    }
+
+    private void ServiceOnListChanged(object? sender, EventArgs e)
+    {
+        if (sender != this)
+        {
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void AddNewItem()
+    {
+        Service.AddItem(new BookModel { Id = -1 });
+    }
+
+    private void SaveChanges()
+    {
+        Service.SaveAllChanges();
+    }
+
+    private void DiscardChanges()
+    {
+        Service.RestoreChanges();
+        Service.NotifyEditModeEntered(this, false);
+    }
+
+    private void RemoveSelected()
+    {
+        Service.RemoveSelected();
+    }
+
+    private void EnterEditMode()
+    {
+        Service.NotifyEditModeEntered(this, true);
+    }
+
+}
