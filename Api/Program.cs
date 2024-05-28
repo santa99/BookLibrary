@@ -18,7 +18,7 @@ using SimpleAuthentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+var originPolicy = "originPolicy";
 
 builder.Host.ConfigureLogging(loggingBuilder =>
 {
@@ -71,10 +71,10 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: MyAllowSpecificOrigins,
+    options.AddPolicy(name: originPolicy,
         policy =>
         {
-            policy.WithOrigins("https://localhost:7292", "https://localhost:7292/readers");
+            policy.WithOrigins("https://localhost:7292");
             policy.AllowCredentials();
             policy.AllowAnyHeader();
             policy.AllowAnyMethod();
@@ -91,7 +91,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.Name = "auth";
         options.Cookie.SameSite = SameSiteMode.None;
         options.Cookie.HttpOnly = false;
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
     });
 
 builder.Services.AddSingleton<RequestModelValidationFilter>();
@@ -119,7 +119,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseCors(MyAllowSpecificOrigins);
+app.UseCors(originPolicy);
 
 app.UseAuthentication();
 app.UseAuthorization();

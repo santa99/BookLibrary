@@ -85,7 +85,8 @@ public class AccountController : Controller
         {
             IsPersistent = true,
             AllowRefresh = true,
-            ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
+            IssuedUtc = DateTimeOffset.Now,
+            ExpiresUtc = DateTimeOffset.Now.AddMinutes(60)
         };
 
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,

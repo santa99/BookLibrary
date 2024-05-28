@@ -1,5 +1,4 @@
 @using System.Security.Claims
-@using Microsoft.AspNetCore.Mvc
 @using View.Services
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager;
@@ -14,9 +13,9 @@
 
     <main>
         <div class="top-row px-4">
-            @if (Identity != null)
+            @if (_identity != null)
             {
-                @Identity?.Value
+                @_identity?.Value
                 <a href="" @onclick="Logout">LogOut</a>
             }
             else
@@ -42,33 +41,33 @@
 </div>
 
 @code {
-    private List<UserClaim>? UserClaims;
-    private UserClaim? Identity;
+    private List<UserClaim>? _userClaims;
+    private UserClaim? _identity;
 
     protected override async Task OnInitializedAsync()
     {
-        UserClaims = await LoginService.GetUser();
-        if (UserClaims != null)
+        _userClaims = await LoginService.GetUser();
+        if (_userClaims != null)
         {
-            Identity = UserClaims?.Where(claim => claim.Type == ClaimTypes.Name).FirstOrDefault();
+            _identity = _userClaims?.Where(claim => claim.Type == ClaimTypes.Name).FirstOrDefault();
         }
     }
 
     protected void Login(UserClaim loginClaim)
     {
-        Identity = loginClaim;
+        _identity = loginClaim;
         LoginService.CloseLoginDialog();
         
         NavigationManager.NavigateTo("/", true);
     }
 
-    private async Task<IActionResult> Logout()
+    private async Task Logout()
     {
         await LoginService.LogUserOut();
 
-        Identity = null;
+        _identity = null;
 
-        return new LocalRedirectResult("/");
+        NavigationManager.NavigateTo("/", true);
     }
 
     protected void LoginCancel()
