@@ -4,6 +4,11 @@
 
 <div class="main">
     <h3>Borrow / Lend book</h3>
+    <div class="control-panel">
+        <div class="child2">
+            <BookCategory @ref="BookCategory"/>
+        </div>
+    </div>
     <div class="navbar-toggler">
         <div class="nav-scrollable">
             <CascadingValue Value="BorrowLendViewService">
@@ -28,11 +33,25 @@
 
 @code {
 
+    private BookCategory? BookCategory;
+
     protected override void OnInitialized()
     {
         BorrowLendViewService.NotifyPageChanged(this, BorrowLendViewService.PaginationState.PageSize);
         BorrowLendViewService.ItemSelected += (sender, i) => InvokeAsync(StateHasChanged);
         BorrowLendViewService.ItemChanged += (sender, args) => InvokeAsync(StateHasChanged);
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return Task.CompletedTask;
+        if (BookCategory == null) return Task.CompletedTask;
+        BookCategory.ValueChanged += (sender, state) =>
+        {
+            BorrowLendViewService.PaginationState.BookState = state;
+            BorrowLendViewService.NotifyPageChanged(this, BorrowLendViewService.PaginationState.PageSize);
+        };
+        return Task.CompletedTask;
     }
 
     private static void OnCancel()

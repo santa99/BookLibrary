@@ -46,7 +46,7 @@ public class BookViewService : IListViewService<BookModel>
     
     private async ValueTask GetItemsAsync()
     {
-        var result = await BooksService.GetAllBooks(PaginationState.StartWindow, PaginationState.PageSize);
+        var result = await BooksService.GetAllBooks(PaginationState.BookState, PaginationState.StartWindow, PaginationState.PageSize);
         if (result.Successful)
         {
             Items = result.Items;

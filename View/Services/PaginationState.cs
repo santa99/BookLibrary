@@ -1,10 +1,27 @@
-﻿namespace View.Services;
+﻿using Contracts.Enums;
+
+namespace View.Services;
 
 /// <summary>
 /// Class <see cref="PaginationState"/> represents and holds all values for the correct pagination.
 /// </summary>
 public class PaginationState
 {
+    private BookState _bookState = BookState.All;
+
+    /// <summary>
+    /// Book state. Doesn't belong to pagination but rather in some kind of filter.
+    /// </summary>
+    public BookState BookState
+    {
+        get => _bookState;
+        set
+        {
+            _bookState = value;
+            Page = 1;
+        }
+    }
+
     /// <summary>
     /// Number of element per page.
     /// </summary>

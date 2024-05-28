@@ -123,17 +123,19 @@ public class BookLibraryRepository : IBookLibraryRepository
     public Task<List<BookModel>> ListBooks(BookState bookState, CancellationToken cancellationToken, int count = -1, int start = 0)
     {
         var bookModels = _bookLibraryDao.GetBooks();
-
+        
+        bookModels = bookState switch
+        {
+            BookState.All => bookModels,
+            BookState.Free => bookModels.Where(model => model.Borrowed == null).ToList(),
+            BookState.Borrowed => bookModels.Where(model => model.Borrowed != null).ToList(),
+            _ => bookModels
+        };
+        
         count = count == -1 ? bookModels.Count : count;
         var rangeWindow = start + count;
         var range = bookModels.Where((_, i) => i >= start && i < rangeWindow).ToList();
 
-        return Task.FromResult(bookState switch
-        {
-            BookState.All => range,
-            BookState.Free => range.Where(model => model.Borrowed == null).ToList(),
-            BookState.Borrowed => range.Where(model => model.Borrowed != null).ToList(),
-            _ => bookModels
-        });
+        return Task.FromResult(range);
     }
 }

@@ -12,7 +12,7 @@ public interface IListViewService<out TRecord> : IPaginationService
     public IEnumerable<TRecord> Items { get; }
 
     /// <summary>
-    /// Observer defined to listen to list changed.
+    /// Observer defined to listen to list changes.
     /// </summary>
     public event EventHandler? ListChanged;
     

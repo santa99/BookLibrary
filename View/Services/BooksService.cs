@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Contracts.Enums;
 using Contracts.Models;
 using Contracts.Models.Responses;
 using Microsoft.AspNetCore.Mvc;
@@ -78,20 +79,20 @@ public class BooksService
         };
     }
 
-    public async ValueTask<ItemsQueryResult<BookModel>> GetAllBooks(int start = 0, int count = -1)
+    public async ValueTask<ItemsQueryResult<BookModel>> GetAllBooks(BookState bookState, int start = 0, int count = -1)
     {
         // TODO: this needs a new endpoint for retrieving only count.
-        var totalCount = (await  GetBooks(0, -1)).Count;
-        var books = await GetBooks(start, count);
+        var totalCount = (await  GetBooks(bookState)).Count;
+        var books = await GetBooks(bookState, start, count);
 
         return new ItemsQueryResult<BookModel>(books, totalCount, true);
     }
     
-    public async Task<List<BookModel>> GetBooks(int start = 0, int count = -1)
+    public async Task<List<BookModel>> GetBooks(BookState bookState, int start = 0, int count = -1)
     {
         using var client = CreateClient();
 
-        var res = await client.GetAsync($"/api/book/select/-1/{start}/{count}");
+        var res = await client.GetAsync($"/api/book/select/{(int)bookState}/{start}/{count}");
         var bookModels = new List<BookModel>();
 
         var response = res.Content.ReadAsStringAsync().Result;

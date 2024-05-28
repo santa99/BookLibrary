@@ -61,7 +61,7 @@ public class LibraryController : Controller
     /// <returns><see cref="BookModel"/> when sucessed.</returns>
     [HttpGet("/api/book/get/{bookId}")]
     [ProducesResponseType(typeof(BookModel), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(BookModel), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorCodeModel), StatusCodes.Status404NotFound)]
     public async Task<BookModel?> GetBook(int bookId, CancellationToken cancellationToken)
     {
         var bookModel = await _bookLibraryRepository.GetBook(bookId, cancellationToken);

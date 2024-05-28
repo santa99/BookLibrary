@@ -1,0 +1,28 @@
+﻿@using Contracts.Enums
+<EditForm EditContext="@_editContext">
+    <InputSelect @bind-Value="@Current">
+
+        @foreach (var bookState in Enum.GetValues(typeof(BookState)))
+        {
+            <option value="@bookState">@bookState</option>
+        }
+    </InputSelect>
+</EditForm>
+
+@code {
+
+    public event EventHandler<BookState>? ValueChanged;
+    private EditContext? _editContext;
+    public BookState Current { get; set; } = BookState.All;
+
+    protected override Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(Current);
+        _editContext.OnFieldChanged += (_, _) =>
+        {
+            ValueChanged?.Invoke(this, Current);
+        };
+        return Task.CompletedTask;
+    }
+
+}
