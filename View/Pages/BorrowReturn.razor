@@ -1,9 +1,9 @@
-﻿@page "/BorrowLend"
+﻿@page "/BorrowReturn"
 @using View.Data
-@inject IBorrowLendViewService BorrowLendViewService;
+@inject IBorrowReturnViewService BorrowReturnViewService;
 
 <div class="main">
-    <h3>Borrow / Lend book</h3>
+    <h3>Borrow / Return book</h3>
     <div class="control-panel">
         <div class="child2">
             <BookCategory @ref="BookCategory"/>
@@ -11,21 +11,21 @@
     </div>
     <div class="navbar-toggler">
         <div class="nav-scrollable">
-            <CascadingValue Value="BorrowLendViewService">
+            <CascadingValue Value="BorrowReturnViewService">
                 <BorrowTable/>
             </CascadingValue>
         </div>
     </div>
     <div class="control-panel">
         <div class="child2">
-            <Pagination Service="BorrowLendViewService"/>
+            <Pagination Service="BorrowReturnViewService"/>
         </div>
     </div>
 </div>
 
-@if (BorrowLendViewService.BorrowState.ShowingBookConfigurationDialog)
+@if (BorrowReturnViewService.BorrowState.ShowingBookConfigurationDialog)
 {
-    <CascadingValue Value="BorrowLendViewService">
+    <CascadingValue Value="BorrowReturnViewService">
         <BorrowBookDialog OnCancel="OnCancel"/>
     </CascadingValue>
 }
@@ -37,9 +37,9 @@
 
     protected override void OnInitialized()
     {
-        BorrowLendViewService.NotifyPageChanged(this, BorrowLendViewService.PaginationState.PageSize);
-        BorrowLendViewService.ItemSelected += (sender, i) => InvokeAsync(StateHasChanged);
-        BorrowLendViewService.ItemChanged += (sender, args) => InvokeAsync(StateHasChanged);
+        BorrowReturnViewService.NotifyPageChanged(this, BorrowReturnViewService.PaginationState.PageSize);
+        BorrowReturnViewService.ItemSelected += (sender, i) => InvokeAsync(StateHasChanged);
+        BorrowReturnViewService.ItemChanged += (sender, args) => InvokeAsync(StateHasChanged);
     }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
@@ -48,8 +48,8 @@
         if (BookCategory == null) return Task.CompletedTask;
         BookCategory.ValueChanged += (sender, state) =>
         {
-            BorrowLendViewService.PaginationState.BookState = state;
-            BorrowLendViewService.NotifyPageChanged(this, BorrowLendViewService.PaginationState.PageSize);
+            BorrowReturnViewService.PaginationState.BookState = state;
+            BorrowReturnViewService.NotifyPageChanged(this, BorrowReturnViewService.PaginationState.PageSize);
         };
         return Task.CompletedTask;
     }

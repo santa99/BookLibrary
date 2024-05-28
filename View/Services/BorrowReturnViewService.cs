@@ -5,7 +5,7 @@ using View.Exceptions;
 
 namespace View.Services;
 
-public class BorrowLendViewService : BookViewService, IBorrowLendViewService
+public class BorrowReturnViewService : BookViewService, IBorrowReturnViewService
 {
     private readonly ReadersInfoService _readersInfoService;
     public event EventHandler<int>? ItemSelected;
@@ -16,7 +16,7 @@ public class BorrowLendViewService : BookViewService, IBorrowLendViewService
     /// </summary>
     public BorrowState BorrowState { get; }
 
-    public BorrowLendViewService(BooksService booksService, ReadersInfoService readersInfoService) : base(booksService)
+    public BorrowReturnViewService(BooksService booksService, ReadersInfoService readersInfoService) : base(booksService)
     {
         BorrowState = new BorrowState();
         _readersInfoService = readersInfoService;

@@ -18,7 +18,7 @@
                 @if (Book.Borrowed == null)
                 {
                     <select class="select" @onchange="SelectReader">
-                        @foreach (var readersInfo in BorrowLendViewService.BorrowState.ReadersList)
+                        @foreach (var readersInfo in BorrowReturnViewService.BorrowState.ReadersList)
                         {
                             <option value="@readersInfo.ReaderCardId">@readersInfo.FirstName @readersInfo.LastName</option>
                         }
@@ -46,7 +46,7 @@
 
 @code {
 
-    [CascadingParameter] public IBorrowLendViewService BorrowLendViewService { get; set; } = default!;
+    [CascadingParameter] public IBorrowReturnViewService BorrowReturnViewService { get; set; } = default!;
     
     [Parameter] public EventCallback<bool> OnCancel { get; set; }
 
@@ -54,31 +54,31 @@
 
     protected override void OnInitialized()
     {
-        BorrowLendViewService.ItemSelected += BorrowLendViewServiceOnItemSelected;
-        Book = BorrowLendViewService.BorrowState.CurrentBook;
+        BorrowReturnViewService.ItemSelected += BorrowReturnViewServiceOnItemSelected;
+        Book = BorrowReturnViewService.BorrowState.CurrentBook;
     }
 
     public void Dispose()
     {
-        BorrowLendViewService.ItemSelected -= BorrowLendViewServiceOnItemSelected;
+        BorrowReturnViewService.ItemSelected -= BorrowReturnViewServiceOnItemSelected;
     }
 
-    private void BorrowLendViewServiceOnItemSelected(object? sender, int bookId)
+    private void BorrowReturnViewServiceOnItemSelected(object? sender, int bookId)
     {
-        Book = BorrowLendViewService.BorrowState.CurrentBook;
+        Book = BorrowReturnViewService.BorrowState.CurrentBook;
     }
 
     private void SelectReader(ChangeEventArgs changeEvent)
     {
         if (int.TryParse(changeEvent.Value?.ToString(), out var newReadersCardId) && newReadersCardId != -1)
         {
-            BorrowLendViewService.BorrowState.SelectReader(newReadersCardId);
+            BorrowReturnViewService.BorrowState.SelectReader(newReadersCardId);
         }
     }
 
     private async Task CancelSelection()
     {
-        BorrowLendViewService.BorrowState.CancelConfigureDialog();
+        BorrowReturnViewService.BorrowState.CancelConfigureDialog();
         
         await OnCancel.InvokeAsync();
         
@@ -87,12 +87,12 @@
 
     private async Task BorrowBook()
     {
-        await BorrowLendViewService.NotifyBookBorrowed();
+        await BorrowReturnViewService.NotifyBookBorrowed();
     }
 
     private async Task ReturnBook()
     {
-        await BorrowLendViewService.NotifyBookReturned();
+        await BorrowReturnViewService.NotifyBookReturned();
     }
 
 }

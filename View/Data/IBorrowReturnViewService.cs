@@ -3,7 +3,7 @@ using View.Services;
 
 namespace View.Data;
 
-public interface IBorrowLendViewService : IListViewService<BookModel>, ISelectable<int>
+public interface IBorrowReturnViewService : IListViewService<BookModel>, ISelectable<int>
 {
     /// <summary>
     /// Borrow state hold the state of the borrowed lend books.

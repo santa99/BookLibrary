@@ -17,7 +17,7 @@ builder.Services.AddSingleton<LoginService>();
 builder.Services.AddSingleton<BooksService>();
 builder.Services.AddTransient<BookViewService>();
 builder.Services.AddTransient<IListViewService<BookModel>, BookViewService>();
-builder.Services.AddTransient<IBorrowLendViewService, BorrowLendViewService>();
+builder.Services.AddTransient<IBorrowReturnViewService, BorrowReturnViewService>();
 builder.Services.AddTransient<IEditableListViewService<BookModel>, EditableBookViewService>();
 
 
