@@ -30,6 +30,9 @@
     background: #4FC3A1;
 }
 
+.fl-table tr {
+    height: 70px;
+}
 
 .fl-table thead th:nth-child(odd) {
     color: #ffffff;
