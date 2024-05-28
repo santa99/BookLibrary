@@ -17,8 +17,4 @@
     <ItemGroup>
       <Compile Remove="Controllers\ReadersController.cs" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Controllers\" />
-    </ItemGroup>
 </Project>

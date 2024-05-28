@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Library xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<Library>
   <Book id="1">
     <Name>Starec a more</Name>
     <Author>Ernest Hemingway</Author>
     <Borrowed>
-      <FirstName>Tibor</FirstName>
-      <LastName>Vesely</LastName>
-      <From>1. 1. 0001 0:00:00 +00:00</From>
+      <FirstName>Peter</FirstName>
+      <LastName>Prvy</LastName>
+      <From>25.3.2016</From>
     </Borrowed>
   </Book>
   <Book id="2">
     <Name>Romeo a Julia</Name>
     <Author>William Shakespeare</Author>
     <Borrowed>
-      <FirstName>Ivan</FirstName>
-      <LastName>Maly</LastName>
-      <From>1. 1. 0001 0:00:00 +00:00</From>
+      <FirstName>Lukas</FirstName>
+      <LastName>Druhy</LastName>
+      <From>16.6.2018</From>
     </Borrowed>
   </Book>
   <Book id="3">
@@ -24,34 +24,24 @@
     <Borrowed>
       <FirstName>Matej</FirstName>
       <LastName>Treti</LastName>
-      <From>1. 2. 2017 0:00:00 +01:00</From>
+      <From>1.2.2017</From>
     </Borrowed>
   </Book>
   <Book id="4">
     <Name>Hajnikova zena</Name>
     <Author>P.O.Hviezdoslav</Author>
-    <Borrowed>
-      <FirstName>X</FirstName>
-      <LastName>Y</LastName>
-      <From>25. 10. 2009 0:00:00 +02:00</From>
-    </Borrowed>
   </Book>
   <Book id="5">
     <Name>Hamlet</Name>
     <Author>W. Shakespeare</Author>
     <Borrowed>
-      <FirstName>Marek</FirstName>
-      <LastName>Blanar</LastName>
-      <From>30. 4. 2024 0:00:00 +02:00</From>
+      <FirstName>Jozef</FirstName>
+      <LastName>Stvrty</LastName>
+      <From>25.10.2009</From>
     </Borrowed>
   </Book>
-  <Book id="6">
+  <Book id="5">
     <Name>Zivy bic</Name>
     <Author>Milo Urban</Author>
-    <Borrowed>
-      <FirstName>Marek</FirstName>
-      <LastName>Blanar</LastName>
-      <From>22. 5. 2024 0:00:00 +02:00</From>
-    </Borrowed>
   </Book>
 </Library>

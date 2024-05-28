@@ -2,7 +2,7 @@
 
 # O projekte:
 
-Aplikaciu som vypracoval pri plnom vedome a svedomi.
+Aplikaciu som vypracoval pri plnom vedomi a svedomi.
 - Sustredil som sa na oddelenie vrstiev avsak View(prezentacia) je sucastou API projektu. To by slo este rozdelit.
 - Contracts obsahuju vsetky modely ktore pouziva Api aj DataAccess. Zaroven su tu obsiahnute dva DAO kontrakty(data access object) a dva kontrakty pre repozitare.
 - Implementacia DAOs (`BookLibraryDaoImpl`, `ReadersInfoDaoImpl`) a Repositories (`BookLibraryRepository`, `ReadersInfoRepository`) je v DataAccess konkretne.

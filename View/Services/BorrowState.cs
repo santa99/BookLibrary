@@ -1,5 +1,4 @@
 ﻿using Contracts.Models;
-using View.Exceptions;
 
 namespace View.Services;
 

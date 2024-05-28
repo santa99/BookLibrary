@@ -25,15 +25,6 @@ builder.Services.AddHttpClient();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
-// builder.Services.AddScoped<SessionIdHandler>();
-// builder.Services.ConfigureAll<HttpClientFactoryOptions>(options =>
-// {
-//     options.HttpMessageHandlerBuilderActions.Add(builder =>
-//     {
-//         builder.AdditionalHandlers.Add(builder.Services.GetRequiredService<SessionIdHandler>());
-//     });
-// });
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
