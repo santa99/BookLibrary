@@ -1,4 +1,15 @@
 
+## Zmeny ku dnu 28.5.2024
+- Pribudla View aplikacia vytvorena v Blazor. 
+- Tato aplikacia ponuka zakladne CRUD operacia s knihami ADD/REMOVE/EDIT
+- Rozsirenie o poziciavanie knih na samostatnej karte Borrow / Return + Filtracia podla typu (Free, Borrowed, All)
+- Vytvorene strankovanie kvoli obmedzeniu viditelnej casti obsahu.
+poziciavanie a vratenie knihy.
+- Pribudol CHANGELOG.md
+- Pribudol Swagger s vyplnenou dokumentaciu
+- Pribudla authentifikacia s Cookies schemou.
+- Pribudli Logger (Serilog) ktory loguju vsetko + specificky logger na komunikaciu smerom do sluzby do suboru C:/Logs/Http/intraffic.txt
+- Opravene status kody z REST APIcka
 
 # O projekte:
 
